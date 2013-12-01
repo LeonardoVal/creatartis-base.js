@@ -4,8 +4,6 @@
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
 	@licence MIT Licence
 */
-//TODO delegate - Construir interface con miembros función en bind.
-
 // Objects and object orientation. /////////////////////////////////////////////
 
 /** declare(supers..., members={}):

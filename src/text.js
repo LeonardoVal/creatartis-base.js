@@ -4,9 +4,8 @@
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
 	@licence MIT Licence
 */
-//TODO Complete formatting options with numbers, arrays and objects.
-
 // Text ////////////////////////////////////////////////////////////////////////
+
 var Text = exports.Text = declare({
 	/** new Text():
 		Similar to Java's StringBuilder, but with extended formatting features.

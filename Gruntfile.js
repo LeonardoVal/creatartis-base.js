@@ -20,14 +20,13 @@ module.exports = function(grunt) {
 		concat: {
 			options: {
 				separator: '\n\n',
-				// Wrap concatenation in a RequireJS define call.
 				banner: '('+ umdWrapper +')(function (){ var exports = {};\n',
 				footer: '\nreturn exports;\n});'
 			},
 			build: {
-				src: ['src/level.js', 'src/basis.js', 'src/text.js', 
-					'src/iterables.js', 'src/async.js', 'src/typed.js', 
-					'src/randomness.js', 'src/functional.js',
+				src: ['src/basis.js', 'src/text.js', 'src/typed.js',
+					'src/iterables.js', 'src/async.js', 'src/functional.js',
+					'src/randomness.js', 
 					'src/stats.js', 'src/log.js', 'src/unittest.js'],
 				dest: './<%= pkg.name %>.js',
 			},

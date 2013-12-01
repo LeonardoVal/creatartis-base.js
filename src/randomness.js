@@ -4,11 +4,6 @@
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
 	@licence MIT Licence
 */
-//TODO Randomness.triangular_distribution, check <http://en.wikipedia.org/wiki/Triangular_distribution#Generating_Triangular-distributed_random_variates>.
-//TODO Randomness.normal_distribution, check <http://en.wikipedia.org/wiki/Normal_distribution#Generating_values_from_normal_distribution>
-//TODO Implementar Linear feedback shift register <http://www.xilinx.com/support/documentation/application_notes/xapp052.pdf>.
-//TODO Implementar Mersenne twister <http://en.wikipedia.org/wiki/Mersenne_twister>.
-
 // Randomness //////////////////////////////////////////////////////////////////
 
 var Randomness = exports.Randomness = declare({

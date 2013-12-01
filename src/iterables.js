@@ -5,25 +5,6 @@
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
 	@licence MIT Licence
 */
-//TODO basis.Iterable.slice(from, to, step) similar al operador [::] de Python.
-//TODO basis.Iterable.tail() retorna otro iterable sin el primer elemento.
-//TODO basis.Iterable.tails() retorna un iterable con iterables para todos los sufijos de la secuencia.
-//TODO basis.Iterable.init() retorna otro iterable sin el último elemento.
-//TODO basis.Iterable.inits() retorna un iterable con iterables para todos los prefijos de la secuencia.
-//TODO basis.Iterable.take(n=1) retorna un iterable con los primeros n elementos.
-//TODO basis.Iterable.drop(n=1) retorna un iterable sin los primeros n elementos.
-//TODO basis.Iterable.takeWhile(condition) retorna un iterable con los primeros elementos que cumplen la condición.
-//TODO basis.Iterable.dropWhile(condition) retorna un iterable sin los primeros elementos que cumplen la condición.
-//TODO basis.Iterable.indexOf(x) retorna el índice de la primera ocurrencia de x en la secuencia, o -1.
-//TODO basis.Iterable.indexesOf(x) retorna un iterable con los índices de las ocurrencias de x en la secuencia.
-//TODO basis.Iterable.indexOfSlice(condition) retorna el índice de la primer ocurrencia de la subsecuencia en la secuencia, o -1.
-//TODO basis.Iterable.indexesOfSlice(condition) retorna un iterable con los índices de las ocurrencias de la subsecuencia en la secuencia.
-//TODO basis.Iterable.indexWhere(condition) retorna el índice del primer elemento en la secuencia que cumple la condición, o -1.
-//TODO basis.Iterable.indexesWhere(condition) retorna un iterable con los índices de los elementos en la secuencia que cumple la condición.
-//TODO basis.Iterable.groupBy(f) retorna un objeto con iterables para cada valor retornado por f y los valores correspondientes.
-//TODO basis.Iterable.partition(condition) retorna dos iterables con los elementos que no cumplen y cumplen la condición dada.
-//TODO basis.Iterable.pad(length, value) retorna otro iterable rellenado por derecha hasta el largo dado con el valor dado.
-
 // Iterable constructor. ///////////////////////////////////////////////////////
 	
 /** new Iterable(it):

@@ -4,10 +4,6 @@
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
 	@licence MIT Licence
 */
-//TODO Function.memoize(function, cacheSize=100, hashFunction=JSON.stringify().hashCode().toString(36)).
-//TODO Function.compose(functions...)
-//TODO Function.decelerate(timesPerSecond=1, onStopping) // See <http://underscorejs.org/#throttle>
-
 // Events //////////////////////////////////////////////////////////////////////
 
 var Events = exports.Events = declare({
