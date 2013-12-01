@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html><head>
+<script src="../node_modules/requirejs/require.js"></script>
+</head><body onload="main();">
+<script type="text/javascript"> "use strict";
+function main() {
+	require(['../basis.min'], function (basis) {
+		window.basis = basis;
+		(function (s){ // See: <http://jsconsole.com>.
+			s.src = 'http://jsconsole.com/inject.js';
+			document.body.appendChild(s);
+		})(document.createElement('script'));
+	}, function (error) {
+		throw error;
+	});
+}
+</script>
+</body></html>
