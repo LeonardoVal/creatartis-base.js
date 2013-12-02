@@ -20,7 +20,7 @@ module.exports = function(grunt) {
 		concat: {
 			options: {
 				separator: '\n\n',
-				banner: '('+ umdWrapper +')(function (){ var exports = {};\n',
+				banner: '"use strict"; ('+ umdWrapper +')(function (){ var exports = {};\n',
 				footer: '\nreturn exports;\n});'
 			},
 			build: {
