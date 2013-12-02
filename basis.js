@@ -7,219 +7,12 @@
 		(0, eval)('this').basis = init(); // Global namespace.
 	}
 })(function (){ var exports = {};
-/** basis/level.js:
-	Leveling of native prototypes for outdated engines.
-	
-	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
-	@licence MIT Licence
-*/
-function __ifAbsent__(obj, id, member) {
-	if (!obj.hasOwnProperty(id)) {
-		obj[id] = member;
-	}
-}
-
-// Function ////////////////////////////////////////////////////////////////////
-
-__ifAbsent__(Function.prototype, 'bind', function bind() {
-	var _function = this,
-		_this = arguments[0],
-		_args = Array.prototype.slice.call(arguments, 1);
-	return function bound() {
-		return _function.apply(_this, _args.concat(Array.prototype.slice.call(arguments)));
-	};
-});
-
-// String. /////////////////////////////////////////////////////////////////////
-
-__ifAbsent__(String.prototype, 'contains', function contains(searchString, position) {
-	position = isNaN(position) ? 0 : +position|0;
-	searchString = searchString +'';
-	var len = searchString.length;
-	for (; position + len <= this.length; position++) {
-		if (this.substr(position, len) == searchString) {
-			return true;
-		}
-	}
-	return false;
-});
-
-__ifAbsent__(String.prototype, 'endsWith', function endsWith(searchString, endPosition) {
-	throw new Error("String.prototype.endsWith() has not been implemented."); //FIXME
-});
-
-/* String.repeat(count=0):
-	Returns this string repeated n times.
-	See <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/prototype#Examples>.
-*/
-__ifAbsent__(String.prototype, 'repeat', function repeat(count) {
-	count = +count;
-	if (isNaN(count) || count <= 0) {
-		return '';
-	} else if (count === 1) {
-		return this;
-	} else {
-		var result = this.repeat(count >> 1);
-		return count % 2 ? result + result + this : result + result;
-	}
-});
-
-__ifAbsent__(String.prototype, 'startsWith', function startsWith() {
-	throw new Error("String.prototype.startsWith() has not been implemented."); //FIXME
-});
-
-// Number //////////////////////////////////////////////////////////////////////
-
-__ifAbsent__(Number, 'isNaN', function isNaN() {
-	/* See <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isNaN>. */
-	return typeof n === 'number' && isNaN(n);
-});
-
-// Array. //////////////////////////////////////////////////////////////////////
-
-__ifAbsent__(Array, 'of', function of() {
-	return Array.prototype.slice.call(arguments);
-});
-
-__ifAbsent__(Array.prototype, 'copyWithin', function copyWithin(target, start, end) {
-	throw new Error("Array.prototype.copyWithin() has not been implemented."); //FIXME
-}); 
-
-__ifAbsent__(Array.prototype, 'every', function every(callbackfn, thisArg) {
-	throw new Error("Array.prototype.every() has not been implemented."); //FIXME
-});
-
-__ifAbsent__(Array.prototype, 'fill', function fill(value, start, end) {
-	throw new Error("Array.prototype.fill() has not been implemented."); //FIXME
-});
-
-__ifAbsent__(Array.prototype, 'filter', function filter(callbackfn, thisArg) {
-	throw new Error("Array.prototype.filter() has not been implemented."); //FIXME
-});
-
-__ifAbsent__(Array.prototype, 'find', function find(predicate, thisArg) {
-	throw new Error("Array.prototype.find() has not been implemented."); //FIXME
-});
-
-__ifAbsent__(Array.prototype, 'findIndex', function findIndex(predicate, thisArg) {
-	throw new Error("Array.prototype.find() has not been implemented."); //FIXME
-});
-
-__ifAbsent__(Array.prototype, 'forEach', function forEach(callbackfn, thisArg) {
-	throw new Error("Array.prototype.forEach() has not been implemented."); //FIXME
-});
-
-__ifAbsent__(Array.prototype, 'map', function map(callbackfn, thisArg) {
-	throw new Error("Array.prototype.map() has not been implemented."); //FIXME
-});
-
-__ifAbsent__(Array.prototype, 'some', function some(callbackfn, thisArg) {
-	throw new Error("Array.prototype.some() has not been implemented."); //FIXME
-});
-
-/* TODO
-// Array. //////////////////////////////////////////////////////////////////////
-
-	__augment__(Array.prototype, {
-		/** Array.repeat(n=0):
-			Returns this array repeated n times. Similar to <String.repeat>.
-		* /
-		repeat: function repeat(n) {
-			n = +n;
-			if (isNaN(n) || n <= 0) {
-				return [];
-			} else if (n === 1) {
-				return this.slice();
-			} else {
-				var result = this.repeat(n >> 1);
-				return n % 2 ? result.concat(result).concat(this) : result.concat(result);
-			}
-		}
-	});
-	
-	__level__(Array.prototype, {
-		/* See <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map>.
-		* /
-		map: function map(callback, _this) {
-			if (typeof callback !== "function") {
-				throw new TypeError("Array.map: callback is not a function!");
-			}
-			var len = this.length >>> 0, result = new Array(len), i;
-			for(i = 0; i < len; i++) if (i in this) {
-				result[i] = callback.call(_this, this[i], i, this);
-			}
-			return result;
-		},
-		
-		/* See <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter>.
-		* /
-		filter: function filter(callback, _this) {
-			if (typeof callback !== "function") {
-				throw new TypeError("Array.filter: callback is not a function!");
-			}
-			var len = this.length >>> 0, result = [], i;
-			for(i = 0; i < len; i++) {
-				if (i in this && callback.call(_this, this[i], i, this)) {
-					result.push(this[i]);
-				}
-			}
-			return result;
-		},
-		
-		/* See <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach>.
-		* /
-		forEach: function forEach(callback, _this) {
-			if (typeof callback !== "function") {
-				throw new TypeError("Array.forEach: callback is not a function!");
-			}
-			for (var i = 0, len = this.length; i < len; ++i) if (i in this) {
-				callback.call(_this, this[i], i, this);
-			}
-		}
-		
-		//TODO <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every>.
-		//TODO <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some>.
-		//TODO <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf>.
-		//TODO <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf>.
-	});
-
-// Function. ///////////////////////////////////////////////////////////////////
-
-	__augment__(Function.prototype, {
-		/** lowpass(maxFrequency=1, this, args...):
-			Returns a function that limits the calls to this function upto the 
-			given maximum frequency (in calls per second).
-			See Underscore's throttle().
-		* /
-		lowpass: function lowpass(maxFrequency, _this) {
-			maxFrequency = isNaN(maxFrequency) ? 1 : +maxFrequency;
-			var minTime = Math.round(1000 / maxFrequency),
-				f = this,
-				lastTime = -Infinity,
-				lastResult;
-			return function () {
-				var time = Date.now();
-				if (time - lastTime >= minTime) {
-					lastTime = time;
-					return lastResult = f.apply(typeof _this === 'undefined' ? this : _this, arguments);
-				} else {
-					return lastResult;
-				}
-			};
-		}		
-	});
-*/
-
-
-
 /** basis/src/basis.js:
 	Core generic algorithms and utility definitions.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
 	@licence MIT Licence
 */
-//TODO delegate - Construir interface con miembros funci�n en bind.
-
 // Objects and object orientation. /////////////////////////////////////////////
 
 /** declare(supers..., members={}):
@@ -345,9 +138,8 @@ var callStack = exports.callStack = function callStack(exception) {
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
 	@licence MIT Licence
 */
-//TODO Complete formatting options with numbers, arrays and objects.
-
 // Text ////////////////////////////////////////////////////////////////////////
+
 var Text = exports.Text = declare({
 	/** new Text():
 		Similar to Java's StringBuilder, but with extended formatting features.
@@ -489,6 +281,497 @@ Text.rpad = function rpad(str, len, pad) {
 	}
 };
 
+/** basis/typed.js:
+	Functions and definitions regarding type checking, constraints,	validation 
+	and coercion.
+
+	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
+	@licence MIT Licence
+*/
+// Type representations. ///////////////////////////////////////////////////////
+var types = exports.types = {};
+
+var Type = exports.Type = function Type(defs) {
+	defs = defs || {};
+	if (defs.hasOwnProperty('isType') && typeof defs.isType === 'function') {
+		this.isType = defs.isType;
+	}
+	if (defs.hasOwnProperty('isCompatible') && typeof defs.isCompatible === 'function') {
+		this.isCompatible = defs.isCompatible;
+	}
+	if (defs.hasOwnProperty('coerce') && typeof defs.coerce === 'function') {
+		this.coerce = defs.coerce;
+	}
+	if (defs.hasOwnProperty('toString') && typeof defs.toString === 'string') {
+		var typeString = defs.toString;
+		this.toString = function toString() {
+			return typeString;
+		};
+	}
+};
+
+/** Type.isCompatible(value):
+	Returns if the value is assignment compatible with this type. By default
+	the only compatible values are the ones in the type itself. But it can
+	be overriden to allow subtypes and coercions.
+*/
+Type.prototype.isCompatible = function isCompatible(value) {
+	return this.isType(value);
+};
+
+/** Type.incompatibleError(value):
+	Returns an Error with a message for values incompatible with this type.
+*/
+Type.prototype.incompatibleError = function incompatibleError(value) {
+	return new TypeError("Value "+ value +" is not compatible with type "+ this +".");
+};
+
+/** Type.coerce(value):
+	Converts the value to this type, if possible and necessary. If it is not
+	possible, it raises a TypeError. This is the default behaviour.
+*/
+Type.prototype.coerce = function coerce(value) {
+	throw this.incompatibleError(value);
+};
+
+// Javascript primitive types. /////////////////////////////////////////////
+
+types.BOOLEAN = new Type({
+	isType: function isType(value) {
+		return typeof value === 'boolean' || 
+			value !== undefined && value !== null && value.constructor === Boolean;
+	},
+	isCompatible: function isCompatible(value) {
+		return true; // Can always coerce to boolean.
+	},
+	coerce: function coerce(value) {
+		return !!value;
+	},
+	toString: "boolean"
+});
+
+types.NUMBER = new Type({
+	isType: function isType(value) {
+		return typeof value === 'number' || 
+			value !== undefined && value !== null && value.constructor === Number;
+	},
+	isCompatible: function isCompatible(value) {
+		return true; // Can always coerce to number.
+	},
+	coerce: function coerce(value) {
+		return +value;
+	},
+	toString: "number"
+});
+
+types.STRING = new Type({
+	isType: function isType(value) {
+		return typeof value === 'string' || 
+			value !== undefined && value !== null && value.constructor === String;
+	},
+	isCompatible: function isCompatible(value) {
+		return true; // Can always coerce to string.
+	},
+	coerce: function coerce(value) {
+		return ''+ value;
+	},
+	toString: "string"
+});
+
+types.FUNCTION = new Type({
+	isType: function isType(value) {
+		return typeof value === 'function' || 
+			value !== undefined && value !== null && value.constructor === Function;
+	},
+	toString: "function"
+});
+
+// Simple types. ///////////////////////////////////////////////////////////
+
+types.INTEGER = new Type({
+	isType: function isType(value) {
+		return (value << 0) === value;
+	},
+	isCompatible: function isCompatible(value) {
+		return !isNaN(value);
+	},
+	coerce: function coerce(value) {
+		return +value >> 0;
+	},
+	toString: "integer"
+});
+
+types.CHARACTER = new Type({
+	isType: function isType(value) {
+		return types.STRING.isType(value) && value.length === 1;
+	},
+	isCompatible: function isCompatible(value) {
+		return (''+ value).length > 0;
+	},
+	coerce: function coerce(value) {
+		return (''+ value).charAt(0);
+	},
+	toString: "character"
+});
+
+// Object types. ///////////////////////////////////////////////////////////
+
+/** types.OBJECT:
+	Basic Object type (no constructor or member constraints).
+*/
+types.OBJECT = new Type({
+	isType: function isType(value) {
+		return typeof value === 'object';
+	},
+	isCompatible: function isCompatible(value) {
+		return typeof value !== 'function';
+	},
+	coerce: function coerce(value) {
+		switch (typeof value) {
+			case 'function': throw this.incompatibleError(value);
+			case 'object': return value;
+			default: return Object(value);
+		}
+	},
+	toString: "object"
+});
+
+/** new types.ObjectType(defs):
+	An object type is defined by a constructor function and/or a set of
+	members, each defined by an id and a type.
+*/
+var ObjectType = types.ObjectType = function ObjectType(defs) {
+	Type.call(this, {});
+	if (defs.hasOwnProperty("constructor") && typeof def.constructor === 'function') {
+		this.instanceOf = defs.constructor;
+		delete defs.constructor;
+	} else {
+		this.instanceOf = null;
+	}
+	this.members = defs.members || {};
+};
+ObjectType.prototype = new Type();
+ObjectType.prototype.constructor = ObjectType;
+
+/** ObjectType.isType(value):
+	Checks if the value is an object, and an instance of the specified
+	constructor of this type (if applies).
+*/
+ObjectType.prototype.isType = function isType(value) {
+	if (typeof value !== 'object') {
+		return false;
+	}
+	if (this.instanceOf && !(value instanceof this.instanceOf)) {
+		return false;
+	}
+	for (var member in this.members) {
+		if (!this.members[member].isType(value[member])) {
+			return false;
+		}
+	}
+	return true;
+};
+
+/** ObjectType.isCompatible(value):
+	Returns if the value is assignment compatible with this type. By default
+	the only compatible values are the ones in the type itself. But it can
+	be overriden to allow subtypes and coercions.
+*/
+ObjectType.prototype.isCompatible = function isCompatible(value) {
+	if (typeof value !== 'object') {
+		return false;
+	}
+	if (this.instanceOf && !(value instanceof this.instanceOf)) {
+		return false;
+	}
+	for (var member in this.members) {
+		if (!this.members[member].isCompatible(value[member])) {
+			return false;
+		}
+	}
+	return true;
+};
+
+/** ObjectType.coerce(value):
+	Converts the value to this type, if possible and necessary. If it is not
+	possible, it raises a TypeError. This is the default behaviour.
+*/
+ObjectType.prototype.coerce = function coerce(value) { 
+	var result = this.instanceOf ? new this.instanceOf(value) : {}; //TODO Check this please.
+	for (var member in this.members) {
+		result[member] = this.members[member].coerce(value[member]);
+	}
+	return result;
+};
+
+// Array types. ////////////////////////////////////////////////////////////
+
+/** types.ARRAY:
+	Basic array type (no length or element type constraints).
+*/
+types.ARRAY = new Type({
+	isType: function isType(value) {
+		return Array.isArray(value);
+	},
+	isCompatible: function isCompatible(value) {
+		return this.isType(value) || typeof value === 'string';
+	},
+	coerce: function coerce(value) {
+		if (this.isType(value)) {
+			return value;
+		} else if (typeof value === 'string') {
+			return value.split('');
+		} else {
+			throw this.incompatibleError(value);
+		}
+	},
+	toString: "array"
+});
+
+/** new types.ArrayType(elementTypes, length):
+	Type for arrays of a given length and all elements of the given type.
+*/
+var ArrayType = types.ArrayType = function ArrayType(elementTypes, length) {
+	Type.call(this, {});
+	if (!elementTypes) {
+		this.elementTypes = [];
+		this.length = +length;
+	} else if (!Array.isArray(elementTypes)) {
+		this.elementTypes = [elementTypes];
+		this.length = +length;
+	} else {
+		this.elementTypes = elementTypes;
+		this.length = isNaN(length) ? this.elementTypes.length : Math.max(+length, this.elementTypes.length);
+	}
+};
+ArrayType.prototype = new Type();
+ArrayType.prototype.constructor = ArrayType;
+
+ArrayType.prototype.isType = function isType(value) {
+	if (!Array.isArray(value) || !isNaN(this.length) && value.length !== this.length) {
+		return false;
+	}
+	if (this.elementTypes) {
+		var elementType; 
+		for (var i = 0, len = value.length; i < len; i++) {
+			elementType = this.elementTypes[Math.min(this.elementTypes.length - 1, i)]; 
+			if (!elementType.isType(value[i])) {
+				return false;
+			}
+		}
+	}
+	return true;
+};
+
+ArrayType.prototype.isCompatible = function isCompatible(value) {
+	if (!Array.isArray(value)) {
+		if (typeof value === 'string') {
+			value = value.split('');
+		} else {
+			return false;
+		}
+	}
+	if (!isNaN(this.length) || value.length < +this.length) {
+		return false;
+	}
+	if (this.elementTypes) {
+		var elementType;
+		for (var i = 0, len = value.length; i < len; i++) {
+			elementType = this.elementTypes[Math.min(this.elementTypes.length - 1, i)]; 
+			if (!elementType.isCompatible(value[i])) {
+				return false;
+			}
+		}
+	}
+	return true;
+};
+
+ArrayType.prototype.coerce = function coerce(value) {
+	if (!Array.isArray(value)) {
+		if (typeof value === 'string') {
+			value = value.split('');
+		} else {
+			throw this.incompatibleError(value);
+		}
+	} else {
+		value = value.slice(); // Make a shallow copy.
+	}
+	if (!isNaN(this.length)) { 
+		if (value.length > this.length) { // Longer arrays are truncated.
+			value = value.slice(0, this.length);
+		} else if (value.length < this.length) { // Shorter arrays cannot be coerced.
+			throw this.incompatibleError(value);
+		}
+	}
+	if (this.elementTypes) {
+		var elementType; 
+		for (var i = 0, len = value.length; i < len; i++) {
+			elementType = this.elementTypes[Math.min(this.elementTypes.length - 1, i)]; 
+			value[i] = elementType.coerce(value[i]);
+		}
+	}
+	return value;
+};
+
+// Initializers. ///////////////////////////////////////////////////////////////
+
+/** new Initializer(subject={}, args={}):
+	Initializers are object builders, allowing the declaration of default 
+	values, type checks and coercions, and other checks.
+*/		
+var Initializer = exports.Initializer = function Initializer(subject, args) {
+	this.subject = subject || {};
+	this.args = args || {};
+};
+
+/** Initializer.get(id, options):
+	Gets the value for the given id. If it is missing, options.defaultValue
+	is used as the default value if defined. Else an error is raised.
+	If options.type is defined, the value is checked to be a member of said
+	type. If options.coerce is true, the value may be coerced.
+	The function option.check can check the value further. If defined it
+	is called with the value, and is expected to raise errors on failed
+	conditions.
+	Other options include:
+	- options.regexp: the value is matched agains a regular expression.
+	- options.minimum: the value has to be greater than or equal to this value.
+	- options.maximum: the value has to be less than or equal to this value.
+*/
+Initializer.prototype.get = function get(id, options) {
+	var value, type;
+	options = options || {};
+	if (!this.args.hasOwnProperty(id)) {
+		if (!options.hasOwnProperty("defaultValue")) {
+			throw new Error(options.missingValueError || "Missing argument <"+ id +">!");
+		}
+		value = options.defaultValue;
+	} else {
+		value = this.args[id];
+	}
+	// Check type if defined.
+	type = options.type;
+	if (type && !type.isType(value)) {
+		if (!options.coerce) {
+			throw new Error(options.typeMismatchError || "Value for <"+ id +"> must be a "+ type +"!");
+		}
+		value = type.coerce(value);
+	}
+	// Check further constraints.
+	if (options.regexp && !options.regexp.exec(value)) {
+		throw new Error(options.invalidValueError || "Value <"+ value +"> for <"+ id +"> does not match "+ options.regexp +"!");
+	}
+	if (options.hasOwnProperty("minimum") && options.minimum > value) {
+		throw new Error(options.invalidValueError || "Value <"+ value +"> for <"+ id +"> must be greater than or equal to "+ options.minimum +"!");
+	}
+	if (options.hasOwnProperty("maximum") && options.maximum < value) {
+		throw new Error(options.invalidValueError || "Value <"+ value +"> for <"+ id +"> must be less than or equal to "+ options.maximum +"!");
+	}
+	if (typeof options.check === 'function') {
+		options.check.call(this.subject, value, id, options);
+	}
+	return value;
+};
+
+/** Initializer.attr(id, options={}):
+	Assigns the id property, performing all necessary verifications. If 
+	options.overwrite is false, an error is raised if the subject already 
+	has the attribute defined. If options.ignore is true, no error is raised
+	and the assignment is skipped instead. 
+*/
+Initializer.prototype.attr = function attr(id, options) {
+	options = options || {};
+	try {
+		if (options.hasOwnProperty("overwrite") && !options.overwrite && this.subject.hasOwnProperty(id)) {
+			throw new Error(options.attrOverwriteError || "Attribute <"+ id +"> is already defined!");
+		}
+		this.subject[id] = this.get(id, options);
+	} catch (exception) { 
+		if (!options.ignore) {
+			throw exception; // Do not ignore the error and throw it.
+		}
+	}
+	return this; // For chaining.
+};
+
+// Shortcuts. //////////////////////////////////////////////////////////////
+
+/** Initializer.bool(id, options):
+	Assigns the id property with a truth value.
+*/
+Initializer.prototype.bool = function bool(id, options) {
+	options = options || {};
+	options.type = types.BOOLEAN;
+	return this.attr(id, options);
+};
+
+/** Initializer.string(id, options):
+	Assigns the id property with a string value.
+*/
+Initializer.prototype.string = function string(id, options) {
+	options = options || {};
+	options.type = types.STRING;
+	return this.attr(id, options);
+};
+
+/** Initializer.number(id, options):
+	Assigns the id property with a numerical value.
+*/
+Initializer.prototype.number = function number(id, options) {
+	options = options || {};
+	options.type = types.NUMBER;
+	return this.attr(id, options);
+};
+
+/** Initializer.integer(id, options):
+	Assigns the id property with an integer value.
+*/
+Initializer.prototype.integer = function integer(id, options) {
+	options = options || {};
+	options.type = types.INTEGER;
+	return this.attr(id, options);
+};
+
+/** Initializer.func(id, options):
+	Assigns the id property with a function.
+*/
+Initializer.prototype.func = function func(id, options) {
+	options = options || {};
+	options.type = types.FUNCTION;
+	return this.attr(id, options);
+};
+
+/** Initializer.array(id, options):
+	Assigns the id property with an array. Options may include:
+	- options.elementTypes: Required type of the array's elements.
+	- options.length: Required length of the array.
+*/
+Initializer.prototype.array = function array(id, options) {
+	options = options || {};
+	if (options.hasOwnProperty('length') || options.hasOwnProperty('elementType')) {
+		options.type = new types.ArrayType(options.elementType, options.length);
+	} else {
+		options.type = types.ARRAY;
+	}
+	return this.attr(id, options);
+};
+
+/** Initializer.object(id, options):
+	Assigns the id property with an object.
+*/
+Initializer.prototype.object = function object(id, options) {
+	options = options || {};
+	options.type = types.OBJECT;
+	return this.attr(id, options);
+};
+
+/** initialize(subject, args):
+	Returns a new Initializer for the subject.
+*/
+exports.initialize = function initialize(subject, args) {
+	return new Initializer(subject, args);
+}
+
+
 /** basis/iterables.js:
 	Standard implementation of iterables and iterators (a.k.a. enumerations), 
 	and many functions that can be built with it.
@@ -496,25 +779,6 @@ Text.rpad = function rpad(str, len, pad) {
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
 	@licence MIT Licence
 */
-//TODO basis.Iterable.slice(from, to, step) similar al operador [::] de Python.
-//TODO basis.Iterable.tail() retorna otro iterable sin el primer elemento.
-//TODO basis.Iterable.tails() retorna un iterable con iterables para todos los sufijos de la secuencia.
-//TODO basis.Iterable.init() retorna otro iterable sin el �ltimo elemento.
-//TODO basis.Iterable.inits() retorna un iterable con iterables para todos los prefijos de la secuencia.
-//TODO basis.Iterable.take(n=1) retorna un iterable con los primeros n elementos.
-//TODO basis.Iterable.drop(n=1) retorna un iterable sin los primeros n elementos.
-//TODO basis.Iterable.takeWhile(condition) retorna un iterable con los primeros elementos que cumplen la condici�n.
-//TODO basis.Iterable.dropWhile(condition) retorna un iterable sin los primeros elementos que cumplen la condici�n.
-//TODO basis.Iterable.indexOf(x) retorna el �ndice de la primera ocurrencia de x en la secuencia, o -1.
-//TODO basis.Iterable.indexesOf(x) retorna un iterable con los �ndices de las ocurrencias de x en la secuencia.
-//TODO basis.Iterable.indexOfSlice(condition) retorna el �ndice de la primer ocurrencia de la subsecuencia en la secuencia, o -1.
-//TODO basis.Iterable.indexesOfSlice(condition) retorna un iterable con los �ndices de las ocurrencias de la subsecuencia en la secuencia.
-//TODO basis.Iterable.indexWhere(condition) retorna el �ndice del primer elemento en la secuencia que cumple la condici�n, o -1.
-//TODO basis.Iterable.indexesWhere(condition) retorna un iterable con los �ndices de los elementos en la secuencia que cumple la condici�n.
-//TODO basis.Iterable.groupBy(f) retorna un objeto con iterables para cada valor retornado por f y los valores correspondientes.
-//TODO basis.Iterable.partition(condition) retorna dos iterables con los elementos que no cumplen y cumplen la condici�n dada.
-//TODO basis.Iterable.pad(length, value) retorna otro iterable rellenado por derecha hasta el largo dado con el valor dado.
-
 // Iterable constructor. ///////////////////////////////////////////////////////
 	
 /** new Iterable(it):
@@ -1647,496 +1911,128 @@ Future.imports = function imports() {
 	return result;
 };
 
-
-/** basis/typed.js:
-	Functions and definitions regarding type checking, constraints,	validation 
-	and coercion.
-
+/** basis/src/functional.js:
+	Generic and utility definitions to handle functions and related features.
+	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
 	@licence MIT Licence
 */
-// Type representations. ///////////////////////////////////////////////////////
-var types = exports.types = {};
+// Events //////////////////////////////////////////////////////////////////////
 
-var Type = exports.Type = function Type(defs) {
-	defs = defs || {};
-	if (defs.hasOwnProperty('isType') && typeof defs.isType === 'function') {
-		this.isType = defs.isType;
-	}
-	if (defs.hasOwnProperty('isCompatible') && typeof defs.isCompatible === 'function') {
-		this.isCompatible = defs.isCompatible;
-	}
-	if (defs.hasOwnProperty('coerce') && typeof defs.coerce === 'function') {
-		this.coerce = defs.coerce;
-	}
-	if (defs.hasOwnProperty('toString') && typeof defs.toString === 'string') {
-		var typeString = defs.toString;
-		this.toString = function toString() {
-			return typeString;
-		};
-	}
-};
-
-/** Type.isCompatible(value):
-	Returns if the value is assignment compatible with this type. By default
-	the only compatible values are the ones in the type itself. But it can
-	be overriden to allow subtypes and coercions.
+var Events = exports.Events = declare({
+/** new Events(config):
+	Event handler that manages callbacks registered as listeners.
 */
-Type.prototype.isCompatible = function isCompatible(value) {
-	return this.isType(value);
-};
+	constructor: function Events(config) {
+		initialize(this, config)
+		/** Events.maxListeners=Infinity:
+			Maximum amount of listeners these events can have.
+		*/
+			.integer('maxListeners', { defaultValue: Infinity, coerce: true, minimum: 1 })
+		/** Events.isOpen=true:
+			An open Events accepts listeners to any event. Otherwise event names
+			have to be specified previously via the 'events' property in the 
+			configuration.
+		*/
+			.bool('isOpen', { defaultValue: true });
+		this.__listeners__ = {};
+		config && Array.isArray(config.events) && config.events.forEach(function (eventName) {
+			this.__listeners__[eventName] = [];
+		});
+	},
 
-/** Type.incompatibleError(value):
-	Returns an Error with a message for values incompatible with this type.
-*/
-Type.prototype.incompatibleError = function incompatibleError(value) {
-	return new TypeError("Value "+ value +" is not compatible with type "+ this +".");
-};
-
-/** Type.coerce(value):
-	Converts the value to this type, if possible and necessary. If it is not
-	possible, it raises a TypeError. This is the default behaviour.
-*/
-Type.prototype.coerce = function coerce(value) {
-	throw this.incompatibleError(value);
-};
-
-// Javascript primitive types. /////////////////////////////////////////////
-
-types.BOOLEAN = new Type({
-	isType: function isType(value) {
-		return typeof value === 'boolean' || 
-			value !== undefined && value !== null && value.constructor === Boolean;
-	},
-	isCompatible: function isCompatible(value) {
-		return true; // Can always coerce to boolean.
-	},
-	coerce: function coerce(value) {
-		return !!value;
-	},
-	toString: "boolean"
-});
-
-types.NUMBER = new Type({
-	isType: function isType(value) {
-		return typeof value === 'number' || 
-			value !== undefined && value !== null && value.constructor === Number;
-	},
-	isCompatible: function isCompatible(value) {
-		return true; // Can always coerce to number.
-	},
-	coerce: function coerce(value) {
-		return +value;
-	},
-	toString: "number"
-});
-
-types.STRING = new Type({
-	isType: function isType(value) {
-		return typeof value === 'string' || 
-			value !== undefined && value !== null && value.constructor === String;
-	},
-	isCompatible: function isCompatible(value) {
-		return true; // Can always coerce to string.
-	},
-	coerce: function coerce(value) {
-		return ''+ value;
-	},
-	toString: "string"
-});
-
-types.FUNCTION = new Type({
-	isType: function isType(value) {
-		return typeof value === 'function' || 
-			value !== undefined && value !== null && value.constructor === Function;
-	},
-	toString: "function"
-});
-
-// Simple types. ///////////////////////////////////////////////////////////
-
-types.INTEGER = new Type({
-	isType: function isType(value) {
-		return (value << 0) === value;
-	},
-	isCompatible: function isCompatible(value) {
-		return !isNaN(value);
-	},
-	coerce: function coerce(value) {
-		return +value >> 0;
-	},
-	toString: "integer"
-});
-
-types.CHARACTER = new Type({
-	isType: function isType(value) {
-		return types.STRING.isType(value) && value.length === 1;
-	},
-	isCompatible: function isCompatible(value) {
-		return (''+ value).length > 0;
-	},
-	coerce: function coerce(value) {
-		return (''+ value).charAt(0);
-	},
-	toString: "character"
-});
-
-// Object types. ///////////////////////////////////////////////////////////
-
-/** types.OBJECT:
-	Basic Object type (no constructor or member constraints).
-*/
-types.OBJECT = new Type({
-	isType: function isType(value) {
-		return typeof value === 'object';
-	},
-	isCompatible: function isCompatible(value) {
-		return typeof value !== 'function';
-	},
-	coerce: function coerce(value) {
-		switch (typeof value) {
-			case 'function': throw this.incompatibleError(value);
-			case 'object': return value;
-			default: return Object(value);
-		}
-	},
-	toString: "object"
-});
-
-/** new types.ObjectType(defs):
-	An object type is defined by a constructor function and/or a set of
-	members, each defined by an id and a type.
-*/
-var ObjectType = types.ObjectType = function ObjectType(defs) {
-	Type.call(this, {});
-	if (defs.hasOwnProperty("constructor") && typeof def.constructor === 'function') {
-		this.instanceOf = defs.constructor;
-		delete defs.constructor;
-	} else {
-		this.instanceOf = null;
-	}
-	this.members = defs.members || {};
-};
-ObjectType.prototype = new Type();
-ObjectType.prototype.constructor = ObjectType;
-
-/** ObjectType.isType(value):
-	Checks if the value is an object, and an instance of the specified
-	constructor of this type (if applies).
-*/
-ObjectType.prototype.isType = function isType(value) {
-	if (typeof value !== 'object') {
-		return false;
-	}
-	if (this.instanceOf && !(value instanceof this.instanceOf)) {
-		return false;
-	}
-	for (var member in this.members) {
-		if (!this.members[member].isType(value[member])) {
-			return false;
-		}
-	}
-	return true;
-};
-
-/** ObjectType.isCompatible(value):
-	Returns if the value is assignment compatible with this type. By default
-	the only compatible values are the ones in the type itself. But it can
-	be overriden to allow subtypes and coercions.
-*/
-ObjectType.prototype.isCompatible = function isCompatible(value) {
-	if (typeof value !== 'object') {
-		return false;
-	}
-	if (this.instanceOf && !(value instanceof this.instanceOf)) {
-		return false;
-	}
-	for (var member in this.members) {
-		if (!this.members[member].isCompatible(value[member])) {
-			return false;
-		}
-	}
-	return true;
-};
-
-/** ObjectType.coerce(value):
-	Converts the value to this type, if possible and necessary. If it is not
-	possible, it raises a TypeError. This is the default behaviour.
-*/
-ObjectType.prototype.coerce = function coerce(value) { 
-	var result = this.instanceOf ? new this.instanceOf(value) : {}; //TODO Check this please.
-	for (var member in this.members) {
-		result[member] = this.members[member].coerce(value[member]);
-	}
-	return result;
-};
-
-// Array types. ////////////////////////////////////////////////////////////
-
-/** types.ARRAY:
-	Basic array type (no length or element type constraints).
-*/
-types.ARRAY = new Type({
-	isType: function isType(value) {
-		return Array.isArray(value);
-	},
-	isCompatible: function isCompatible(value) {
-		return this.isType(value) || typeof value === 'string';
-	},
-	coerce: function coerce(value) {
-		if (this.isType(value)) {
-			return value;
-		} else if (typeof value === 'string') {
-			return value.split('');
+	/** Events.listeners(eventName):
+		Returns an array with the listeners for the given event.
+	*/
+	listeners: function listeners(eventName) {
+		if (this.__listeners__.hasOwnProperty(eventName)) {
+			return this.__listeners__[eventName].slice(); // Return a copy of the array.
 		} else {
-			throw this.incompatibleError(value);
+			return [];
 		}
 	},
-	toString: "array"
-});
-
-/** new types.ArrayType(elementTypes, length):
-	Type for arrays of a given length and all elements of the given type.
-*/
-var ArrayType = types.ArrayType = function ArrayType(elementTypes, length) {
-	Type.call(this, {});
-	if (!elementTypes) {
-		this.elementTypes = [];
-		this.length = +length;
-	} else if (!Array.isArray(elementTypes)) {
-		this.elementTypes = [elementTypes];
-		this.length = +length;
-	} else {
-		this.elementTypes = elementTypes;
-		this.length = isNaN(length) ? this.elementTypes.length : Math.max(+length, this.elementTypes.length);
-	}
-};
-ArrayType.prototype = new Type();
-ArrayType.prototype.constructor = ArrayType;
-
-ArrayType.prototype.isType = function isType(value) {
-	if (!Array.isArray(value) || !isNaN(this.length) && value.length !== this.length) {
-		return false;
-	}
-	if (this.elementTypes) {
-		var elementType; 
-		for (var i = 0, len = value.length; i < len; i++) {
-			elementType = this.elementTypes[Math.min(this.elementTypes.length - 1, i)]; 
-			if (!elementType.isType(value[i])) {
-				return false;
+	
+	/** Events.emit(eventName, ...args):
+		Emits an event with the given arguments. Listeners' callbacks are
+		called asynchronously.
+	*/
+	emit: function emit(eventName) {
+		var args;
+		if (Array.isArray(eventName)) {
+			var events = this;
+			args = Array.prototype.slice.call(arguments);
+			eventName.forEach(function (name) {
+				args[0] = name;
+				events.emit.apply(this, args);
+			});
+		}
+		if (!this.__listeners__.hasOwnProperty(eventName)) {
+			return false;
+		}
+		args = Array.prototype.slice.call(arguments, 1);
+		var listeners = this.__listeners__[eventName];
+		this.__listeners__[eventName] = this.__listeners__[eventName]
+			.filter(function (listener) {
+				if (listener[1] > 0) {
+					setTimeout(listener[0].apply.bind(Global, args), 1);
+					listener[1]--;
+					return listener[1] > 0;
+				} else {
+					return false;
+				}
+			});
+		return true;
+	},
+	
+	/** Events.on(eventName, callback, times=Infinity):
+		Registers a callback to listen to the event the given number of times,
+		or always by default.
+	*/
+	on: function on(eventName, callback, times) {
+		if (Array.isArray(eventName)) {
+			var events = this;
+			eventName.forEach(function (name) {
+				events.on(name, callback, times);
+			});
+		} else {
+			if (!this.__listeners__.hasOwnProperty(eventName)) {
+				raiseIf(!this.isOpen, "Event ", eventName, " is not defined.");
+				this.__listeners__[eventName] = [];
 			}
+			var listeners = this.__listeners__[eventName];
+			basis.raiseIf(this.listeners.length >= this.maxListeners,
+				"Cannot have more than ", this.maxListeners, " listeners for event ", eventName, ".");
+			times = (+times) || Infinity;
+			listeners.push([callback, times]);
+		}
+	},
+
+	/** Events.once(eventName, callback):
+		Registers a callback to listen to the event only once.
+	*/
+	once: function once(eventName, callback) {
+		return this.on(eventName, callback, 1);
+	},
+
+	/** Events.off(eventName, callback):
+		Deregisters the callback from the event.
+	*/
+	off: function off(eventName, callback) {
+		if (Array.isArray(eventName)) {
+			var events = this;
+			eventName.forEach(function (name) {
+				events.off(name, callback, times);
+			});
+		} else if (this.__listeners__.hasOwnProperty(eventName)) {
+			this.__listeners__[eventName] = this.__listeners__[eventName]
+				.filter(function (listener) {
+					return listener[0] !== callback;
+				});
 		}
 	}
-	return true;
-};
+}); // declare Events.
 
-ArrayType.prototype.isCompatible = function isCompatible(value) {
-	if (!Array.isArray(value)) {
-		if (typeof value === 'string') {
-			value = value.split('');
-		} else {
-			return false;
-		}
-	}
-	if (!isNaN(this.length) || value.length < +this.length) {
-		return false;
-	}
-	if (this.elementTypes) {
-		var elementType;
-		for (var i = 0, len = value.length; i < len; i++) {
-			elementType = this.elementTypes[Math.min(this.elementTypes.length - 1, i)]; 
-			if (!elementType.isCompatible(value[i])) {
-				return false;
-			}
-		}
-	}
-	return true;
-};
 
-ArrayType.prototype.coerce = function coerce(value) {
-	if (!Array.isArray(value)) {
-		if (typeof value === 'string') {
-			value = value.split('');
-		} else {
-			throw this.incompatibleError(value);
-		}
-	} else {
-		value = value.slice(); // Make a shallow copy.
-	}
-	if (!isNaN(this.length)) { 
-		if (value.length > this.length) { // Longer arrays are truncated.
-			value = value.slice(0, this.length);
-		} else if (value.length < this.length) { // Shorter arrays cannot be coerced.
-			throw this.incompatibleError(value);
-		}
-	}
-	if (this.elementTypes) {
-		var elementType; 
-		for (var i = 0, len = value.length; i < len; i++) {
-			elementType = this.elementTypes[Math.min(this.elementTypes.length - 1, i)]; 
-			value[i] = elementType.coerce(value[i]);
-		}
-	}
-	return value;
-};
-
-// Initializers. ///////////////////////////////////////////////////////////////
-
-/** new Initializer(subject={}, args={}):
-	Initializers are object builders, allowing the declaration of default 
-	values, type checks and coercions, and other checks.
-*/		
-var Initializer = exports.Initializer = function Initializer(subject, args) {
-	this.subject = subject || {};
-	this.args = args || {};
-};
-
-/** Initializer.get(id, options):
-	Gets the value for the given id. If it is missing, options.defaultValue
-	is used as the default value if defined. Else an error is raised.
-	If options.type is defined, the value is checked to be a member of said
-	type. If options.coerce is true, the value may be coerced.
-	The function option.check can check the value further. If defined it
-	is called with the value, and is expected to raise errors on failed
-	conditions.
-	Other options include:
-	- options.regexp: the value is matched agains a regular expression.
-	- options.minimum: the value has to be greater than or equal to this value.
-	- options.maximum: the value has to be less than or equal to this value.
-*/
-Initializer.prototype.get = function get(id, options) {
-	var value, type;
-	options = options || {};
-	if (!this.args.hasOwnProperty(id)) {
-		if (!options.hasOwnProperty("defaultValue")) {
-			throw new Error(options.missingValueError || "Missing argument <"+ id +">!");
-		}
-		value = options.defaultValue;
-	} else {
-		value = this.args[id];
-	}
-	// Check type if defined.
-	type = options.type;
-	if (type && !type.isType(value)) {
-		if (!options.coerce) {
-			throw new Error(options.typeMismatchError || "Value for <"+ id +"> must be a "+ type +"!");
-		}
-		value = type.coerce(value);
-	}
-	// Check further constraints.
-	if (options.regexp && !options.regexp.exec(value)) {
-		throw new Error(options.invalidValueError || "Value <"+ value +"> for <"+ id +"> does not match "+ options.regexp +"!");
-	}
-	if (options.hasOwnProperty("minimum") && options.minimum > value) {
-		throw new Error(options.invalidValueError || "Value <"+ value +"> for <"+ id +"> must be greater than or equal to "+ options.minimum +"!");
-	}
-	if (options.hasOwnProperty("maximum") && options.maximum < value) {
-		throw new Error(options.invalidValueError || "Value <"+ value +"> for <"+ id +"> must be less than or equal to "+ options.maximum +"!");
-	}
-	if (typeof options.check === 'function') {
-		options.check.call(this.subject, value, id, options);
-	}
-	return value;
-};
-
-/** Initializer.attr(id, options={}):
-	Assigns the id property, performing all necessary verifications. If 
-	options.overwrite is false, an error is raised if the subject already 
-	has the attribute defined. If options.ignore is true, no error is raised
-	and the assignment is skipped instead. 
-*/
-Initializer.prototype.attr = function attr(id, options) {
-	options = options || {};
-	try {
-		if (options.hasOwnProperty("overwrite") && !options.overwrite && this.subject.hasOwnProperty(id)) {
-			throw new Error(options.attrOverwriteError || "Attribute <"+ id +"> is already defined!");
-		}
-		this.subject[id] = this.get(id, options);
-	} catch (exception) { 
-		if (!options.ignore) {
-			throw exception; // Do not ignore the error and throw it.
-		}
-	}
-	return this; // For chaining.
-};
-
-// Shortcuts. //////////////////////////////////////////////////////////////
-
-/** Initializer.bool(id, options):
-	Assigns the id property with a truth value.
-*/
-Initializer.prototype.bool = function bool(id, options) {
-	options = options || {};
-	options.type = types.BOOLEAN;
-	return this.attr(id, options);
-};
-
-/** Initializer.string(id, options):
-	Assigns the id property with a string value.
-*/
-Initializer.prototype.string = function string(id, options) {
-	options = options || {};
-	options.type = types.STRING;
-	return this.attr(id, options);
-};
-
-/** Initializer.number(id, options):
-	Assigns the id property with a numerical value.
-*/
-Initializer.prototype.number = function number(id, options) {
-	options = options || {};
-	options.type = types.NUMBER;
-	return this.attr(id, options);
-};
-
-/** Initializer.integer(id, options):
-	Assigns the id property with an integer value.
-*/
-Initializer.prototype.integer = function integer(id, options) {
-	options = options || {};
-	options.type = types.INTEGER;
-	return this.attr(id, options);
-};
-
-/** Initializer.func(id, options):
-	Assigns the id property with a function.
-*/
-Initializer.prototype.func = function func(id, options) {
-	options = options || {};
-	options.type = types.FUNCTION;
-	return this.attr(id, options);
-};
-
-/** Initializer.array(id, options):
-	Assigns the id property with an array. Options may include:
-	- options.elementTypes: Required type of the array's elements.
-	- options.length: Required length of the array.
-*/
-Initializer.prototype.array = function array(id, options) {
-	options = options || {};
-	if (options.hasOwnProperty('length') || options.hasOwnProperty('elementType')) {
-		options.type = new types.ArrayType(options.elementType, options.length);
-	} else {
-		options.type = types.ARRAY;
-	}
-	return this.attr(id, options);
-};
-
-/** Initializer.object(id, options):
-	Assigns the id property with an object.
-*/
-Initializer.prototype.object = function object(id, options) {
-	options = options || {};
-	options.type = types.OBJECT;
-	return this.attr(id, options);
-};
-
-/** initialize(subject, args):
-	Returns a new Initializer for the subject.
-*/
-exports.initialize = function initialize(subject, args) {
-	return new Initializer(subject, args);
-}
 
 
 /** basis/randomness.js:
@@ -2145,11 +2041,6 @@ exports.initialize = function initialize(subject, args) {
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
 	@licence MIT Licence
 */
-//TODO Randomness.triangular_distribution, check <http://en.wikipedia.org/wiki/Triangular_distribution#Generating_Triangular-distributed_random_variates>.
-//TODO Randomness.normal_distribution, check <http://en.wikipedia.org/wiki/Normal_distribution#Generating_values_from_normal_distribution>
-//TODO Implementar Linear feedback shift register <http://www.xilinx.com/support/documentation/application_notes/xapp052.pdf>.
-//TODO Implementar Mersenne twister <http://en.wikipedia.org/wiki/Mersenne_twister>.
-
 // Randomness //////////////////////////////////////////////////////////////////
 
 var Randomness = exports.Randomness = declare({
@@ -2362,134 +2253,6 @@ Randomness.linearCongruential.borlandC =
 */
 Randomness.linearCongruential.glibc = 
 	Randomness.linearCongruential(0xFFFFFFFF, 1103515245, 12345);
-
-
-/** basis/src/functional.js:
-	Generic and utility definitions to handle functions and related features.
-	
-	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
-	@licence MIT Licence
-*/
-//TODO Function.memoize(function, cacheSize=100, hashFunction=JSON.stringify().hashCode().toString(36)).
-//TODO Function.compose(functions...)
-//TODO Function.decelerate(timesPerSecond=1, onStopping) // See <http://underscorejs.org/#throttle>
-
-// Events //////////////////////////////////////////////////////////////////////
-
-var Events = exports.Events = declare({
-/** new Events(config):
-	Event handler that manages callbacks registered as listeners.
-*/
-	constructor: function Events(config) {
-		initialize(this, config)
-		/** Events.maxListeners=Infinity:
-			Maximum amount of listeners these events can have.
-		*/
-			.integer('maxListeners', { defaultValue: Infinity, coerce: true, minimum: 1 })
-		/** Events.isOpen=true:
-			An open Events accepts listeners to any event. Otherwise event names
-			have to be specified previously via the 'events' property in the 
-			configuration.
-		*/
-			.bool('isOpen', { defaultValue: true });
-		this.__listeners__ = {};
-		config && Array.isArray(config.events) && config.events.forEach(function (eventName) {
-			this.__listeners__[eventName] = [];
-		});
-	},
-
-	/** Events.listeners(eventName):
-		Returns an array with the listeners for the given event.
-	*/
-	listeners: function listeners(eventName) {
-		if (this.__listeners__.hasOwnProperty(eventName)) {
-			return this.__listeners__[eventName].slice(); // Return a copy of the array.
-		} else {
-			return [];
-		}
-	},
-	
-	/** Events.emit(eventName, ...args):
-		Emits an event with the given arguments. Listeners' callbacks are
-		called asynchronously.
-	*/
-	emit: function emit(eventName) {
-		var args;
-		if (Array.isArray(eventName)) {
-			var events = this;
-			args = Array.prototype.slice.call(arguments);
-			eventName.forEach(function (name) {
-				args[0] = name;
-				events.emit.apply(this, args);
-			});
-		}
-		if (!this.__listeners__.hasOwnProperty(eventName)) {
-			return false;
-		}
-		args = Array.prototype.slice.call(arguments, 1);
-		var listeners = this.__listeners__[eventName];
-		this.__listeners__[eventName] = this.__listeners__[eventName]
-			.filter(function (listener) {
-				if (listener[1] > 0) {
-					setTimeout(listener[0].apply.bind(Global, args), 1);
-					listener[1]--;
-					return listener[1] > 0;
-				} else {
-					return false;
-				}
-			});
-		return true;
-	},
-	
-	/** Events.on(eventName, callback, times=Infinity):
-		Registers a callback to listen to the event the given number of times,
-		or always by default.
-	*/
-	on: function on(eventName, callback, times) {
-		if (Array.isArray(eventName)) {
-			var events = this;
-			eventName.forEach(function (name) {
-				events.on(name, callback, times);
-			});
-		} else {
-			if (!this.__listeners__.hasOwnProperty(eventName)) {
-				raiseIf(!this.isOpen, "Event ", eventName, " is not defined.");
-				this.__listeners__[eventName] = [];
-			}
-			var listeners = this.__listeners__[eventName];
-			basis.raiseIf(this.listeners.length >= this.maxListeners,
-				"Cannot have more than ", this.maxListeners, " listeners for event ", eventName, ".");
-			times = (+times) || Infinity;
-			listeners.push([callback, times]);
-		}
-	},
-
-	/** Events.once(eventName, callback):
-		Registers a callback to listen to the event only once.
-	*/
-	once: function once(eventName, callback) {
-		return this.on(eventName, callback, 1);
-	},
-
-	/** Events.off(eventName, callback):
-		Deregisters the callback from the event.
-	*/
-	off: function off(eventName, callback) {
-		if (Array.isArray(eventName)) {
-			var events = this;
-			eventName.forEach(function (name) {
-				events.off(name, callback, times);
-			});
-		} else if (this.__listeners__.hasOwnProperty(eventName)) {
-			this.__listeners__[eventName] = this.__listeners__[eventName]
-				.filter(function (listener) {
-					return listener[0] !== callback;
-				});
-		}
-	}
-}); // declare Events.
-
-
 
 
 /** basis/stats.js:
