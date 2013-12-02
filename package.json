@@ -9,7 +9,7 @@
   "licence": "MIT",
   "repository": {
     "type": "git",
-    "url": "http://???.com"
+    "url": "http://github.com/LeonardoVal/basis"
   },
   "dependencies": {
     "requirejs": "~2.1.9"
