@@ -2064,7 +2064,9 @@ var Events = exports.Events = declare({
 		this.__listeners__[eventName] = this.__listeners__[eventName]
 			.filter(function (listener) {
 				if (listener[1] > 0) {
-					setTimeout(listener[0].apply.bind(Global, args), 1);
+					setTimeout(function () {
+						return listener[0].apply(Global, args)
+					}, 1);
 					listener[1]--;
 					return listener[1] > 0;
 				} else {
