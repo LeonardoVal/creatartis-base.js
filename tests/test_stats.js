@@ -51,7 +51,16 @@ define(['basis'], function (basis) { "use strict";
 		}).toArray();
 		for (var i = 0; i < 100; i++) {
 			var pair = RANDOM.split(RANDOM.randomInt(10), KEYS);
+			// Keys from array.
 			var stat = new Statistic(pair[0]);
+			pair[0].forEach(function (k) {
+				verifier.assert(stat.applies(k), 'new Statistic(', JSON.stringify(pair[0]),') should apply to key "', k, '".');
+			});
+			pair[1].forEach(function (k) {
+				verifier.assertFalse(stat.applies(k), 'new Statistic(', JSON.stringify(pair[0]),') should not apply to key "', k, '".');
+			});
+			// Keys from whitespace separated string.
+			var stat = new Statistic(pair[0].join(' '));
 			pair[0].forEach(function (k) {
 				verifier.assert(stat.applies(k), 'new Statistic(', JSON.stringify(pair[0]),') should apply to key "', k, '".');
 			});

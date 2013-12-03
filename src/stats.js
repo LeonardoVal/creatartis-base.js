@@ -300,7 +300,7 @@ var Statistic = exports.Statistic = declare({
 	*/
 	toString: function toString(sep) {
 		sep = ''+ (sep || '\t');
-		return [this.keys.join(' '), this.count(), this.minimum(), this.average(), 
+		return [Object.keys(this.keys).join(' '), this.count(), this.minimum(), this.average(), 
 			this.maximum(), this.standardDeviation()].join(sep);
 	}
 }); // declare Statistic.
