@@ -95,7 +95,7 @@ var Logger = exports.Logger	= declare({
 		entry data in a string.
 	*/
 	defaultFormat: function defaultFormat(name, time, level, message) {
-		return [level, name, textual.formatDate(time, 'hhnnss.SSS'), message].join(' ');
+		return [level, name, Text.formatDate(time, 'hhnnss.SSS'), message].join(' ');
 	},
 	
 	/** Logger.htmlFormat(tag='pre', cssClassPrefix='log_'):
@@ -109,9 +109,9 @@ var Logger = exports.Logger	= declare({
 			return ['<', tag, ' class="', cssClassPrefix, level, '">', 
 				'<span class="', cssClassPrefix, 'level">', level, '</span> ',
 				'<span class="', cssClassPrefix, 'name">', name, '</span> ',
-				'<span class="', cssClassPrefix, 'time">', textual.formatDate(time, 'hhnnss.SSS'), '</span> ',
+				'<span class="', cssClassPrefix, 'time">', Text.formatDate(time, 'hhnnss.SSS'), '</span> ',
 				'<span class="', cssClassPrefix, 'message">', 
-					textual.escapeHTML(message).replace(/\n/g, '<br/>').replace(/\t/g, '&nbsp;&nbsp;&nbsp;'), 
+					Text.escapeXML(message).replace(/\n/g, '<br/>').replace(/\t/g, '&nbsp;&nbsp;&nbsp;'), 
 				'</span>',
 				'</', tag, '>'].join('');
 		};

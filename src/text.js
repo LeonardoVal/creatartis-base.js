@@ -51,9 +51,9 @@ var Text = exports.Text = declare({
 		corresponding character entities.
 	*/
 	escapeXML: function escapeXML(str) {
-		var text = this;
+		var XML_ENTITIES = Text.prototype.XML_ENTITIES;
 		return (str +'').replace(/[&<>"']/g, function (c) {
-			return text.HTML_ENTITIES[c];
+			return XML_ENTITIES[c];
 		});
 	},
 
