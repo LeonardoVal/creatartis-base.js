@@ -96,7 +96,7 @@ var Statistic = exports.Statistic = declare({
 		return this; // For chaining.
 	},
 
-	/** Statistic.add(value, data):
+	/** Statistic.add(value, data=none):
 		Updates the statistics with the given value. Optionally data about 
 		the instances can be attached.
 	*/
@@ -106,7 +106,7 @@ var Statistic = exports.Statistic = declare({
 		} else if (isNaN(value)) {
 			raise("Statistics.add(): Value ", value, " cannot be added."); 
 		}
-		this.__count__++;
+		this.__count__ += 1;
 		this.__sum__ += value;
 		this.__sqrSum__ += value * value;
 		if (this.__min__ > value) {
@@ -120,12 +120,40 @@ var Statistic = exports.Statistic = declare({
 		return this; // For chaining.
 	},
 
-	/** Statistic.addAll(values, data):
-		Updates the statistics with all the given values.
+	/** Statistic.DEFAULT_GAIN_FACTOR=0.99:
+		Default factor used in the gain() method.
+	*/
+	DEFAULT_GAIN_FACTOR: 0.99,
+	
+	/** Statistic.gain(value, factor=DEFAULT_GAIN_FACTOR, data=none):
+		Like add, but fades previous values by multiplying them by the given 
+		factor. This is useful to implement schemes similar to exponential 
+		moving averages.
+	*/
+	gain: function gain(value, factor, data) {
+		factor = isNaN(factor) ? this.DEFAULT_GAIN_FACTOR : +factor;
+		this.__count__ *= factor;
+		this.__sum__ *= factor;
+		this.__sqrSum__ *= factor;
+		return this.add(value, data);
+	},
+	
+	/** Statistic.addAll(values, data=none):
+		Adds all the given values (using this.add()).
 	*/
 	addAll: function addAll(values, data) {	
 		for (var i = 0; i < values.length; i++) {
 			this.add(values[i], data);
+		}
+		return this; // For chaining.
+	},
+	
+	/** Statistic.gainAll(values, factor=DEFAULT_GAIN_FACTOR, data=none):
+		Gains all the given values (using this.gain()).
+	*/
+	gainAll: function gainAll(values, factor, data) {	
+		for (var i = 0; i < values.length; i++) {
+			this.gain(values[i], factor, data);
 		}
 		return this; // For chaining.
 	},
@@ -324,10 +352,24 @@ var Statistics = exports.Statistics = declare({
 		return this.stat(keys).add(value, data);
 	},
 	
+	/** Statistics.gain(keys, value, factor, data):
+		Shortcut method to gain a value to the Statistic with the given keys.
+	*/
+	gain: function gain(keys, value, factor, data) {
+		return this.stat(keys).gain(value, factor, data);
+	},
+	
 	/** Statistics.addAll(keys, values, data):
 		Shortcut method to add all values to the Statistic with the given keys.
 	*/
 	addAll: function addAll(keys, values, data) {
+		return this.stat(keys).addAll(values, data);
+	},
+	
+	/** Statistics.gainAll(keys, values, factor, data):
+		Shortcut method to add all values to the Statistic with the given keys.
+	*/
+	gainAll: function gainAll(keys, values, factor, data) {
 		return this.stat(keys).addAll(values, data);
 	},
 
