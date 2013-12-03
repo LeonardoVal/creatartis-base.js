@@ -484,6 +484,6 @@ Initializer.prototype.object = function object(id, options) {
 /** initialize(subject, args):
 	Returns a new Initializer for the subject.
 */
-exports.initialize = function initialize(subject, args) {
+var initialize = exports.initialize = function initialize(subject, args) {
 	return new Initializer(subject, args);
 }

@@ -15,16 +15,16 @@ var Events = exports.Events = declare({
 		/** Events.maxListeners=Infinity:
 			Maximum amount of listeners these events can have.
 		*/
-			.integer('maxListeners', { defaultValue: Infinity, coerce: true, minimum: 1 })
+			.number('maxListeners', { defaultValue: Infinity, coerce: true, minimum: 1 })
 		/** Events.isOpen=true:
 			An open Events accepts listeners to any event. Otherwise event names
 			have to be specified previously via the 'events' property in the 
 			configuration.
 		*/
 			.bool('isOpen', { defaultValue: true });
-		this.__listeners__ = {};
+		var __listeners__ = this.__listeners__ = {};
 		config && Array.isArray(config.events) && config.events.forEach(function (eventName) {
-			this.__listeners__[eventName] = [];
+			__listeners__[eventName] = [];
 		});
 	},
 
@@ -87,7 +87,7 @@ var Events = exports.Events = declare({
 				this.__listeners__[eventName] = [];
 			}
 			var listeners = this.__listeners__[eventName];
-			basis.raiseIf(this.listeners.length >= this.maxListeners,
+			raiseIf(this.listeners.length >= this.maxListeners,
 				"Cannot have more than ", this.maxListeners, " listeners for event ", eventName, ".");
 			times = (+times) || Infinity;
 			listeners.push([callback, times]);
