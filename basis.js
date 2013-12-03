@@ -185,9 +185,9 @@ var Text = exports.Text = declare({
 		corresponding character entities.
 	*/
 	escapeXML: function escapeXML(str) {
-		var text = this;
+		var XML_ENTITIES = Text.prototype.XML_ENTITIES;
 		return (str +'').replace(/[&<>"']/g, function (c) {
-			return text.HTML_ENTITIES[c];
+			return XML_ENTITIES[c];
 		});
 	},
 
@@ -1911,6 +1911,96 @@ Future.imports = function imports() {
 	return result;
 };
 
+// HttpRequest /////////////////////////////////////////////////////////////////
+
+var HttpRequest = exports.HttpRequest = declare({
+	/** new HttpRequest():
+		A wrapper for XMLHttpRequest.
+	*/
+	constructor: function HttpRequest() {
+		this.__request__ = new XMLHttpRequest();
+	},
+	
+	/** HttpRequest.request(method, url, content, headers, user, password):
+		Opens the request with the given method at the given url, sends the
+		contents and returns a future that gets resolved when the request is
+		responded.
+	*/
+	request: function request(method, url, content, headers, user, password) {
+		var xhr = this.__request__,
+			future = new Future();
+		xhr.open(method, url, true, user, password); // Always asynchronously.
+		if (headers) {
+			Object.getOwnPropertyNames(headers).forEach(function (id) {
+				xhr.setRequestHeader(id, headers[id]);
+			});
+		}
+		xhr.onreadystatechange = function onreadystatechange() { 
+			// See <http://www.w3schools.com/ajax/ajax_xmlhttprequest_onreadystatechange.asp>.
+			if (xhr.readyState == 4) {
+				if (xhr.status == 200) {
+					future.resolve(xhr);
+				} else {
+					future.reject(xhr);
+				}
+			}
+		};
+		xhr.send(content);
+		return future;
+	},
+	
+	/** HttpRequest.get(url, content, headers, user, password):
+		Shortcut for a request with the GET method.
+	*/
+	get: function get(url, content, headers, user, password) {
+		return this.request('GET', url, content, headers, user, password);
+	},
+	
+	/** HttpRequest.getText(url, content, headers, user, password):
+		Makes a GET request and returns the response's text.
+	*/
+	getText: function getText(url, content, headers, user, password) {
+		return this.get(url, content, headers, user, password).then(function (xhr) {
+			return xhr.responseText;
+		});
+	},
+	
+	/** HttpRequest.getJSON(url, content, headers, user, password):
+		Makes a GET request and parses the response text as JSON.
+	*/
+	getJSON: function getJSON(url, content, headers, user, password) {
+		return this.get(url, content, headers, user, password).then(function (xhr) {
+			return JSON.parse(xhr.responseText);
+		});
+	},
+	
+	/** HttpRequest.post(url, content, headers, user, password):
+		Shortcut for a request with the POST method.
+	*/
+	post: function post(url, content, headers, user, password) {
+		return this.request('POST', url, content, headers, user, password);
+	},
+	
+	/** HttpRequest.postJSON(url, content, headers, user, password):
+		Makes a POST request with the content encoded with JSON.stringify().
+	*/
+	postJSON: function postJSON(url, content, headers, user, password) {
+		headers = headers || {};
+		headers['Content-Type'] = "application/json";
+		return this.post(url, JSON.stringify(content) || 'null', headers, user, password);
+	}	
+}); // declare HttpRequest.
+
+// Generate static versions of HttpRequest methods.
+['request', 
+	'get', 'getJSON', 'getText',
+	'post', 'postJSON'
+].forEach(function (id) {
+	HttpRequest[id] = function () {
+		return HttpRequest.prototype[id].apply(new HttpRequest(), arguments);
+	};
+});
+
 /** basis/src/functional.js:
 	Generic and utility definitions to handle functions and related features.
 	
@@ -2353,7 +2443,7 @@ var Statistic = exports.Statistic = declare({
 		return this; // For chaining.
 	},
 
-	/** Statistic.add(value, data):
+	/** Statistic.add(value, data=none):
 		Updates the statistics with the given value. Optionally data about 
 		the instances can be attached.
 	*/
@@ -2363,7 +2453,7 @@ var Statistic = exports.Statistic = declare({
 		} else if (isNaN(value)) {
 			raise("Statistics.add(): Value ", value, " cannot be added."); 
 		}
-		this.__count__++;
+		this.__count__ += 1;
 		this.__sum__ += value;
 		this.__sqrSum__ += value * value;
 		if (this.__min__ > value) {
@@ -2377,12 +2467,40 @@ var Statistic = exports.Statistic = declare({
 		return this; // For chaining.
 	},
 
-	/** Statistic.addAll(values, data):
-		Updates the statistics with all the given values.
+	/** Statistic.DEFAULT_GAIN_FACTOR=0.99:
+		Default factor used in the gain() method.
+	*/
+	DEFAULT_GAIN_FACTOR: 0.99,
+	
+	/** Statistic.gain(value, factor=DEFAULT_GAIN_FACTOR, data=none):
+		Like add, but fades previous values by multiplying them by the given 
+		factor. This is useful to implement schemes similar to exponential 
+		moving averages.
+	*/
+	gain: function gain(value, factor, data) {
+		factor = isNaN(factor) ? this.DEFAULT_GAIN_FACTOR : +factor;
+		this.__count__ *= factor;
+		this.__sum__ *= factor;
+		this.__sqrSum__ *= factor;
+		return this.add(value, data);
+	},
+	
+	/** Statistic.addAll(values, data=none):
+		Adds all the given values (using this.add()).
 	*/
 	addAll: function addAll(values, data) {	
 		for (var i = 0; i < values.length; i++) {
 			this.add(values[i], data);
+		}
+		return this; // For chaining.
+	},
+	
+	/** Statistic.gainAll(values, factor=DEFAULT_GAIN_FACTOR, data=none):
+		Gains all the given values (using this.gain()).
+	*/
+	gainAll: function gainAll(values, factor, data) {	
+		for (var i = 0; i < values.length; i++) {
+			this.gain(values[i], factor, data);
 		}
 		return this; // For chaining.
 	},
@@ -2581,10 +2699,24 @@ var Statistics = exports.Statistics = declare({
 		return this.stat(keys).add(value, data);
 	},
 	
+	/** Statistics.gain(keys, value, factor, data):
+		Shortcut method to gain a value to the Statistic with the given keys.
+	*/
+	gain: function gain(keys, value, factor, data) {
+		return this.stat(keys).gain(value, factor, data);
+	},
+	
 	/** Statistics.addAll(keys, values, data):
 		Shortcut method to add all values to the Statistic with the given keys.
 	*/
 	addAll: function addAll(keys, values, data) {
+		return this.stat(keys).addAll(values, data);
+	},
+	
+	/** Statistics.gainAll(keys, values, factor, data):
+		Shortcut method to add all values to the Statistic with the given keys.
+	*/
+	gainAll: function gainAll(keys, values, factor, data) {
 		return this.stat(keys).addAll(values, data);
 	},
 
@@ -2834,7 +2966,7 @@ var Logger = exports.Logger	= declare({
 		entry data in a string.
 	*/
 	defaultFormat: function defaultFormat(name, time, level, message) {
-		return [level, name, textual.formatDate(time, 'hhnnss.SSS'), message].join(' ');
+		return [level, name, Text.formatDate(time, 'hhnnss.SSS'), message].join(' ');
 	},
 	
 	/** Logger.htmlFormat(tag='pre', cssClassPrefix='log_'):
@@ -2848,9 +2980,9 @@ var Logger = exports.Logger	= declare({
 			return ['<', tag, ' class="', cssClassPrefix, level, '">', 
 				'<span class="', cssClassPrefix, 'level">', level, '</span> ',
 				'<span class="', cssClassPrefix, 'name">', name, '</span> ',
-				'<span class="', cssClassPrefix, 'time">', textual.formatDate(time, 'hhnnss.SSS'), '</span> ',
+				'<span class="', cssClassPrefix, 'time">', Text.formatDate(time, 'hhnnss.SSS'), '</span> ',
 				'<span class="', cssClassPrefix, 'message">', 
-					textual.escapeHTML(message).replace(/\n/g, '<br/>').replace(/\t/g, '&nbsp;&nbsp;&nbsp;'), 
+					Text.escapeXML(message).replace(/\n/g, '<br/>').replace(/\t/g, '&nbsp;&nbsp;&nbsp;'), 
 				'</span>',
 				'</', tag, '>'].join('');
 		};
