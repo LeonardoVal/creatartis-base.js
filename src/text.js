@@ -4,6 +4,14 @@
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
 	@licence MIT Licence
 */
+// String prototype leveling. //////////////////////////////////////////////////
+
+// See <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat>.
+String.prototype.repeat || (String.prototype.repeat = function repeat(n) {
+	n = n | 0;
+	return n <= 0 ? "" : n & 1 ? this + this.repeat(n - 1) : (this + this).repeat(n >> 1);
+});
+
 // Text ////////////////////////////////////////////////////////////////////////
 
 var Text = exports.Text = declare({
