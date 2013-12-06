@@ -37,15 +37,15 @@ var declare = exports.declare = function declare() {
 		}
 	} 
 	proto.constructor = constructor;
-	for (var arg = 1; arg < args.length; arg++) { // Copy other members in the other supers, if they do not override.
-		var superMembers = typeof args[arg] === 'function' ? args[arg].prototype : args[arg];
+	args.forEach(function (superMembers) { // Copy other members in the other supers, if they do not override.
+		superMembers = typeof superMembers === 'function' ? superMembers.prototype : superMembers;
 		for (id in superMembers) {
-			if (superMembers.hasOwnProperty(id) && typeof proto[id] === 'undefined') {
+			if (typeof proto[id] === 'undefined') {
 				proto[id] = superMembers[id];
 			}
 		}
-	}
-	return constructor; // Fin.
+	});
+	return constructor;
 };
 
 /** obj(key, value...):
@@ -56,7 +56,7 @@ var declare = exports.declare = function declare() {
 var obj = exports.obj = function obj() {
 	var result = ({});
 	for (var i = 0; i < arguments.length; i += 2) {
-		result[arguments[i]] = arguments[i+1];
+		result[arguments[i] +''] = arguments[i+1];
 	}
 	return result;
 };

@@ -201,8 +201,9 @@ define(['basis'], function (basis) {
 	verifier.test("Future.delay()", function () {
 		var timestamp = Date.now();
 		return Future.delay(100).then(function (v) {
+			var now = Date.now();
 			verifier.assert(v >= timestamp, "Future.delay() default value is less than the timestamp.");
-			verifier.assert(Date.now() <= timestamp + 100, "Future.delay() default value is less than the timestamp.");
+			verifier.assert(now >= timestamp + 100, "Future.delay() triggered to soon (after ", now - timestamp, "ms).");
 		});
 	});
 	
