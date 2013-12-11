@@ -1,4 +1,4 @@
-/** test/test_stats.js:
+﻿/** test/test_stats.js:
 	Test cases for the module <src/stats.js>.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>

@@ -1,4 +1,4 @@
-/** Gruntfile for basis.
+﻿/** Gruntfile for basis.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
 	@licence MIT Licence
@@ -14,6 +14,7 @@ var umdWrapper = function (init) {
 };
 
 module.exports = function(grunt) {
+	grunt.file.defaultEncoding = 'utf8';
 // Init config. ////////////////////////////////////////////////////////////////
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),

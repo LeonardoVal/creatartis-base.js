@@ -1,4 +1,4 @@
-/** basis/iterables.js:
+﻿/** basis/iterables.js:
 	Standard implementation of iterables and iterators (a.k.a. enumerations), 
 	and many functions that can be built with it.
 

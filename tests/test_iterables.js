@@ -1,4 +1,4 @@
-/** tests/test_iterables.js:
+﻿/** tests/test_iterables.js:
 	Test cases for the module <src/iterables.js>.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>

@@ -1,4 +1,4 @@
-/** basis/log.js:
+﻿/** basis/log.js:
 	Simple logging.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>

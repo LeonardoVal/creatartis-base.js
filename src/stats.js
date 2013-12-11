@@ -1,4 +1,4 @@
-/** basis/stats.js:
+﻿/** basis/stats.js:
 	Statistical accounting, measurements and related functions.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>

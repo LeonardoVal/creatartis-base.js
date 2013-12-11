@@ -1,4 +1,4 @@
-/** basis/src/text.js:
+﻿/** basis/src/text.js:
 	Text manipulation definitions.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>

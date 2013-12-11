@@ -1,4 +1,4 @@
-/** basis/async.js:
+﻿/** basis/async.js:
 	Functions and definitions that deal with asynchronism and parallelism.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>

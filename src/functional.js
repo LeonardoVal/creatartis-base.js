@@ -1,4 +1,4 @@
-/** basis/src/functional.js:
+﻿/** basis/src/functional.js:
 	Generic and utility definitions to handle functions and related features.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>

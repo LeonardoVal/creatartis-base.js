@@ -1,4 +1,4 @@
-/** basis/typed.js:
+﻿/** basis/typed.js:
 	Functions and definitions regarding type checking, constraints,	validation 
 	and coercion.
 

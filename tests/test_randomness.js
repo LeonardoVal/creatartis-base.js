@@ -1,4 +1,4 @@
-/** tests/test_randomness.js:
+﻿/** tests/test_randomness.js:
 	Test cases for the module <randomness.js>.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>

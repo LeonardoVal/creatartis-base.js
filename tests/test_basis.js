@@ -1,4 +1,4 @@
-/** tests/test_basis.js:
+﻿/** tests/test_basis.js:
 	Test cases for the module <basis.js>.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>

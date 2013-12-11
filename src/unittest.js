@@ -1,4 +1,4 @@
-/** basis/unittest.js:
+﻿/** basis/unittest.js:
 	Simple unit testing.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>

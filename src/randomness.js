@@ -1,4 +1,4 @@
-/** basis/randomness.js:
+﻿/** basis/randomness.js:
 	Pseudorandom number generation algorithms and related functions.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>

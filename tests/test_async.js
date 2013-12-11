@@ -1,4 +1,4 @@
-/** tests/test_async.js:
+﻿/** tests/test_async.js:
 	Test cases for the module <src/async.js>.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>

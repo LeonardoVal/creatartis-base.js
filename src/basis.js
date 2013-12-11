@@ -1,4 +1,4 @@
-/** basis/src/basis.js:
+﻿/** basis/src/basis.js:
 	Core generic algorithms and utility definitions.
 	
 	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
