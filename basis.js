@@ -2516,16 +2516,16 @@ var Statistic = exports.Statistic = declare({
 	},
 	
 	/** Statistic.applies(keys):
-		Checks if one of the given keys is one of this statistic's keys.
+		Checks if all the given keys are this statistic's keys.
 	*/
 	applies: function applies(keys) {
 		keys = __getKeySet__(keys);
 		for (var key in keys) {
-			if (this.keys.hasOwnProperty(key)) {
-				return true;
+			if (!this.keys.hasOwnProperty(key)) {
+				return false;
 			}
 		}
-		return false;
+		return true;
 	},
 	
 	/** Statistic.count():
