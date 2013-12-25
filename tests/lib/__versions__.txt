@@ -1,0 +1,2 @@
+﻿require.js	2.1.9 min <http://requirejs.org/>
+jquery.js	2.0.3 min <http://jquery.com/>
