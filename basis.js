@@ -1799,7 +1799,7 @@ Future.all = function all(futures) {
 	if (count < 1) {
 		result.resolve([]);
 	} else for (var i = 0; i < futures.length; i++) {
-		future = futures[i];
+		future = when(futures[i]);
 		future.done(doneCallback.bind(this, i));
 		future.fail(result.reject.bind(result));
 		future.__onCancel__(result.cancel.bind(result));
@@ -1820,7 +1820,7 @@ Future.any = function any(futures) {
 	if (count < 1) {
 		result.reject();
 	} else for (var i = 0; i < futures.length; i++) {
-		future = futures[i];
+		future = when(futures[i]);
 		future.fail((function (index) {
 			return function (value) {
 				values[index] = value;
