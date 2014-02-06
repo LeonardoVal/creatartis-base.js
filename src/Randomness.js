@@ -1,11 +1,5 @@
-﻿/** basis/randomness.js:
-	Pseudorandom number generation algorithms and related functions.
-	
-	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
-	@licence MIT Licence
+﻿/* Pseudorandom number generation algorithms and related functions.
 */
-// Randomness //////////////////////////////////////////////////////////////////
-
 var Randomness = exports.Randomness = declare({
 	/** new Randomness(generator):
 		Pseudorandom number generator constructor, based on a generator 

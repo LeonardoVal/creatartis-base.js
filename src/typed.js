@@ -1,9 +1,5 @@
-﻿/** basis/typed.js:
-	Functions and definitions regarding type checking, constraints,	validation 
+﻿/* Functions and definitions regarding type checking, constraints,	validation 
 	and coercion.
-
-	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
-	@licence MIT Licence
 */
 // Type representations. ///////////////////////////////////////////////////////
 var types = exports.types = {};

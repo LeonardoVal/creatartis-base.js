@@ -110,14 +110,14 @@ define(['basis'], function (basis) {
 */
 	verifier.test("when()", function () {
 	// One value.
-		var future1 = basis.when(123);
+		var future1 = Future.when(123);
 		this.assert(future1 instanceof Future);
 		this.assert(future1.isResolved);
 	// One future.
 		var future2 = new Future();
-		this.assertSame(future2, basis.when(future2));
+		this.assertSame(future2, Future.when(future2));
 	// No values.
-		var future3 = basis.when();
+		var future3 = Future.when();
 		this.assert(future3 instanceof Future);
 		this.assert(future3.isPending);
 	// Check resolutions.
@@ -136,7 +136,7 @@ define(['basis'], function (basis) {
 	// All resolved first.
 		return Future.sequence(basis.Iterable.range(30), function (n) {
 			var values = basis.Iterable.range(n + 1).toArray(),
-				futures = values.map(basis.when);
+				futures = values.map(Future.when);
 			return Future.all(futures).then(function (r) {
 				verifier.assertIsArray(values, r);
 			});
@@ -146,7 +146,7 @@ define(['basis'], function (basis) {
 				var values = basis.Iterable.range(n + 1).toArray(),
 					reject = Math.random() * (n + 1) >> 0,
 					futures = values.map(function (v, i) {
-						return i == reject || Math.random() < 1/n ? rejectedFuture('error@'+ n) : basis.when(v);
+						return i == reject || Math.random() < 1/n ? rejectedFuture('error@'+ n) : Future.when(v);
 					});
 				return Future.all(futures).then(function (r) {
 					verifier.fail("Future.all() with rejected elements should have been rejected.");

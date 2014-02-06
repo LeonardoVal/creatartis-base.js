@@ -1,8 +1,4 @@
-﻿/** basis/src/basis.js:
-	Core generic algorithms and utility definitions.
-	
-	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
-	@licence MIT Licence
+﻿/* Core generic algorithms and utility definitions.
 */
 // Objects and object orientation. /////////////////////////////////////////////
 
@@ -11,7 +7,7 @@
 	is considered the parent. The following supers add to the returned 
 	constructor's prototype, but do not override. The given members always
 	override.
-	See <http://dojotoolkit.org/reference-guide/1.9/dojo/_base/declare.html>.
+	See [Dojo's declare](http://dojotoolkit.org/reference-guide/1.9/dojo/_base/declare.html).
 */
 var declare = exports.declare = function declare() {
 	var args = Array.prototype.slice.call(arguments),

@@ -2,8 +2,11 @@
 	"name": "basis",
 	"description": "Basic utility functions and definitions used in Creatartis' projects.",
 	"keywords": [],
-	"version": "0.1.0",
-	"author": "Leonardo Val <leonardo.val@creatartis.com>",
+	"version": "0.1.1",
+	"author": {
+		"name": "Leonardo Val",
+		"email": "leonardo.val@creatartis.com"
+	},
 	"homepage": "http://creatartis.com",
 	"contributors": [],
 	"licence": "MIT",

@@ -1,9 +1,5 @@
-﻿/** basis/iterables.js:
-	Standard implementation of iterables and iterators (a.k.a. enumerations), 
+﻿/* Standard implementation of iterables and iterators (a.k.a. enumerations), 
 	and many functions that can be built with it.
-
-	@author <a href="mailto:leonardo.val@creatartis.com">Leonardo Val</a>
-	@licence MIT Licence
 */
 // Iterable constructor. ///////////////////////////////////////////////////////
 	
@@ -51,7 +47,7 @@ Iterable.prototype.stop = function stop() {
 	throw STOP_ITERATION;
 };
 
-/** Iterables.catchStop(exception):
+/** Iterable.catchStop(exception):
 	If the exception is STOP_ITERATION it does nothing. If it is not, the
 	exception is thrown.
 */
@@ -77,7 +73,7 @@ Iterable.EMPTY = new Iterable(function () {
 
 // Iterables from common datatypes. ////////////////////////////////////////////
 
-/** Iterables.__iteratorFromString__(str):
+/** Iterable.__iteratorFromString__(str):
 	Returns a constructor of iterators of the str string.
 */
 Iterable.__iteratorFromString__ = function __iteratorFromString__(str) {
