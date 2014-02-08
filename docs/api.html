@@ -209,12 +209,13 @@ Registers a callback to listen to the event only once.</p>
 			</span></h4>
 			
 				<p>
-An implementation of futures (aka deferreds or promises), a construction
-oriented to simplify the interaction between parallel threads. A future
+An implementation of <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html" target="_blank">futures</a>
+(aka <a href="http://api.jquery.com/category/deferred-object/" target="_blank">deferreds</a> or
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" target="_blank">promises</a>),
+a construction oriented to simplify the interaction between parallel
+threads. A <a href="http://en.wikipedia.org/wiki/Futures_and_promises" target="_blank">future</a>
 represents a value that is being calculated asynchronously. Callbacks
 are registered for when the value becomes available or an error raised.</p>
-			
-				<p>See &lt;http://en.wikipedia.org/wiki/Future_(programming)&gt;.</p>
 			
 		</div>
 	
@@ -515,7 +516,7 @@ is 2, cancelled is 3.</p>
 		<div>
 			<h4><span class="">
 				<a name="Future.STATES"></a>
-				<code>Future.STATES:</code>
+				<code>Future.STATES=['pending', 'resolved', 'rejected', 'cancelled']:</code>
 			</span></h4>
 			
 				<p>
