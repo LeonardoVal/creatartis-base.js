@@ -100,7 +100,7 @@ var raise = exports.raise = function raise() {
 */
 var raiseIf = exports.raiseIf = function raiseIf(condition) {
 	if (condition) {
-		basis.raise(Array.prototype.slice.call(arguments, 1).join(''));
+		raise(Array.prototype.slice.call(arguments, 1).join(''));
 	}
 };
 
