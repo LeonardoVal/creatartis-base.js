@@ -47,25 +47,31 @@ define(['basis'], function (basis) { "use strict";
 	
 	verifier.test("Statistic (keys)", function () {
 		var KEYS = basis.Iterable.range(10).map(function (n) {
-			return '#'+ n;
-		}).toArray();
+			return ['#'+ n, n];
+		}).toObject();
 		for (var i = 0; i < 100; i++) {
-			var pair = RANDOM.split(RANDOM.randomInt(10), KEYS);
+			var split = RANDOM.split(RANDOM.randomInt(10), Object.keys(KEYS));
 			// Keys from array.
-			var stat = new Statistic(pair[0]);
-			pair[0].forEach(function (k) {
-				verifier.assert(stat.applies(k), 'new Statistic(', JSON.stringify(pair[0]),') should apply to key "', k, '".');
+			var stat = new Statistic(split[0]);
+			split[0].forEach(function (k) {
+				verifier.assert(stat.applies([k]), 
+					'new Statistic(', JSON.stringify(stat.keys), ') should apply to key ', JSON.stringify([k]), '.');
 			});
-			pair[1].forEach(function (k) {
-				verifier.assertFalse(stat.applies(k), 'new Statistic(', JSON.stringify(pair[0]),') should not apply to key "', k, '".');
+			split[1].forEach(function (k) {
+				verifier.assertFalse(stat.applies([k]), 
+					'new Statistic(', JSON.stringify(stat.keys), ') should not apply to key ', JSON.stringify([k]), '.');
 			});
-			// Keys from whitespace separated string.
-			var stat = new Statistic(pair[0].join(' '));
-			pair[0].forEach(function (k) {
-				verifier.assert(stat.applies(k), 'new Statistic(', JSON.stringify(pair[0]),') should apply to key "', k, '".');
+			// Keys from object.
+			stat = new Statistic(basis.iterable(split[0]).map(function (k) {
+				return [k, KEYS[k]];
+			}).toObject());
+			split[0].forEach(function (k) {
+				verifier.assert(stat.applies(basis.obj(k, KEYS[k])), 
+					'new Statistic(', JSON.stringify(stat.keys), ') should apply to key ', JSON.stringify({k: KEYS[k]}), '.');
 			});
-			pair[1].forEach(function (k) {
-				verifier.assertFalse(stat.applies(k), 'new Statistic(', JSON.stringify(pair[0]),') should not apply to key "', k, '".');
+			split[1].forEach(function (k) {
+				verifier.assertFalse(stat.applies(basis.obj(k, KEYS[k])), 
+					'new Statistic(', JSON.stringify(stat.keys), ') should not apply to key ', JSON.stringify({k: KEYS[k]}), '.');
 			});
 		}
 	});
