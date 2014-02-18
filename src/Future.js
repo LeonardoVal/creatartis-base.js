@@ -230,194 +230,196 @@ var Future = exports.Future = declare({
 	
 	toString: function toString() {
 		return 'Future:'+ this.STATES[this.state];
+	},
+	
+// Functions dealing with Futures. /////////////////////////////////////////////
+
+	/** static Future.when(value):
+		Unifies asynchronous and synchronous behaviours. If value is a Future
+		it is returned as it is. Else a resolved Future is returned with the 
+		given value.
+	*/
+	'static when': function when(value) {
+		return value instanceof Future ? value : new Future(value);
+	},
+
+	/** static Future.invoke(fn, _this, args...):
+		Calls the function synchronously, returning a future resolved with the 
+		call's result. If an exceptions is raised, the future is rejected with it.
+	*/
+	'static invoke': function invoke(fn, _this) {
+		try {
+			return when(fn.apply(_this, Array.prototype.slice.call(arguments, 2)));
+		} catch (error) {
+			var result = new Future();
+			result.reject(error);
+			return result;
+		}
+	},
+
+	/** static Future.all(futures):
+		Returns a Future that is resolved when all the given futures are 
+		resolved, or rejected when one is rejected. If no futures are given,
+		the result is resolved with [].
+	*/
+	'static all': function all(futures) {
+		futures = Array.isArray(futures) ? futures : iterable(futures).toArray();
+		var result = new Future(),
+			count = futures.length,
+			values = new Array(count), future,
+			doneCallback = function (index, value) {
+				values[index] = value;
+				if (--count < 1) {
+					//console.log("all() resolved with "+ values.length +" values.");//FIXME
+					result.resolve(values);
+				}
+			};
+		if (count < 1) {
+			result.resolve([]);
+		} else for (var i = 0; i < futures.length; i++) {
+			future = when(futures[i]);
+			future.done(doneCallback.bind(this, i));
+			future.fail(result.reject.bind(result));
+			future.__onCancel__(result.cancel.bind(result));
+		}
+		return result;
+	},
+
+	/** static Future.any(futures):
+		Returns a Future that is resolved when any of the given futures are 
+		resolved, or rejected when all are rejected. If no futures are given,
+		the result is rejected with undefined.
+	*/
+	'static any': function any(futures) {
+		futures = iterables.iterable(futures).toArray();
+		var result = new Future(), 
+			count = futures.length,
+			values = new Array(count), future;
+		if (count < 1) {
+			result.reject();
+		} else for (var i = 0; i < futures.length; i++) {
+			future = when(futures[i]);
+			future.fail((function (index) {
+				return function (value) {
+					values[index] = value;
+					count--;
+					if (count < 1) {
+						result.reject(value);
+					}
+				};
+			})(i));
+			future.done(result.resolve.bind(result));
+			future.__onCancel__(result.cancel.bind(result));
+		}
+		return result;
+	},
+
+	/** static Future.sequence(xs, f=None):
+		Evaluates all values and futures in the iterable xs in sequence. If it
+		is given, the function f is called for each value.
+	*/
+	'static sequence': function sequence(xs, f) {
+		var result = new Future(), x,
+			rejection = result.reject.bind(result),
+			it = iterable(xs).__iter__(),
+			action = function action(lastValue) {
+				try {
+					x = it();
+					if (f) {
+						return when(x).then(f, rejection).then(action, rejection);
+					} else {
+						return when(x).then(action, rejection);
+					}
+				} catch (err) {
+					if (err === STOP_ITERATION) {
+						result.resolve(lastValue);
+					} else {
+						result.reject(err);
+					}
+				}
+			};
+		action();
+		return result;
+	},
+
+	/** static Future.doWhile(action, condition):
+		Perform the action until the condition fails. The action is first called
+		without arguments, and afterwards is called with the previous value. The
+		conditions is always called with the last value returned by action. 
+		Both action and condition may return futures. The condition by default
+		is the boolean conversion of the action's returned value.
+	*/
+	'static doWhile': function doWhile(action, condition) {
+		condition = condition || function (value) {
+			return !!value;
+		};
+		var loopEnd = new Future(),
+			reject = loopEnd.reject.bind(loopEnd);
+		function loop(value) {
+			Future.invoke(condition, this, value).then(function (checks) {
+				if (checks) {
+					Future.invoke(action, this, value).then(loop, reject);
+				} else {
+					loopEnd.resolve(value);
+				}
+			}, reject);
+		}
+		Future.invoke(action).then(loop, reject);
+		return loopEnd;
+	},
+
+	/** static Future.whileDo(condition, action):
+		Similar to futures.doWhile, but evaluates the condition first.
+	*/
+	'static whileDo': function whileDo(condition, action) {
+		return Future.invoke(condition).then(function (checks) {
+			return Future.doWhile(action, condition);
+		});
+	},
+
+	/** static Future.delay(ms, value):
+		Return a future that will be resolved with the given value after the 
+		given time in milliseconds. Time is forced to be at least 10ms. If value
+		is undefined, the timestamp when the function is called is used.
+	*/
+	'static delay': function delay(ms, value) {
+		ms = isNaN(ms) ? 10 : Math.max(+ms, 10);
+		value = typeof value === 'undefined' ? Date.now() : value;
+		var result = new Future();
+		setTimeout(result.resolve.bind(result, value), ms);
+		return result;
+	},
+
+	/** static Future.retrying(f, t=10, delay=100ms, delayFactor=2, maxDelay=5min):
+		Calls the function f upto t times until it returns a value or a future that
+		is resolved. Each time is separated by a delay that gets increased by
+		delayFactor upto maxDelay.
+	*/
+	'static retrying': function retrying(f, times, delay, delayFactor, maxDelay) {
+		times = isNaN(times) ? 10 : +times;
+		return times < 1 ? Future.invoke(f) : Future.invoke(f).then(undefined, function () {
+			delay = isNaN(delay) ? 100 : +delay;
+			delayFactor = isNaN(delayFactor) ? 2.0 : +delayFactor;
+			maxDelay = isNaN(maxDelay) ? 300000 : +maxDelay;
+			return Future.delay(delay).then(function () {
+				return Future.retrying(f, times - 1, Math.min(maxDelay, delay * delayFactor), delayFactor, maxDelay);
+			});
+		});
+	},
+
+	/** static Future.imports(...modules):
+		Builds a future that loads the given modules using RequireJS' require 
+		function, and resolves to an array of the loaded modules.
+	*/
+	'static imports': function imports() {
+		var result = new Future();
+		require(Array.prototype.slice.call(arguments), function () {
+			result.resolve(Array.prototype.slice.call(arguments));
+		}, function (err) {
+			result.reject(err);
+		});
+		return result;
 	}
 }); // declare Future.
 
-// Functions dealing with Futures. /////////////////////////////////////////////
-
-/** static Future.when(value):
-	Unifies asynchronous and synchronous behaviours. If value is a Future
-	it is returned as it is. Else a resolved Future is returned with the 
-	given value.
-*/
-var when = Future.when = function when(value) {
-	return value instanceof Future ? value : new Future(value);
-};
-
-/** static Future.invoke(fn, _this, args...):
-	Calls the function synchronously, returning a future resolved with the 
-	call's result. If an exceptions is raised, the future is rejected with it.
-*/
-Future.invoke = function invoke(fn, _this) {
-	try {
-		return when(fn.apply(_this, Array.prototype.slice.call(arguments, 2)));
-	} catch (error) {
-		var result = new Future();
-		result.reject(error);
-		return result;
-	}
-};
-
-/** static Future.all(futures):
-	Returns a Future that is resolved when all the given futures are 
-	resolved, or rejected when one is rejected. If no futures are given,
-	the result is resolved with [].
-*/
-Future.all = function all(futures) {
-	futures = Array.isArray(futures) ? futures : iterable(futures).toArray();
-	var result = new Future(),
-		count = futures.length,
-		values = new Array(count), future,
-		doneCallback = function (index, value) {
-			values[index] = value;
-			if (--count < 1) {
-				//console.log("all() resolved with "+ values.length +" values.");//FIXME
-				result.resolve(values);
-			}
-		};
-	if (count < 1) {
-		result.resolve([]);
-	} else for (var i = 0; i < futures.length; i++) {
-		future = when(futures[i]);
-		future.done(doneCallback.bind(this, i));
-		future.fail(result.reject.bind(result));
-		future.__onCancel__(result.cancel.bind(result));
-	}
-	return result;
-};
-
-/** static Future.any(futures):
-	Returns a Future that is resolved when any of the given futures are 
-	resolved, or rejected when all are rejected. If no futures are given,
-	the result is rejected with undefined.
-*/
-Future.any = function any(futures) {
-	futures = iterables.iterable(futures).toArray();
-	var result = new Future(), 
-		count = futures.length,
-		values = new Array(count), future;
-	if (count < 1) {
-		result.reject();
-	} else for (var i = 0; i < futures.length; i++) {
-		future = when(futures[i]);
-		future.fail((function (index) {
-			return function (value) {
-				values[index] = value;
-				count--;
-				if (count < 1) {
-					result.reject(value);
-				}
-			};
-		})(i));
-		future.done(result.resolve.bind(result));
-		future.__onCancel__(result.cancel.bind(result));
-	}
-	return result;
-};
-
-/** static Future.sequence(xs, f=None):
-	Evaluates all values and futures in the iterable xs in sequence. If it
-	is given, the function f is called for each value.
-*/
-Future.sequence = function sequence(xs, f) {
-	var result = new Future(), x,
-		rejection = result.reject.bind(result),
-		it = iterable(xs).__iter__(),
-		action = function action(lastValue) {
-			try {
-				x = it();
-				if (f) {
-					return when(x).then(f, rejection).then(action, rejection);
-				} else {
-					return when(x).then(action, rejection);
-				}
-			} catch (err) {
-				if (err === STOP_ITERATION) {
-					result.resolve(lastValue);
-				} else {
-					result.reject(err);
-				}
-			}
-		};
-	action();
-	return result;
-};
-
-/** static Future.doWhile(action, condition):
-	Perform the action until the condition fails. The action is first called
-	without arguments, and afterwards is called with the previous value. The
-	conditions is always called with the last value returned by action. 
-	Both action and condition may return futures. The condition by default
-	is the boolean conversion of the action's returned value.
-*/
-Future.doWhile = function doWhile(action, condition) {
-	condition = condition || function (value) {
-		return !!value;
-	};
-	var loopEnd = new Future(),
-		reject = loopEnd.reject.bind(loopEnd);
-	function loop(value) {
-		Future.invoke(condition, this, value).then(function (checks) {
-			if (checks) {
-				Future.invoke(action, this, value).then(loop, reject);
-			} else {
-				loopEnd.resolve(value);
-			}
-		}, reject);
-	}
-	Future.invoke(action).then(loop, reject);
-	return loopEnd;
-};
-
-/** static Future.whileDo(condition, action):
-	Similar to futures.doWhile, but evaluates the condition first.
-*/
-Future.whileDo = function whileDo(condition, action) {
-	return Future.invoke(condition).then(function (checks) {
-		return Future.doWhile(action, condition);
-	});
-};
-
-/** static Future.delay(ms, value):
-	Return a future that will be resolved with the given value after the 
-	given time in milliseconds. Time is forced to be at least 10ms. If value
-	is undefined, the timestamp when the function is called is used.
-*/
-Future.delay = function delay(ms, value) {
-	ms = isNaN(ms) ? 10 : Math.max(+ms, 10);
-	value = typeof value === 'undefined' ? Date.now() : value;
-	var result = new Future();
-	setTimeout(result.resolve.bind(result, value), ms);
-	return result;
-};
-
-/** static Future.retrying(f, t=10, delay=100ms, delayFactor=2, maxDelay=5min):
-	Calls the function f upto t times until it returns a value or a future that
-	is resolved. Each time is separated by a delay that gets increased by
-	delayFactor upto maxDelay.
-*/
-Future.retrying = function retrying(f, times, delay, delayFactor, maxDelay) {
-	times = isNaN(times) ? 10 : +times;
-	return times < 1 ? Future.invoke(f) : Future.invoke(f).then(undefined, function () {
-		delay = isNaN(delay) ? 100 : +delay;
-		delayFactor = isNaN(delayFactor) ? 2.0 : +delayFactor;
-		maxDelay = isNaN(maxDelay) ? 300000 : +maxDelay;
-		return Future.delay(delay).then(function () {
-			return Future.retrying(f, times - 1, Math.min(maxDelay, delay * delayFactor), delayFactor, maxDelay);
-		});
-	});
-};
-
-/** static Future.imports(...modules):
-	Builds a future that loads the given modules using RequireJS' require 
-	function, and resolves to an array of the loaded modules.
-*/
-Future.imports = function imports() {
-	var result = new Future();
-	require(Array.prototype.slice.call(arguments), function () {
-		result.resolve(Array.prototype.slice.call(arguments));
-	}, function (err) {
-		result.reject(err);
-	});
-	return result;
-};
+var when = Future.when;

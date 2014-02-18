@@ -2,7 +2,7 @@
 	"name": "basis",
 	"description": "Basic utility functions and definitions used in Creatartis' projects.",
 	"keywords": [],
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"author": {
 		"name": "Leonardo Val",
 		"email": "leonardo.val@creatartis.com"

@@ -14,14 +14,14 @@ var umdWrapper = function (init) {
 };
 
 var SOURCE_FILES = [ 
-	'src/basis.js', 
+	'src/basis.js', 'src/Objects.js',
 	'src/text.js', 
 	'src/typed.js',
 	'src/iterables.js', // iterators and FP utilities. 
 	'src/Future.js', 'src/HttpRequest.js', // asynchronism
 	'src/Events.js', // functions.
 	'src/Randomness.js', // math.
-	'src/Chronometer.js', 'src/stats.js', // statistic gathering.
+	'src/Chronometer.js', 'src/Statistic.js', 'src/Statistics.js', // statistic gathering.
 	'src/Logger.js', // logging.
 	'src/Verifier.js' // unit testing.
 ];
