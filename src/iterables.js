@@ -577,9 +577,10 @@ Iterable.prototype.chain = function chain() {
 	Chains all the iterables in the elements of this iterable.
 */
 Iterable.prototype.flatten = function flatten() {
-	var it = this.__iter__();
+	var self = this;
 	return new Iterable(function __iter__() {
-		var iterator = this.stop;
+		var it = self.__iter__(),
+			iterator = this.stop;
 		return function __flattenIterator__() {
 			while (true) try {
 				return iterator();
