@@ -1,11 +1,11 @@
 ﻿/* Core generic algorithms and utility definitions.
 */
 
-/** Global:
+/** global:
 	Global scope of the current execution environment. Usually (window) in 
 	browsers and (global) under NodeJS.
 */
-var Global = exports.Global = (0, eval)('this');
+var global = exports.global = (0, eval)('this');
 
 /** raise(message...):
 	Builds a new instance of Error with the concatenation of the arguments 
