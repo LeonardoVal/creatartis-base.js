@@ -18,7 +18,7 @@ var SOURCE_FILES = [
 	'src/text.js', 
 	'src/typed.js',
 	'src/iterables.js', // iterators and FP utilities. 
-	'src/Future.js', 'src/HttpRequest.js', // asynchronism
+	'src/Future.js', 'src/HttpRequest.js', 'src/Parallel.js', // asynchronism
 	'src/Events.js', // functions.
 	'src/Randomness.js', // math.
 	'src/Chronometer.js', 'src/Statistic.js', 'src/Statistics.js', // statistic gathering.
@@ -34,7 +34,7 @@ module.exports = function(grunt) {
 		concat: { //////////////////////////////////////////////////////////////
 			options: {
 				separator: '\n\n',
-				banner: '"use strict"; ('+ umdWrapper +')(function (){ var exports = {};\n',
+				banner: '"use strict"; ('+ umdWrapper +')(function __init__(){ var exports = { __init__: __init__ };\n',
 				footer: '\nreturn exports;\n});'
 			},
 			build: {

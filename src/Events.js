@@ -56,7 +56,7 @@ var Events = exports.Events = declare({
 			.filter(function (listener) {
 				if (listener[1] > 0) {
 					setTimeout(function () {
-						return listener[0].apply(Global, args)
+						return listener[0].apply(global, args)
 					}, 1);
 					listener[1]--;
 					return listener[1] > 0;
@@ -104,7 +104,7 @@ var Events = exports.Events = declare({
 		if (Array.isArray(eventName)) {
 			var events = this;
 			eventName.forEach(function (name) {
-				events.off(name, callback, times);
+				events.off(name, callback);
 			});
 		} else if (this.__listeners__.hasOwnProperty(eventName)) {
 			this.__listeners__[eventName] = this.__listeners__[eventName]
