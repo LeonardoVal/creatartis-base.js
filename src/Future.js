@@ -243,6 +243,18 @@ var Future = exports.Future = declare({
 		return value instanceof Future ? value : new Future(value);
 	},
 
+	/** static Future.then(value, onResolved, onRejected=undefined):
+		Another way of unifying asynchronous and synchronous behaviours. If
+		value is a Future, it behaves like the instance Future.then(). Else it
+		calls onResolved with the given value. 
+		The main difference with Future.when is that of value is not a Future, 
+		the result may not be a Future neither. This may be useful for avoiding
+		asynchronism overhead when synchronism is more probable.
+	*/
+	'static then': function then(value, onResolved, onRejected) {
+		return value instanceof Future ? value.then(onResolved, onRejected) : onResolved(value);
+	},
+	
 	/** static Future.invoke(fn, _this, args...):
 		Calls the function synchronously, returning a future resolved with the 
 		call's result. If an exceptions is raised, the future is rejected with it.
