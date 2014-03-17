@@ -256,7 +256,11 @@ var Statistic = exports.Statistic = declare({
 	*/
 	toString: function toString(sep) {
 		sep = ''+ (sep || '\t');
-		return [Object.keys(this.keys).join(' '), this.count(), this.minimum(), this.average(), 
+		var keys = typeof this.keys !== 'object' ? this.keys + '' :
+			iterable(this.keys).map(function (kv) {
+				return kv[0] +':'+ kv[1];
+			}).join(', ')
+		return [keys, this.count(), this.minimum(), this.average(), 
 			this.maximum(), this.standardDeviation()].join(sep);
 	}
 }); // declare Statistic.
