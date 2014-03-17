@@ -99,7 +99,7 @@ var Text = exports.Text = declare({
 				case 'S': return lpad((useUTC ? date.getUTCMilliseconds() : date.getMilliseconds()) +'', match.length, '0');
 				case 'a': return ['am','pm'][~~((useUTC ? date.getUTCHours() : date.getHours()) / 12)].substr(0, match.length);
 				case 'A': return ['AM','PM'][~~((useUTC ? date.getUTCHours() : date.getHours()) / 12)].substr(0, match.length);
-				case '"': return match.substr(1, match.length-1);
+				case '"': return match.substr(1, match.length-2);
 				default: return match;
 				}
 			});
