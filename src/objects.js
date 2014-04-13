@@ -1,10 +1,11 @@
-/** objects:
-	Bundle of OOP related functions and definitions.
+/** # Objects
+	
+OOP related functions and definitions.
 */
 var objects = exports.objects = (function () {
-	/** objects.subconstructor(parent, constructor=<new constructor>):
-		Returns a new constructor (or the given constructor) with an adjusted
-		prototype inheriting from the parent.
+	/** Extending a constructor implies assigning as the subconstructor 
+	prototype an instance of the parent constructor. If no constructor is given,
+	a new one is used.
 	*/
 	var subconstructor = this.subconstructor = function subconstructor(parent, constructor) {
 		var proto, placeholder;
@@ -13,9 +14,10 @@ var objects = exports.objects = (function () {
 				parent.apply(this, arguments);
 			});
 		}
-		/* This is the way goog.inherits does it in Google's Closure Library. It
-			is preferred since it does not require the parent constructor to 
-			support being called without arguments.			
+		/** This is similar to the way 
+		[goog.inherits does it in Google's Closure Library](http://docs.closure-library.googlecode.com/git/namespace_goog.html). 
+		It is preferred since it does not require the parent constructor to 
+		support being called without arguments.			
 		*/
 		placeholder = function () {};
 		placeholder.prototype = parent.prototype;
@@ -24,10 +26,9 @@ var objects = exports.objects = (function () {
 		return constructor;
 	};
 	
-	/** objects.addMember(constructor, key, value, force=false):
-		Adds the value as a member of the constructor's type. If the constructor
-		already has a member with the given key, it is overriden only if force
-		is true.
+	/** `objects.addMember(constructor, key, value, force=false)` adds `value`
+	as a member of the constructor's prototype. If it already has a member with 
+	the `key`, it is overriden only if `force` is true.
 	*/
 	var addMember = this.addMember = function addMember(constructor, key, value, force) {
 		var modifiers = key.split(/\s+/),
@@ -45,9 +46,9 @@ var objects = exports.objects = (function () {
 		}
 	};
 	
-	/** objects.addMembers(constructor, members, force=false):
-		Adds all own properties of members to the constructor's type, using
-		addMember.
+	/** `objects.addMembers(constructor, members, force=false)` adds all own 
+	properties of members to the constructor's prototype, using 
+	`objects.addMember`.
 	*/
 	var addMembers = this.addMembers = function addMembers(constructor, members, force) {
 		Object.keys(members).map(function (id) {
@@ -55,12 +56,12 @@ var objects = exports.objects = (function () {
 		});
 	};
 	
-	/** objects.declare(supers..., members={}):
-		Object oriented implementations, influenced by Dojo's. The first super 
-		is considered the parent. The following supers add to the returned 
-		constructor's prototype, but do not override. The given members always
-		override.
-		See [Dojo's declare](http://dojotoolkit.org/reference-guide/1.9/dojo/_base/declare.html).
+	/** The function `objects.declare(supers..., members={})` implements basis'
+	object oriented implementation, influenced by 
+	[Dojo's](http://dojotoolkit.org/reference-guide/1.9/dojo/_base/declare.html). 
+	The first super is considered the parent. The following supers add to the
+	returned constructor's prototype, but do not override. The given members 
+	always override.
 	*/
 	var declare = exports.declare = this.declare = function declare() {
 		var args = Array.prototype.slice.call(arguments),
@@ -85,8 +86,9 @@ var objects = exports.objects = (function () {
 		return constructor;
 	};
 
-	/** objects.unimplemented(cls, id):
-		Returns a function that raises an "unimplemented method" exception.
+	/** Abstract methods can be quickly defined with 
+	`objects.unimplemented(cls, id)`. It returns a function that raises an 
+	"unimplemented method" exception. This is recommended, for better debugging.
 	*/
 	var unimplemented = this.unimplemented = function unimplemented(cls, id) {
 		return function () {
@@ -95,6 +97,7 @@ var objects = exports.objects = (function () {
 	};
 	
 	return this;
-}).call({}); // Objects.
+}).call({}); //// objects.
 
+// `objects.declare` is also available through `basis.declare`.
 var declare = objects.declare;

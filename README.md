@@ -1,8 +1,10 @@
-﻿# basis.js
+﻿basis.js
+========
 
 Bundle of assorted utility definitions used in our Javascript projects. Can be loaded as a CommonJS module, with AMD, or directly (defines `basis` in the global scope). Tested in NodeJS, Firefox & Chrome using [RequireJS](http://requirejs.org/).
 
 Includes:
+
 * OOP related functions like `declare` (similar to [Dojo's](http://dojotoolkit.org/)).
 * A [promises](http://en.wikipedia.org/wiki/Futures_and_promises) implementation for dealing with asynchronism, called `Future`.
 * Functional style iterators and iterables.
