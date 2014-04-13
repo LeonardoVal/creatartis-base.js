@@ -10,7 +10,6 @@ Includes:
 * Functional style iterators and iterables.
 * Pseudorandom number generators (Javascript's `Math.random` does not allow seeding) with a rich set of features.
 * A `Chronometer`, and objects for gathering `Statistics`.
-* A simple `Logger` and a unit testing microlibrary (called `Verifier`).
 
 ## License
 
