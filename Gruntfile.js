@@ -1,18 +1,18 @@
 ﻿/** Gruntfile for [basis.js](http://github.com/LeonardoVal/basis.js).
 */
-var SOURCE_FILES = ['src/__prologue__.js',
-	'src/core.js', 'src/polyfill.js', 'src/objects.js',
-	'src/text.js', 
-	'src/typed.js',
-	'src/iterables.js', // iterators and FP utilities. 
-	'src/Future.js', 'src/HttpRequest.js', 'src/Parallel.js', // asynchronism
-	'src/Events.js', // functions.
-	'src/Randomness.js', // math.
-	'src/Chronometer.js', 'src/Statistic.js', 'src/Statistics.js', // statistic gathering.
-	'src/Logger.js', // logging.
-	'src/__epilogue__.js'];
-
 module.exports = function(grunt) {
+	var SOURCE_FILES = ['src/__prologue__.js',
+		'src/core.js', 'src/polyfill.js', 'src/objects.js',
+		'src/text.js', 
+		'src/typed.js',
+		'src/iterables.js', // iterators and FP utilities. 
+		'src/Future.js', 'src/HttpRequest.js', 'src/Parallel.js', // asynchronism
+		'src/Events.js', // functions.
+		'src/Randomness.js', // math.
+		'src/Chronometer.js', 'src/Statistic.js', 'src/Statistics.js', // statistic gathering.
+		'src/Logger.js', // logging.
+		'src/__epilogue__.js'];
+
 	grunt.file.defaultEncoding = 'utf8';
 // Init config. ////////////////////////////////////////////////////////////////
 	grunt.initConfig({

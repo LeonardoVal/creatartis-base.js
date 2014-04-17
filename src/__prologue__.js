@@ -7,7 +7,7 @@
 	} else if (typeof module === 'object' && module.exports) {
 		module.exports = init(); // CommonJS module.
 	} else { // Browser or web worker (probably).
-		(0, eval)('this').ludorum = init(global.basis);
+		(0, eval)('this').basis = init();
 	}
 })(function __init__(basis){
 // Library layout. /////////////////////////////////////////////////////////////
