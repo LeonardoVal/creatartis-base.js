@@ -17,11 +17,10 @@
 	"main": "build/basis.js",
 	"ignore": [
 		"**/.*", 
-		"node_modules", "bower_components", "src", "tests", "docs", "lib",
+		"node_modules", "bower_components", "src", "tests", "docs",
 		"bower.json", "package.json", "Gruntfile.js", "LICENSE.md", "README.md"
 	],
 	"dependencies": {
-		"jquery": "2.0.3",
 		"requirejs": "2.1.9"
 	}
 }
