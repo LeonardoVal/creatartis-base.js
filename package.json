@@ -1,8 +1,10 @@
 ﻿{
 	"name": "basis",
-	"description": "Basic utility functions and definitions used in Creatartis' projects.",
-	"keywords": [],
-	"version": "0.1.3",
+	"description": "Basic and generic utility functions and definitions.",
+	"keywords": [
+		"iterables", "oop", "promises"
+	],
+	"version": "0.1.4",
 	"author": {
 		"name": "Leonardo Val",
 		"email": "leonardo.val@creatartis.com"
