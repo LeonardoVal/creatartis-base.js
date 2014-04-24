@@ -5,7 +5,7 @@ Generic algorithms and utility definitions.
 
 /** Depending on the execution environment the global scope may be different:
 `window` in browsers, `global` under NodeJS, `self` in web workers, etc. 
-`basis.global` holds a reference to this object.
+`global` holds a reference to this object.
 */
 var global = exports.global = (0, eval)('this');
 

@@ -56,8 +56,8 @@ var objects = exports.objects = (function () {
 		});
 	};
 	
-	/** The function `objects.declare(supers..., members={})` implements basis'
-	object oriented implementation, influenced by 
+	/** The function `objects.declare(supers..., members={})` implements 
+	creatartis-base's object oriented implementation, influenced by 
 	[Dojo's](http://dojotoolkit.org/reference-guide/1.9/dojo/_base/declare.html). 
 	The first super is considered the parent. The following supers add to the
 	returned constructor's prototype, but do not override. The given members 
@@ -99,5 +99,5 @@ var objects = exports.objects = (function () {
 	return this;
 }).call({}); //// objects.
 
-// `objects.declare` is also available through `basis.declare`.
+// `objects.declare` is also available through `creatartis_base.declare`.
 var declare = objects.declare;

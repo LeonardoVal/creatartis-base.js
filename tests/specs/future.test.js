@@ -1,5 +1,5 @@
-﻿define(['basis'], function (basis) {
-	var Future = basis.Future;
+﻿define(['base'], function (base) {
+	var Future = base.Future;
 	
 	function expectState(future, state) {
 		expect(future.state).toEqual(state);
@@ -105,8 +105,8 @@
 		
 		var ALL_TEST_COUNT = 10;
 		async_it("all() (all resolved first)", function () {
-			return Future.sequence(basis.Iterable.range(ALL_TEST_COUNT), function (n) { // All resolved first.
-				var values = basis.Iterable.range(n + 1).toArray(),
+			return Future.sequence(base.Iterable.range(ALL_TEST_COUNT), function (n) { // All resolved first.
+				var values = base.Iterable.range(n + 1).toArray(),
 					futures = values.map(Future.when);
 				return Future.all(futures).then(function (r) {
 					expect(r).toEqual(values);
@@ -114,8 +114,8 @@
 			});
 		});
 		async_it("all() (some rejected first)", function () {
-			return Future.sequence(basis.Iterable.range(ALL_TEST_COUNT), function (n) {
-				var values = basis.Iterable.range(n + 1).toArray(),
+			return Future.sequence(base.Iterable.range(ALL_TEST_COUNT), function (n) {
+				var values = base.Iterable.range(n + 1).toArray(),
 					reject = Math.random() * (n + 1) >> 0,
 					futures = values.map(function (v, i) {
 						return i == reject || Math.random() < 1/n ? rejectedFuture('error@'+ n) : Future.when(v);
@@ -129,9 +129,9 @@
 			});
 		});
 		async_it("all() (all resolved deferred)", function () {
-			return Future.sequence(basis.Iterable.range(ALL_TEST_COUNT), function (n) {
-				var values = basis.Iterable.range(n + 1).toArray(),
-					futures = basis.Iterable.range(n + 1).map(function (v, i) {
+			return Future.sequence(base.Iterable.range(ALL_TEST_COUNT), function (n) {
+				var values = base.Iterable.range(n + 1).toArray(),
+					futures = base.Iterable.range(n + 1).map(function (v, i) {
 						return new Future();
 					}).toArray();
 				futures.forEach(function (f, i) { // Asynchronous deferred resolutions.
@@ -143,10 +143,10 @@
 			});
 		});
 		async_it("all() (some rejected deferred)", function () {
-			return Future.sequence(basis.Iterable.range(ALL_TEST_COUNT), function (n) {
-				var values = basis.Iterable.range(n + 1).toArray(),
+			return Future.sequence(base.Iterable.range(ALL_TEST_COUNT), function (n) {
+				var values = base.Iterable.range(n + 1).toArray(),
 					reject = Math.random() * (n + 1) >> 0,
-					futures = basis.Iterable.range(n + 1).map(function (v, i) {
+					futures = base.Iterable.range(n + 1).map(function (v, i) {
 						return new Future();
 					}).toArray();
 				futures.forEach(function (f, i) { // Asynchronous deferred resolutions and rejections.

@@ -1,7 +1,7 @@
-﻿define(['basis'], function (basis) {
-	var Randomness = basis.Randomness,
+﻿define(['base'], function (base) {
+	var Randomness = base.Randomness,
 		DEFAULT = Randomness.DEFAULT,
-		iterable = basis.iterable;
+		iterable = base.iterable;
 	
 	function __constantRandom__(k) { // Trust me, it makes sense in the end.
 		return new Randomness(function () { 

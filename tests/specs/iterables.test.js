@@ -1,6 +1,6 @@
-﻿define(['basis'], function (basis) { "use strict";
-	var Iterable = basis.Iterable,
-		iterable = basis.iterable;
+﻿define(['base'], function (base) { "use strict";
+	var Iterable = base.Iterable,
+		iterable = base.iterable;
 	
 	function expectSequence(sequence) { // Used mainly to test iterables.
 		var iterator = sequence.__iter__(), x;

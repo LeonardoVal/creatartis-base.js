@@ -13,7 +13,7 @@ module.exports = function(config) {
     files: [
       'tests/karma-tester.js',
       {pattern: 'tests/specs/*.test.js', included: false},
-      {pattern: 'build/basis.js', included: false}
+      {pattern: 'build/creatartis-base.js', included: false}
     ],
 
     // list of files to exclude
@@ -22,7 +22,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-		'build/basis.js': ['sourcemap'] // Source map loader.
+		'build/creatartis-base.js': ['sourcemap'] // Source map loader.
 	},
 
     // test results reporter to use

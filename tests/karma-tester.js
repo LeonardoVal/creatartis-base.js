@@ -32,7 +32,7 @@ function async_it(desc, func) { // Future friendly version of it().
 require.config({ // Configure RequireJS.
 	baseUrl: '/base', // Karma serves files under /base, which is the basePath from your config file
 	paths: {
-		basis: '/base/build/basis'
+		'base': '/base/build/creatartis-base'
 	}
 });
 require(Object.keys(window.__karma__.files) // Dynamically load all test files

@@ -17,15 +17,15 @@ var Parallel = exports.Parallel = declare({
 	},
 	
 	/** static Parallel.newWorker():
-		Builds a new web worker. Loading basis in its environment. Sets up a
-		message handler that evaluates posted messages as code, posting the
-		results back.
+	Builds a new web worker. Loading creatartis-base in its environment. Sets up 
+	a message handler that evaluates posted messages as code, posting the
+	results back.
 	*/
 	"static newWorker": function newWorker() {
-		var src = 'self.basis = ('+ exports.__init__ +')();'+
+		var src = 'self.creatartis_base = ('+ exports.__init__ +')();'+
 				'self.onmessage = ('+ (function (msg) {
 					try {
-						self.basis.Future.when(eval(msg.data)).then(function (result) {
+						self.creatartis_base.Future.when(eval(msg.data)).then(function (result) {
 							self.postMessage(JSON.stringify({ result: result }));
 						});
 					} catch (err) {
