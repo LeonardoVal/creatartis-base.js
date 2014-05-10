@@ -36,7 +36,8 @@
 			"karma-sourcemap-loader": "~0.1"
 	},
 	"scripts": {
-		"test": "grunt test",
-		"setup-dev": "npm install && grunt lib && grunt build"
+		"setup-dev": "npm install && grunt lib && grunt build",
+		"postinstall": "npm dedupe",
+		"test": "grunt test"
 	}
 }
