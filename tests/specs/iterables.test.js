@@ -7,7 +7,9 @@
 		for (var i = 1; i < arguments.length; ++i) {
 			expect(iterator()).toEqual(arguments[i]);
 		}
-		expect(iterator).toThrow(Iterable.STOP_ITERATION);
+		for (var i = 0; i < 3; ++i) {
+			expect(iterator).toThrow(Iterable.STOP_ITERATION);
+		}
 	}
 	
 	describe("Iterables", function () {

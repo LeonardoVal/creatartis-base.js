@@ -51,8 +51,8 @@ var Iterable = exports.Iterable = declare({
 		throw STOP_ITERATION;
 	},
 
-	/** `catchStop(exception)` does nothing `exception` is 
-	`STOP_ITERATION`, but if it isn't the exception is thrown.
+	/** `catchStop(exception)` does nothing `exception` is `STOP_ITERATION`, but
+	if it isn't the exception is thrown.
 	*/
 	catchStop: function catchStop(exception) {
 		if (exception !== STOP_ITERATION) {
@@ -596,16 +596,19 @@ var Iterable = exports.Iterable = declare({
 		var its = Array.prototype.slice.call(arguments).map(iterable);
 		its.unshift(this);
 		return new Iterable(function __iter__() {
-			var tuple, iterators = its.map(function (it) {
-					return it.__iter__();
-				});
+			var iterators, tuple;
 			return function __productIterator__() {
-				if (!tuple) { // First tuple.
+				if (!iterators) { // First tuple.
+					iterators = its.map(function (it) {
+						return it.__iter__();
+					});
 					tuple = iterators.map(function (iter) {
 						return iter(); // If STOP_ITERATION is raised, it should not be catched.
 					});
-				} else { // Subsequent tuples.
-					for (var i = iterators.length-1; true; i--) {
+				} else if (!tuple) { // Sequence has ended.
+					throw STOP_ITERATION;
+				} else {
+					for (var i = iterators.length - 1; i >= 0; --i) { // Subsequent tuples.
 						try {
 							tuple[i] = iterators[i]();
 							break;
@@ -614,6 +617,7 @@ var Iterable = exports.Iterable = declare({
 								iterators[i] = its[i].__iter__();
 								tuple[i] = iterators[i]();
 							} else {
+								tuple = null; // So subsequent calls while still throw STOP_ITERATION.
 								throw err;
 							}
 						}
@@ -622,15 +626,6 @@ var Iterable = exports.Iterable = declare({
 				return tuple.slice(0); // Shallow array clone.
 			};
 		});
-	},
-
-	"static product": function product(it) {
-		if (arguments.length < 1) {
-			return Iterable.EMPTY;
-		} else {
-			it = iterable(it);
-			return it.product.apply(it, Array.prototype.slice.call(arguments, 1));
-		}
 	},
 	
 	/** `chain(iterables...)` returns an iterable that iterates over the 
@@ -766,7 +761,9 @@ var Iterable = exports.Iterable = declare({
 	}
 }); //// declare Iterable.
 
-/** `EMPTY` is a singleton holding an empty iterable.
+// ## Utility definitions. #####################################################
+
+/** `Iterable.EMPTY` is a singleton holding an empty iterable.
 */
 Iterable.EMPTY = new Iterable(function () {
 	return Iterable.prototype.stop;
@@ -778,3 +775,21 @@ one from it.
 var iterable = exports.iterable = function iterable(x) {
 	return x instanceof Iterable ? x : new Iterable(x);
 };
+
+/** There are static versions of some `Iterable` functions to use without an 
+instance.
+*/
+(function () {
+	var shim = function (f, it) {
+		if (arguments.length < 2) {
+			return this.EMPTY;
+		} else {
+			return f.apply(iterable(it), Array.prototype.slice.call(arguments, 2));
+		}
+	};
+	['product', 'chain', 'zip'].forEach(function (name) {
+		if (Iterable.prototype.hasOwnProperty(name) && typeof Iterable.prototype[name] === 'function') {
+			Iterable[name] = shim.bind(Iterable, Iterable.prototype[name]);
+		}
+	});
+})();
