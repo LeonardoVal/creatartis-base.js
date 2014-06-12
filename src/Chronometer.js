@@ -1,40 +1,42 @@
-/* Component to measure time and related functionality.
+/** # Chronometer
+
+A Chronometer is a simple tool to measure time.
 */
 var Chronometer = exports.Chronometer = declare({
-	/** new Chronometer(time):
-		Utility object for measuring time lapses.
+	/** The constructor may take a timestamp to initiate the chronometer, 
+	otherwise it uses the current time.
 	*/
 	constructor: function Chronometer(t) {
 		this.reset(t);
 	},
 	
-	/** Chronometer.reset(time=now):
-		Resets the chronometer's to the given time or now by default.
+	/** Resetting the chronometer sets its `__timestamp__` property to the given
+	time or now by default.
 	*/
 	reset: function reset(t) {
-		return this.__timestamp__ = t || (new Date()).getTime();
+		return this.__timestamp__ = t || Date.now();
 	},
 
-	/** Chronometer.time():
-		Get the elapsed time since the creation or resetting of the chronometer.
+	/** `time()` gets the elapsed time since the creation or resetting of the
+	chronometer.
 	*/
 	time: function time() {
-		return (new Date()).getTime() - this.__timestamp__;
+		return Date.now() - this.__timestamp__;
 	},
 
-	/** Chronometer.tick():
-		Get the elapsed time since the creation or resetting of the chronometer,
-		and resets it.
+	/** `tick(t=now)` gets the elapsed time since the creation or resetting of 
+	the chronometer, and resets it.
 	*/
-	tick: function tick() {
+	tick: function tick(t) {
 		var result = this.time()
-		this.reset();
+		this.reset(t);
 		return result;
 	},
 
-	/** Chronometer.chronometer(f, times=1):
-		Executes the parameterless function f the given number of times and logs 
-		the time each run takes. Returns the average time.
+	/** `chronometer(f, times=1)` executes the parameterless function `f` the 
+	given number of `times` (1 by default) and logs the time each run takes. 
+	
+	Finally, returns the average of all those measurements.
 	*/
 	chronometer: function chronometer(f, times) {
 		times = times || 1;

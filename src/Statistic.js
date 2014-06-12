@@ -1,8 +1,11 @@
-/* Component representing statistical accounting for one concept.
+/** # Statistic
+
+Component representing statistical accounting for one concept.
 */
 var Statistic = exports.Statistic = declare({
-	/** new Statistic(keys):
-		Statistical logger object, representing one numerical value.
+	/** Every statistic object has a set of keys that identify the numerical 
+	value it represents. This can be as simple as one string, or an object 
+	with many values for different aspects of the statistic.
 	*/
 	constructor: function Statistic(keys) {
 		switch (typeof keys) {
@@ -17,8 +20,8 @@ var Statistic = exports.Statistic = declare({
 		this.reset(); // At first all stats must be reset.
 	},
 	
-	/** Statistic.reset():
-		Resets the statistics, and returns this object for chaining.
+	/** Resetting a statistic deletes all registered values and sets all 
+	properties to zero.
 	*/
 	reset: function reset() {
 		this.__count__ = 0; 
@@ -31,8 +34,9 @@ var Statistic = exports.Statistic = declare({
 		return this; // For chaining.
 	},
 
-	/** Statistic.applies(keys):
-		Checks if all the given keys are this statistic's keys.
+	/** An Statistic object may apply to a certain concept or not, depending on
+	its `keys`. When dealing with sets of keys (objects), `applies(keys)` checks
+	if all the given keys are this statistic's keys.
 	*/
 	applies: function applies(keys) {
 		if (typeof keys === 'undefined') {
@@ -65,9 +69,86 @@ var Statistic = exports.Statistic = declare({
 		}
 	},
 	
-	/** Statistic.add(value, data=none):
-		Updates the statistics with the given value. Optionally data about 
-		the instances can be attached.
+	// ## Querying statistics ##################################################
+	
+	/** `count()` gets the current count, or 0 if values have not been added.
+	*/
+	count: function count() {
+		return this.__count__;
+	},
+	
+	/** `sum()` gets the current sum, or zero if values have not been added.
+	*/
+	sum: function sum() {
+		return this.__sum__;
+	},
+	
+	/** `squareSum()` gets the current sum of squares, or zero if values have 
+	not been added.
+	*/
+	squareSum: function squareSum() {
+		return this.__sqrSum__;
+	},
+	
+	/** `minimum()` gets the current minimum, or Infinity if values have not 
+	been added.
+	*/
+	minimum: function minimum() {
+		return this.__min__;
+	},
+	
+	/** `maximum()` gets the current maximum, or -Infinity if values have not 
+	been added.
+	*/
+	maximum: function maximum() {
+		return this.__max__;
+	},
+	
+	/** `minData()` gets the data associated with the current minimum, or 
+	`undefined` if there is not one.
+	*/
+	minData: function minData() {
+		return this.__minData__;
+	},
+	
+	/** `maxData()` gets the data associated with the current maximum, or 
+	`undefined` if there is not one.
+	*/
+	maxData: function maxData() {
+		return this.__maxData__;
+	},
+
+	/** `average()` calculates the current average, or zero if values have not 
+	been added.
+	*/
+	average: function average() {	
+		var count = this.count();
+		return count > 0 ? this.sum() / count : 0.0;
+	},
+	
+	/** `variance(center=average)` calculates current variance, as the average 
+	squared difference of each element with the center, which is equal to the 
+	average by default. Returns zero if values have not been added.
+	*/
+	variance: function variance(center) {
+		if (isNaN(center)) {
+			center = this.average();
+		}
+		var count = this.count();
+		return count > 0 ? center * center + (this.squareSum() - 2 * center * this.sum()) / count : 0.0;
+	},
+
+	/** `standardDeviation(center=average)` calculates current standard 
+	deviation, as the square root of the current variance.
+	*/
+	standardDeviation: function standardDeviation(center) {
+		return Math.sqrt(this.variance(center));
+	},
+	
+	// ## Updating statistics ##################################################
+	
+	/** Values are added to a statistic with `add(value, data=none)`, which 
+	updates the statistic. Optionally data about the instances can be attached.
 	*/
 	add: function add(value, data) {
 		if (value === undefined) {
@@ -89,26 +170,7 @@ var Statistic = exports.Statistic = declare({
 		return this; // For chaining.
 	},
 
-	/** Statistic.DEFAULT_GAIN_FACTOR=0.99:
-		Default factor used in the gain() method.
-	*/
-	DEFAULT_GAIN_FACTOR: 0.99,
-	
-	/** Statistic.gain(value, factor=DEFAULT_GAIN_FACTOR, data=none):
-		Like add, but fades previous values by multiplying them by the given 
-		factor. This is useful to implement schemes similar to exponential 
-		moving averages.
-	*/
-	gain: function gain(value, factor, data) {
-		factor = isNaN(factor) ? this.DEFAULT_GAIN_FACTOR : +factor;
-		this.__count__ *= factor;
-		this.__sum__ *= factor;
-		this.__sqrSum__ *= factor;
-		return this.add(value, data);
-	},
-	
-	/** Statistic.addAll(values, data=none):
-		Adds all the given values (using this.add()).
+	/** `addAll(values, data=none)` adds all the given values (using `add()`).
 	*/
 	addAll: function addAll(values, data) {	
 		for (var i = 0; i < values.length; i++) {
@@ -117,8 +179,24 @@ var Statistic = exports.Statistic = declare({
 		return this; // For chaining.
 	},
 	
-	/** Statistic.gainAll(values, factor=DEFAULT_GAIN_FACTOR, data=none):
-		Gains all the given values (using this.gain()).
+	/** `gain(value, factor=DEFAULT_GAIN_FACTOR, data=none)` is similar to 
+	`add()`, but fades previous values by multiplying them by the given factor.
+	This is useful to implement schemes similar to exponential moving averages.
+	*/
+	gain: function gain(value, factor, data) {
+		factor = isNaN(factor) ? this.DEFAULT_GAIN_FACTOR : +factor;
+		this.__count__ *= factor;
+		this.__sum__ *= factor;
+		this.__sqrSum__ *= factor;
+		return this.add(value, data);
+	},
+
+	/** The `DEFAULT_GAIN_FACTOR=0.99` is used in the `gain()` method.
+	*/
+	DEFAULT_GAIN_FACTOR: 0.99,
+	
+	/** `gainAll(values, factor=DEFAULT_GAIN_FACTOR, data=none)` gains all the 
+	given values (using `gain()`).
 	*/
 	gainAll: function gainAll(values, factor, data) {	
 		for (var i = 0; i < values.length; i++) {
@@ -127,113 +205,8 @@ var Statistic = exports.Statistic = declare({
 		return this; // For chaining.
 	},
 	
-	/** Statistic.count():
-		Get the current count, or 0 if values have not been added.
-	*/
-	count: function count() {
-		return this.__count__;
-	},
-	
-	/** Statistic.sum():
-		Get the current sum, or zero if values have not been added.
-	*/
-	sum: function sum() {
-		return this.__sum__;
-	},
-	
-	/** Statistic.squareSum():
-		Get the current sum of squares, or zero if values have not been added.
-	*/
-	squareSum: function squareSum() {
-		return this.__sqrSum__;
-	},
-	
-	/** Statistic.minimum():
-		Get the current minimum, or Infinity if values have not been added.
-	*/
-	minimum: function minimum() {
-		return this.__min__;
-	},
-	
-	/** Statistic.maximum():
-		Get the current maximum, or -Infinity if values have not been added.
-	*/
-	maximum: function maximum() {
-		return this.__max__;
-	},
-	
-	/** Statistic.minData():
-		Get the data associated with the current minimum, or undefined if there
-		is not one.
-	*/
-	minData: function minData() {
-		return this.__minData__;
-	},
-	
-	/** Statistic.maxData():
-		Get the data associated with the current maximum, or undefined if there
-		is not one.
-	*/
-	maxData: function maxData() {
-		return this.__maxData__;
-	},
-
-	/** Statistic.average():
-		Calculates the current average, or zero if values have not been added.
-	*/
-	average: function average() {	
-		var count = this.count();
-		return count > 0 ? this.sum() / count : 0.0;
-	},
-	
-	/** Statistic.variance(center=average):
-		Calculates current variance, as the average squared difference of each
-		element with the center, which is equal to the average by default.
-		Returns zero if values have not been added.
-	*/
-	variance: function variance(center) {
-		if (isNaN(center)) {
-			center = this.average();
-		}
-		var count = this.count();
-		return count > 0 ? center * center + (this.squareSum() - 2 * center * this.sum()) / count : 0.0;
-	},
-
-	/** Statistic.standardDeviation(center=average):
-		Calculates current standard deviation, as the square root of the current
-		variance.
-	*/
-	standardDeviation: function standardDeviation(center) {
-		return Math.sqrt(this.variance(center));
-	},
-	
-	/** Statistic.startTime(timestamp=now):
-		Starts a chronometer for this statistic.
-	*/
-	startTime: function startTime(timestamp) {
-		var chronometer = this.__chronometer__ || (this.__chronometer__ = new Chronometer());
-		return chronometer.reset(timestamp);
-	},
-	
-	/** Statistic.addTime(data=undefined):
-		Adds to this statistic the time since startTime was called.
-	*/
-	addTime: function addTime(data) {
-		raiseIf(!this.__chronometer__, "Statistic's chronometer has not been started.");
-		return this.add(this.__chronometer__.time(), data);
-	},
-
-	/** Statistic.addTick(data=undefined):
-		Adds to this statistic the time since startTime was called, and resets 
-		the chronometer.
-	*/
-	addTick: function addTick(data) {
-		raiseIf(!this.__chronometer__, "Statistic's chronometer has not been started.");
-		return this.add(this.__chronometer__.tick(), data);
-	},
-	
-	/** Statistic.addStatistic(stat):
-		Adds the values in the given Statistic object to this one.
+	/** `addStatistic(stat)` adds the values in the given Statistic object to 
+	this one.
 	*/
 	addStatistic: function addStatistic(stat) {
 		this.__count__ += stat.__count__; 
@@ -250,9 +223,36 @@ var Statistic = exports.Statistic = declare({
 		return this;
 	},
 	
-	/** Statistic.toString(sep='\t'):
-		Prints statistic's id, count, minimum, average, maximum and standard 
-		deviation, separated by tabs.
+	// ### Time handling #######################################################
+	
+	/** `startTime(timestamp=now)` starts a chronometer for this statistic.
+	*/
+	startTime: function startTime(timestamp) {
+		var chronometer = this.__chronometer__ || (this.__chronometer__ = new Chronometer());
+		return chronometer.reset(timestamp);
+	},
+	
+	/** `addTime(data=undefined)` adds to this statistic the time since 
+	`startTime` was called.
+	*/
+	addTime: function addTime(data) {
+		raiseIf(!this.__chronometer__, "Statistic's chronometer has not been started.");
+		return this.add(this.__chronometer__.time(), data);
+	},
+
+	/** `addTick(data=undefined)` adds to this statistic the time since 
+	`startTime` was called, and resets the chronometer.
+	*/
+	addTick: function addTick(data) {
+		raiseIf(!this.__chronometer__, "Statistic's chronometer has not been started.");
+		return this.add(this.__chronometer__.tick(), data);
+	},
+	
+	// ## Other ################################################################
+	
+	/** The default string representation is the concatenation of the 
+	statistic's id, count, minimum, average, maximum and standard deviation, 
+	separated by tabs.
 	*/
 	toString: function toString(sep) {
 		sep = ''+ (sep || '\t');

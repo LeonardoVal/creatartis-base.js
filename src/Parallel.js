@@ -1,25 +1,24 @@
-/* Wrapper for standard web workers, that includes bootstraping and a Future 
-	oriented interface.
+/** # Parallel
+
+Wrapper for standard web workers, that includes bootstraping and a future 
+oriented interface.
 */
 var Parallel = exports.Parallel = declare({
-	/** new Parallel(worker=<new worker>):
-		A wrapper around the standard web worker.
+	/** The constructor may take a worker instance to deal with. If not given,
+	a new worker is build using `newWorker()`. If given, it must be properly
+	initialized.
 	*/
 	constructor: function Parallel(worker) {
 		if (!worker) {
 			worker = Parallel.newWorker();
 		}
-		/** Parallel.worker:
-			Actual Worker instance behind this wrapper.
-		*/
 		worker.onmessage = this.__onmessage__.bind(this);
 		this.worker = worker;
 	},
 	
-	/** static Parallel.newWorker():
-	Builds a new web worker. Loading creatartis-base in its environment. Sets up 
-	a message handler that evaluates posted messages as code, posting the
-	results back.
+	/** `newWorker()` builds a new web worker. Loading `creatartis-base` in its 
+	environment. Sets up a message handler that evaluates posted messages as 
+	code, posting the results back.
 	*/
 	"static newWorker": function newWorker() {
 		var src = 'self.base = ('+ exports.__init__ +')();'+
@@ -36,9 +35,8 @@ var Parallel = exports.Parallel = declare({
 		return new Worker(URL.createObjectURL(blob));
 	},	
 	
-	/** Parallel.__onmessage__(msg):
-		The handler for this.worker onmessage event, that deals with the 
-		futures issued by this.run().
+	/** The handler for the `worker.onmessage` event is the `__onmessage__(msg)`
+	method. It deals with the futures issued by `run()`.
 	*/
 	__onmessage__: function __onmessage__(msg) {
 		var future = this.__future__;
@@ -57,9 +55,10 @@ var Parallel = exports.Parallel = declare({
 		}
 	},
 	
-	/** Parallel.run(code):
-		Sends the code to run in the web worker. Warning! This method will raise
-		an error if it is called while a previous execution is still running.
+	/** `run(code)` sends the code to run in the web worker in parallel.
+	
+	Warning! This method will raise an error if it is called while a previous 
+	execution is still running.
 	*/
 	run: function run(code) {
 		if (this.__future__) {
@@ -70,9 +69,9 @@ var Parallel = exports.Parallel = declare({
 		return this.__future__;
 	},
 	
-	/** static Parallel.run(code):
-		Creates a web worker to run this code in parallel, and returns a future
-		for its result. After its finished the web worker is terminated.
+	/** A _"static"_ version of `run(code)` is provided also. It creates a web 
+	worker to run this code in parallel, and returns a future for its result. 
+	After its finished the web worker is terminated.
 	*/
 	"static run": function run(code) {
 		var parallel = new Parallel();

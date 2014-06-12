@@ -4,7 +4,7 @@ module.exports = function(grunt) {
 	var SOURCE_FILES = ['src/__prologue__.js',
 		'src/core.js', 'src/polyfill.js', 'src/objects.js',
 		'src/text.js', 
-		'src/typed.js',
+		'src/typed.js', 'src/Initializer.js',
 		'src/iterables.js', // iterators and FP utilities. 
 		'src/Future.js', 'src/HttpRequest.js', 'src/Parallel.js', // asynchronism
 		'src/Events.js', // functions.

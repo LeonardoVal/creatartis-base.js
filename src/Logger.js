@@ -1,11 +1,13 @@
-﻿/* Simple logging.
-*/
-// Logger //////////////////////////////////////////////////////////////////////
+﻿/** # Logger
 
+Simple logging capabilities in a similar (but greatly simplified) fashion that 
+Log4J.
+*/
 var Logger = exports.Logger	= declare({
-	/** new Logger(name, parent=Logger.ROOT, level="INFO"):
-		Constructor of logger objects, which handle logging capabilities in a
-		similar (but greatly simplified) fashion that Log4J.
+	/** All loggers have a name, a level and a parent (except `Logger.ROOT`). 
+	The level is the priority of the entries accepted by the logger, and is used
+	to filter which messages are displayed. All log entries accepted by a logger
+	are forwarded to the parent (if defined).
 	*/
 	constructor: function Logger(name, parent, level) { 
 		this.name = ''+ name;
@@ -14,19 +16,9 @@ var Logger = exports.Logger	= declare({
 		this.appenders = [];
 	},
 	
-	/** Logger.LEVELS:
-		Logging levels to use with Loggers: TRACE, DEBUG, INFO, WARN, ERROR and
-		FATAL. The default one is INFO. Each one has a shortcut method (name in 
-		lower case) to log directly in that level.
-	*/
-	LEVELS: {
-		TRACE: -Infinity, DEBUG: -1, INFO: 0, WARN: 1, ERROR: 2, FATAL: Infinity,
-		OK: 0, FAIL: 1, TODO: 1, FIXME: 1 // Utility levels.
-	},
-	
-	/** Logger.log(level, message...):
-		If the given level is greater than the current logger's level, a new
-		entry is appended. The message results of a timestamp and the arguments.
+	/** `log(level, message...)` appends a new entry in the log if the given 
+	level is greater than the current logger's level. The message results of a 
+	timestamp and the arguments.
 	*/
 	log: function log(level) {
 		var passes = this.LEVELS[this.level] <= this.LEVELS[level];
@@ -44,59 +36,66 @@ var Logger = exports.Logger	= declare({
 		return passes;
 	},
 	
-	/** Logger.trace(message...):
-		Make a new log entry with the given message and the TRACE level.
+	/** Log levels are numbers, with the default one being 0. Some standard 
+	levels are predefined. For each of these there is a shortcut method to log
+	directly in that level:
+	*/
+	LEVELS: {
+		TRACE: -Infinity, DEBUG: -1, INFO: 0, WARN: 1, ERROR: 2, FATAL: Infinity,
+		OK: 0, FAIL: 1, TODO: 1, FIXME: 1 // Utility levels.
+	},
+	
+	/** + `trace(message...)` logs an entry with the `TRACE` level.
 	*/
 	trace: function trace() {
 		return this.log("TRACE", Array.prototype.slice.call(arguments, 0).join(""));
 	},
 	
-	/** Logger.debug(message...):
-		Make a new log entry with the given message and the DEBUG level.
+	/** + `debug(message...)` logs an entry with the `DEBUG` level.
 	*/
 	debug: function debug() {
 		return this.log("DEBUG", Array.prototype.slice.call(arguments, 0).join(""));
 	},
 
-	/** Logger.info(message...):
-		Make a new log entry with the given message and the INFO level.
+	/** + `info(message...)` logs an entry with the `INFO` level.
 	*/
 	info: function info() {
 		return this.log("INFO", Array.prototype.slice.call(arguments, 0).join(""));
 	},
 
-	/** Logger.warn(message...):
-		Make a new log entry with the given message and the WARN level.
+	/** + `warn(message...)` logs an entry with the `WARN` level.
 	*/
 	warn: function warn() {
 		return this.log("WARN", Array.prototype.slice.call(arguments, 0).join(""));
 	},
 	
-	/** Logger.error(message...):
-		Make a new log entry with the given message and the ERROR level.
+	/** + `error(message...)` logs an entry with the `ERROR` level.
 	*/
 	error: function error() {
 		return this.log("ERROR", Array.prototype.slice.call(arguments, 0).join(""));
 	},
 
-	/** Logger.fatal(message...):
-		Make a new log entry with the given message and the FATAL level.
+	/** + `fatal(message...)` logs an entry with the `FATAL` level.
 	*/
 	fatal: function fatal() {
 		return this.log("FATAL", Array.prototype.slice.call(arguments, 0).join(""));
 	},
 	
-	/** Logger.defaultFormat(name, time, level, message):
-		Formats are used by appenders. This default format concatenates the log
-		entry data in a string.
+	/** ## Formats. ###########################################################
+	
+	Entries are formatted before appending them. Each appender may have a
+	different format function. 
+	*/
+	
+	/** By default, `defaultFormat(name, time, level, message)`
+	is used. It simply concatenates the log entry data in a string.
 	*/
 	defaultFormat: function defaultFormat(name, time, level, message) {
 		return [level, name, Text.formatDate(time, 'hhnnss.SSS'), message].join(' ');
 	},
 	
-	/** Logger.htmlFormat(tag='pre', cssClassPrefix='log_'):
-		Returns a format function similar to the default format, but in an HTML 
-		element with CSS styling support.
+	/** The `htmlFormat(tag='pre', cssClassPrefix='log_')` writes the entry in
+	valid HTML with CSS styling support.
 	*/
 	htmlFormat: function htmlFormat(tag, cssClassPrefix) {
 		tag = tag || 'p';
@@ -113,8 +112,14 @@ var Logger = exports.Logger	= declare({
 		};
 	},
 	
-	/** Logger.appendToConsole():
-		Appender that writes messages to console (using console.log).
+	/** ## Appenders. ##########################################################
+	
+	Appenders are functions attached to loggers that output the log entries in
+	different ways.
+	*/
+	
+	/** `appendToConsole()` adds to the logger an appender that writes messages 
+	to the console (using console.log).
 	*/
 	appendToConsole: (function () {
 		function __consoleAppender__(entry) {
@@ -126,9 +131,9 @@ var Logger = exports.Logger	= declare({
 		};
 	})(),
 	
-	/** Logger.appendToFile(filePath, flags='a', encoding='utf-8'):
-		Appender that writes the log entries to a file using NodeJS's file 
-		system module.
+	/** `appendToFile(filePath, flags='a', encoding='utf-8')` adds to the logger
+	an appender that writes the log entries to a file using NodeJS's file system
+	module.
 	*/
 	appendToFile: function appendToFile(filepath, flags, encoding) { // Node.js specific.
 		filepath = filepath || './log'+ (new Date()).format('yyyymmdd-hhnnss') +'.log';
@@ -142,11 +147,12 @@ var Logger = exports.Logger	= declare({
 		return fileAppender;
 	},
 	
-	/** Logger.appendToHtml(htmlElement=document.body, maxEntries=all):
-		Appender that writes the log entries as paragraphs inside the given 
-		htmlElement. The number of entries can be limited with maxEntries.
-		Warning! Formatted entry text is assumed to be valid HTML and hence is
-		not escaped.
+	/** `appendToHtml(htmlElement=document.body, maxEntries=all)` adds to the 
+	logger an appender that writes the log entries as paragraphs inside the 
+	given `htmlElement`. The number of entries can be limited with `maxEntries`.
+	
+	Warning! Formatted entry text is assumed to be valid HTML and hence is not
+	escaped.
 	*/
 	appendToHtml: function appendToHtml(htmlElement, maxEntries, reversed) { // Browser specific.
 		maxEntries = (+maxEntries) || Infinity;
@@ -175,9 +181,9 @@ var Logger = exports.Logger	= declare({
 		return htmlAppender;
 	},
 	
-	/** Logger.appendAsWorkerMessages(messageTag='log'):
-		Appender that posts the log entries with the web workers postMessage()
-		function.
+	/** `appendAsWorkerMessages(messageTag='log')` adds to the logger an 
+	appender that posts the log entries with the web workers `postMessage()`
+	function.
 	*/
 	appendAsWorkerMessages: function appendAsWorkerMessages(messageTag) {
 		messageTag = ''+ (messageTag || 'log');
@@ -193,16 +199,17 @@ var Logger = exports.Logger	= declare({
 		return postMessageAppender;
 	},
 	
-	/** Logger.stats():
-		Gets the logger's Statistics objects, creating it if necessary.
+	// ## Other ################################################################
+	
+	/** `stats()` gets the logger's Statistics objects, creating it if 
+	necessary.
 	*/
 	stats: function stats() {
 		return this.__stats__ || (this.__stats__ = new Statistics());
 	}
 }); // declare Logger.	
 
-/** static Logger.ROOT:
-	The root logger must be the final ancestor of all loggers. It is the default 
-	parent of the Logger constructor.
+/** The `Logger.ROOT` must be the final ancestor of all loggers. It is the 
+default parent of the Logger constructor.
 */
 Logger.ROOT = new Logger("");

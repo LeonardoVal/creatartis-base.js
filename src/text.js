@@ -1,25 +1,16 @@
-﻿/* Text manipulation definitions.
+﻿/** # Text
+
+Text manipulation functions and definitions.
 */
-// String prototype leveling. //////////////////////////////////////////////////
-
-// See <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat>.
-String.prototype.repeat || (String.prototype.repeat = function repeat(n) {
-	n = n | 0;
-	return n <= 0 ? "" : n & 1 ? this + this.repeat(n - 1) : (this + this).repeat(n >> 1);
-});
-
-// Text ////////////////////////////////////////////////////////////////////////
-
 var Text = exports.Text = declare({
-	/** new Text():
-		Similar to Java's StringBuilder, but with extended formatting features.
+	/** Text is similar to Java's [`StringBuilder`](http://docs.oracle.com/javase/7/docs/api/java/lang/StringBuilder.html), 
+	but with extended formatting features.
 	*/
 	constructor: function Text() {
 		this.clear();
 	},
 	
-	/** Text.clear():
-		Clears the text buffer. Returns the previous content.
+	/** `clear()` empties the text buffer, but returns the previous content.
 	*/
 	clear: function clear() {
 		var text = this.text;
@@ -27,8 +18,8 @@ var Text = exports.Text = declare({
 		return text;
 	},
 	
-	/** Text.add(...strings):
-		Adds all arguments' conversion to string to the buffer.
+	/** `add(...strings)` concatenates all arguments conversions to string to 
+	the buffer.
 	*/
 	add: function add() {
 		for (var i = 0; i < arguments.length; i++) {
@@ -36,11 +27,26 @@ var Text = exports.Text = declare({
 		}
 	},
 	
-	// Formatting, encoding and decoding. //////////////////////////////////////
+	/** The default conversion to string returns the content of the buffer. */
+	toString: function toString() {
+		return this.text;
+	},
 	
-	/** Text.XML_ENTITIES:
-		An object mapping XML special characters to their corresponding 
-		character entity.
+	// ## Formatting, encoding and decoding ####################################
+	
+	// ### XML (and HTML for most intends and purposes) ########################
+	
+	/** `escapeXML(str)` returns the string with XML reserved characters 
+	replaced by the corresponding character entities.
+	*/
+	escapeXML: function escapeXML(str) {
+		var XML_ENTITIES = this.XML_ENTITIES;
+		return (str +'').replace(/[&<>"']/g, function (c) {
+			return XML_ENTITIES[c];
+		});
+	},
+	
+	/** The XML character entities are defined in `XML_ENTITIES`:
 	*/
 	XML_ENTITIES: { 
 		'<': '&lt;', 
@@ -49,20 +55,9 @@ var Text = exports.Text = declare({
 		'"': '&quot;', 
 		"'": '&apos;' 
 	},
-		
-	/** Text.escapeXML(str):
-		Returns the string with XML reserved characters replaced by the 
-		corresponding character entities.
-	*/
-	escapeXML: function escapeXML(str) {
-		var XML_ENTITIES = Text.prototype.XML_ENTITIES;
-		return (str +'').replace(/[&<>"']/g, function (c) {
-			return XML_ENTITIES[c];
-		});
-	},
 
-	/** Text.addXML(...str):
-		Appends all arguments after applying Text.escapeXML().
+	/** `addXML(...str)` appends all arguments string conversions after applying 
+	`escapeXML()`.
 	*/
 	addXML: function addXML() {
 		for (var i = 0; i < arguments.length; i++) {
@@ -70,18 +65,21 @@ var Text = exports.Text = declare({
 		}
 	},
 	
-	/** Text.escapeRegExp(str):
-		Returns the str string with the reserved characters of regular 
-		expressions escaped with '\'.
+	// ### Regular expressions #################################################
+	
+	/** `escapeRegExp(str)` returns the `str` string with the reserved 
+	characters of regular expressions escaped with `'\'`.
 	*/
 	escapeRegExp: function escapeRegExp(str) {
 		return (str +'').replace(/[\-\[\]{}()*+?.^$\\]/g, '\\$&');
 	},
 	
-	/** Text.formatDate(date=now, format=Date.toString, useUTC=false):
-		Date and time formatter: 'y' for year, 'm' for month, 'd' for day (in 
-		month), 'h' for hour (24), 'H' for hour (am/pm), 'n' for minutes,
-		's' for seconds, 'S' for milliseconds, 'a' for am/pm, 'A' for AM/PM.
+	// ### Dates ###############################################################
+	
+	/** `formatDate(date=now, format=Date.toString, useUTC=false)` formats a
+	Date. The `format` string  may use `y` for year, `m` for month, `d` for day 
+	(in month), `h` for hour (24), `H` for hour (am/pm), `n` for minutes, `s` 
+	for seconds, `S` for milliseconds, and `a` or `A` for am/pm.
 	*/
 	formatDate: function formatDate(date, format, useUTC) {
 		date = date || new Date();
@@ -105,48 +103,41 @@ var Text = exports.Text = declare({
 			});
 	},
 	
-	/** Text.addDate(date=now, format=Date.toString, useUTC=false):
-		Appends the date formatted using Text.formatDate().
+	/** `addDate(date=now, format=Date.toString, useUTC=false)` appends the 
+	`date` formatted using `formatDate()`.
 	*/
 	addDate: function addDate(date, format, useUTC) {
 		this.text += this.formatDate(date, format, useUTC);
 	},
 	
-	// Generic methods /////////////////////////////////////////////////////////
+	// ## _Static_ members #####################################################
 	
-	toString: function toString() {
-		return this.text;
-	}
-}); // declare Text.
+	/** `lpad(str, len, pad=' ')` returns a copy of the `str` string padded with 
+	`pad` (or space by default) to the left upto `len` length.
+	*/
+	'static lpad': function lpad(str, len, pad) {
+		if (isNaN(len) || str.length >= len) {
+			return str;
+		} else {
+			pad = (pad || ' ') +'';
+			return (pad.repeat((len - str.length) / pad.length + 1) + str).substr(-len);
+		}
+	},
 
-// Static members of Text //////////////////////////////////////////////////////
+	/** `rpad(str, len, pad=' ')` returns a copy of the `str` string padded with 
+	`pad` (or space by default) to the right upto `len` length.
+	*/
+	'static rpad': function rpad(str, len, pad) {
+		if (isNaN(len) || str.length >= len) {
+			return str;
+		} else {
+			pad = (pad || ' ') +'';
+			return (str + pad.repeat((len - str.length) / pad.length + 1)).substr(0, len);
+		}
+	}	
+}); // declare Text.
 
 Text.escapeXML = Text.prototype.escapeXML;
 Text.escapeRegExp = Text.prototype.escapeRegExp;
 Text.formatDate = Text.prototype.formatDate;
 
-/** static Text.lpad(str, len, pad=' '):
-	Returns a copy of the str string padded with pad (or space by default) to 
-	the left upto len length.
-*/
-Text.lpad = function lpad(str, len, pad) {
-	if (isNaN(len) || str.length >= len) {
-		return str;
-	} else {
-		pad = (pad || ' ') +'';
-		return (pad.repeat((len - str.length) / pad.length + 1) + str).substr(-len);
-	}
-};
-
-/** Text.rpad(str, len, pad=' '):
-	Returns a copy of the str string padded with pad (or space by default) to 
-	the right upto len length.
-*/
-Text.rpad = function rpad(str, len, pad) {
-	if (isNaN(len) || str.length >= len) {
-		return str;
-	} else {
-		pad = (pad || ' ') +'';
-		return (str + pad.repeat((len - str.length) / pad.length + 1)).substr(0, len);
-	}
-};

@@ -1,20 +1,21 @@
-﻿/* Simple event manager.
+﻿/** # Events
+
+Events is a simple event handler that manages callbacks registered as listeners.
 */
 var Events = exports.Events = declare({
-/** new Events(config):
-	Event handler that manages callbacks registered as listeners.
+/** The constructor argument may include:
+
++ `maxListeners=Infinity`: Maximum amount of listeners these events can have.
+	
++ `isOpen=true`: An open Events accepts listeners to any event. Otherwise 
+	event names	have to be specified previously via the 'events' property in the 
+	configuration.
+	
++ `events=[]`: An array of event identifiers to be managed.
 */
 	constructor: function Events(config) {
 		initialize(this, config)
-		/** Events.maxListeners=Infinity:
-			Maximum amount of listeners these events can have.
-		*/
 			.number('maxListeners', { defaultValue: Infinity, coerce: true, minimum: 1 })
-		/** Events.isOpen=true:
-			An open Events accepts listeners to any event. Otherwise event names
-			have to be specified previously via the 'events' property in the 
-			configuration.
-		*/
 			.bool('isOpen', { defaultValue: true });
 		var __listeners__ = this.__listeners__ = {};
 		config && Array.isArray(config.events) && config.events.forEach(function (eventName) {
@@ -22,8 +23,8 @@ var Events = exports.Events = declare({
 		});
 	},
 
-	/** Events.listeners(eventName):
-		Returns an array with the listeners for the given event.
+	/** `listeners(eventName)` returns an array with the listeners for the 
+	event with the given identifier.
 	*/
 	listeners: function listeners(eventName) {
 		if (this.__listeners__.hasOwnProperty(eventName)) {
@@ -33,9 +34,11 @@ var Events = exports.Events = declare({
 		}
 	},
 	
-	/** Events.emit(eventName, ...args):
-		Emits an event with the given arguments. Listeners' callbacks are
-		called asynchronously.
+	/** `emit(eventName, ...args)` emits an event with the given arguments. 
+	Listeners' callbacks are called asynchronously with the provided args. 
+	
+	If `eventName` is an array instead of a string, all events in the array are
+	emitted with the given args.
 	*/
 	emit: function emit(eventName) {
 		var args;
@@ -67,9 +70,8 @@ var Events = exports.Events = declare({
 		return true;
 	},
 	
-	/** Events.on(eventName, callback, times=Infinity):
-		Registers a callback to listen to the event the given number of times,
-		or always by default.
+	/** `on(eventName, callback, times=Infinity)` registers a callback function
+	to listen to the event the given number of times, or always by default.
 	*/
 	on: function on(eventName, callback, times) {
 		if (Array.isArray(eventName)) {
@@ -90,15 +92,14 @@ var Events = exports.Events = declare({
 		}
 	},
 
-	/** Events.once(eventName, callback):
-		Registers a callback to listen to the event only once.
+	/** `once(eventName, callback)` registers a callback to listen to the event
+	only once.
 	*/
 	once: function once(eventName, callback) {
 		return this.on(eventName, callback, 1);
 	},
 
-	/** Events.off(eventName, callback):
-		Deregisters the callback from the event.
+	/** `off(eventName, callback)` deregisters the callback from the event.
 	*/
 	off: function off(eventName, callback) {
 		if (Array.isArray(eventName)) {

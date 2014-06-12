@@ -1,20 +1,23 @@
-﻿/* Pseudorandom number generation algorithms and related functions.
+﻿/** # Randomness
+
+Randomness is the base class for pseudorandom number generation algorithms and 
+related functions. A limitation with Javascript's `Math.random` function is that
+it cannot be seeded. This hinders its use for simulations and simular purposes.
 */
 var Randomness = exports.Randomness = declare({
-	/** new Randomness(generator):
-		Pseudorandom number generator constructor, based on a generator 
-		function. This is a function that is called without any parameters and 
-		returns a random number between 0 (inclusive) and 1 (exclusive). If none 
-		is given the standard Math.random() is used.
+	/** The `Randomness` instances are build with a `generator` function. This 
+	is a function that is called without any parameters and returns a random 
+	number between 0 (inclusive) and 1 (exclusive). If none is given the 
+	standard `Math.random´ is used.
 	*/
 	constructor: function Randomness(generator) {
 		this.__random__ = generator || Math.random;
 	},
 
-	/** Randomness.random(x, y):
-		Called without arguments returns a random number in [0,1). Called with 
-		only the first argument x, returns a random number in [0, x). Called 
-		with both arguments return a random number in [x,y).
+	/** The basic use of the pseudorandom number generator is through the method 
+	`random`. Called without arguments returns a random number in [0,1). Called
+	with only the first argument x, returns a random number in [0, x). Called
+	with two arguments (x, y) return a random number in [x,y).
 	*/
 	random: function random() {
 		var n = this.__random__();
@@ -25,24 +28,24 @@ var Randomness = exports.Randomness = declare({
 		}
 	},
 
-	/** Randomness.randomInt(x, y):
-		Same as with Randomness.random(x,y) but returns integers instead.
+	/** The method `randomInt` behaves the same way `random` does, but returns 
+	an integer instead.
 	*/
 	randomInt: function randomInt() {
 		return Math.floor(this.random.apply(this, arguments));
 	},
 
-	/** Randomness.randomBool(p=0.5):
-		Returns true with a probability of p, else false. By default p = 0.5 is assumed.
+	/** The method `randomBool` tests against a probability (50% by default),
+	yielding true with the given chance, or else false.
 	*/
 	randomBool: function randomBool(prob) {
 		return this.random() < (isNaN(prob) ? 0.5 : +prob);
 	},
 
-	// Sequence handling ///////////////////////////////////////////////////////
+	// ## Sequence handling ###################################################
 
-	/** Randomness.randoms(n, x, y):
-		Builds an array of n random numbers calling Randomness.random(x, y).
+	/** A shortcut for building an array of n random numbers calling is
+	`randoms`. Numbers are generated calling `random` many times.
 	*/
 	randoms: function randoms(n) {
 		var args = Array.prototype.slice.call(arguments, 1),
@@ -54,9 +57,9 @@ var Randomness = exports.Randomness = declare({
 		return result;
 	},
 
-	/** Randomness.choice(xs):
-		Randomnly selects an element from the iterable xs. If more than one is 
-		given, the element is chosen from the argument list.
+	/** To randomnly selects an element from a sequence `xs` use `choice(xs)`.
+	If more than one argument is given, the element is chosen from the argument 
+	list.
 	*/
 	choice: function choice(from) {
 		from = arguments.length > 1 ? Array.prototype.slice.call(arguments) : 
@@ -65,10 +68,18 @@ var Randomness = exports.Randomness = declare({
 		return from.length < 1 ? undefined : from[this.randomInt(from.length)];
 	},
 
-	/** Randomness.split(n, xs):
-		Take n elements from xs randomnly. Returns an array [A,B] with A being
-		the taken elements and B the remaining. If more than two arguments are 
-		given, elements are taken from the second argument on.
+	/** To randomnly selects `n` elements from a sequence `xs` use 
+	`choices(n, xs)`. If more than two arguments are given, the elements are 
+	taken from the second arguments on.
+	*/
+	choices: function choices(n, from) {
+		return this.split.apply(this, arguments)[0];
+	},
+	
+	/** To take `n` elements from a sequence `xs` randomnly use `split(n, xs)`.
+	It returns an array `[A, B]` with `A` being the taken elements and `B` the 
+	remaining ones. If more than two arguments are given, elements are taken 
+	from the second argument on.
 	*/
 	split: function split(n, from) {
 		from = arguments.length > 2 ? Array.prototype.slice.call(arguments) : iterable(from).toArray();
@@ -79,28 +90,18 @@ var Randomness = exports.Randomness = declare({
 		return [r, from];
 	},
 
-	/** Randomness.choices(n ,xs):
-		Randomnly selects n elements from xs. If more than two arguments are 
-		given, the arguments from 1 and on are considered as xs.
+	/** The method `shuffle(xs)` randomnly rearranges elements in xs; returning
+	a copy.
 	*/
-	choices: function choices(n, from) {
-		return this.split.apply(this, arguments)[0];
-	},
-
-	/** Randomness.shuffle(xs):
-		Randomnly rearranges elements in xs. Returns a copy.
-	*/
-	shuffle: function shuffle(elems) {
-		//TODO This can be optimized by making random swaps.
+	shuffle: function shuffle(elems) { //TODO This can be optimized by making random swaps.
 		return this.choices(elems.length, elems);
 	},
 
-	/** Randomness.weightedChoices(n, weightedValues):
-		Chooses n values from weighted values randomly, such that each value's 
-		probability of being selected is proportional to its weight. The 
-		weightedValues must be an iterable of pairs [weight, value]. 
-		Weights are normalized, but if there are negative weights, the minimum 
-		value has probability zero.
+	/** The method `weightedChoices` chooses `n` values from weighted values 
+	randomly, such that each value's probability of being selected is 
+	proportional to its weight. The `weightedValues` must be an iterable of 
+	pairs [weight, value]. Weights are normalized, but if there are negative 
+	weights, the minimum value has probability zero.
 	*/
 	weightedChoices: function weightedChoices(n, weightedValues) {
 		var sum = 0.0, min = Infinity, length = 0, 
@@ -113,12 +114,12 @@ var Randomness = exports.Randomness = declare({
 			}
 			length++;
 		});
-		// Normalize weights.
+		//- Normalize weights.
 		sum -= min * length;
 		weightedValues = iterable(weightedValues).map(function (weightedValue) {
 			return [(weightedValue[0] - min) / sum, weightedValue[1]]
 		}).toArray();
-		// Make selection.
+		//- Make selection.
 		for (var i = 0; i < n && weightedValues.length > 0; i++) {
 			r = this.random();
 			for (var j = 0; j < weightedValues.length; j++) {
@@ -129,7 +130,8 @@ var Randomness = exports.Randomness = declare({
 					break;
 				}
 			}
-			// Fallback when no element has been selected. Unprobable, but may happen due to rounding errors.
+			//- Fallback when no element has been selected. Unprobable, but may 
+			//- happen due to rounding errors.
 			if (result.length <= i) {
 				result.push(weightedValues[0][1]);
 				weightedValues.splice(0, 1);
@@ -138,13 +140,12 @@ var Randomness = exports.Randomness = declare({
 		return result;
 	},
 
-	// Distributions ///////////////////////////////////////////////////////////
+	// ## Distributions #######################################################
 
-	/** Randomness.averagedDistribution(times):
-		Returns another Randomness instance based on this one, but generating
-		numbers by averaging its random values a given number of times. The 
-		result is an aproximation to the normal distribution as times increases.
-		By default times = 2 is assumed.
+	/** An `averagedDistribution(times)` of a `Randomness` instance is another 
+	`Randomness` instance based on this one, but generating numbers by averaging
+	its random values a given number of `times` (2 by default). The result is an
+	aproximation of the normal distribution as times increases.
 	*/
 	averagedDistribution: function averagedDistribution(n) {
 		n = Math.max(+n, 2);
@@ -157,12 +158,12 @@ var Randomness = exports.Randomness = declare({
 			return s / n;
 		});
 	}
-}); // declare Randomness.
+}); //- declare Randomness.
 
-// DEFAULT generator ///////////////////////////////////////////////////////////
+// ## Default generator #######################################################
 
-/** static Randomness.DEFAULT:
-	Default static instance, provided for convenience. Uses Math.random().
+/** `Randomness.DEFAULT` holds the default static instance, provided for 
+convenience. Uses `Math.random()`.
 */
 Randomness.DEFAULT = new Randomness();
 
@@ -172,9 +173,9 @@ Randomness.DEFAULT = new Randomness();
 	Randomness[id] = Randomness.DEFAULT[id].bind(Randomness.DEFAULT);
 });
 
-// Algorithms //////////////////////////////////////////////////////////////////
+// ## Algorithms ##############################################################
 
-	// Linear congruential /////////////////////////////////////////////////////
+	// ### Linear congruential ################################################
 
 /** static Randomness.linearCongruential(m, a, c):
 	Returns a pseudorandom number generator constructor implemented with the 
