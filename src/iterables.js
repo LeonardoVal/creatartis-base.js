@@ -130,7 +130,7 @@ var Iterable = exports.Iterable = declare({
 		};
 	},
 	
-	// ## Sequence information #################################################
+	// ## Sequence predicates ##################################################
 	
 	/** `isEmpty()` returns if the sequence has no elements.
 	*/
@@ -144,6 +144,8 @@ var Iterable = exports.Iterable = declare({
 		}
 	},
 
+	// ## Sequence information #################################################
+	
 	/** `count()` counts the number of elements in the sequence.
 	*/
 	count: function count() {
@@ -152,6 +154,12 @@ var Iterable = exports.Iterable = declare({
 			result++;
 		});
 		return result;
+	},
+	
+	/** `length()` is just a synonym for `count()`.
+	*/
+	length: function length() { 
+		return this.count();
 	},
 	
 	// ## Iteration methods ####################################################
@@ -265,6 +273,35 @@ var Iterable = exports.Iterable = declare({
 		});
 	},
 	
+	/** `take(n=1)` return an iterable with the first `n` elements of this one.
+	*/
+	take: function take(n) {
+		n = isNaN(n) ? 1 : n | 0;
+		return this.filter(function (x, i) {
+			return i < n;
+		});
+	},
+	
+	/** `drop(n=1)` returns an iterable with the same elements than this, except 
+	the first `n` ones.
+	*/
+	drop: function drop(n) {
+		var from = this; // for closures.
+		n = Math.max(0, n | 0);
+		return new Iterable(function __iter__() {
+			var iter = from.__iter__();
+			for (var i = 0; i < n; ++i) {
+				try {
+					iter();
+				} catch (err) {
+					this.catchStop(err);
+					throw new Error("Iterable has less than "+ n +" elements!");
+				}
+			}
+			return iter;
+		});
+	},
+	
 	/** `head(defaultValue)` returns the first element. If the sequence is empty 
 	it returns `defaultValue`, or raise an exception if one is not given.
 	*/
@@ -280,7 +317,14 @@ var Iterable = exports.Iterable = declare({
 			}
 		}
 	},
-
+	
+	/** `tail()` returns an iterable with the same elements than this, except 
+	the first one.
+	*/
+	tail: function tail() {
+		return this.drop(1);
+	},
+	
 	/** `last(defaultValue)` returns the last element. If the sequence is empty 
 	it returns `defaultValue`, or raise an exception if one is not given.
 	*/
@@ -300,6 +344,27 @@ var Iterable = exports.Iterable = declare({
 				return defaultValue;
 			}
 		}
+	},
+	
+	/** `init()` returns an iterable with the same elements than this, except 
+	the last one.
+	*/
+	init: function init() {
+		var from = this; // for closures.
+		return new Iterable(function __iter__() {
+			var iter = from.__iter__(), last;
+			try {
+				last = iter();
+			} catch (err) {
+				this.catchStop(err);
+				throw new Error("Tried to get the init of an empty Iterable.");
+			}
+			return function __mapIterator__() {
+				var result = last;
+				last = iter();
+				return result;
+			};
+		});
 	},
 	
 	/** `greater(evaluation)` returns an array with the elements of the iterable 
@@ -342,7 +407,7 @@ var Iterable = exports.Iterable = declare({
 		return result;
 	},
 
-	/** `sample(n, random=Randomness.DEFAULT)` returns an iterable with n 
+	/** `sample(n, random=Randomness.DEFAULT)` returns an iterable with `n` 
 	elements of this iterable randomly selected. The order of the elements is 
 	maintained.
 	*/
@@ -510,6 +575,18 @@ var Iterable = exports.Iterable = declare({
 		return result;
 	},
 
+	/** `join(sep='')` concatenates all strings in the sequence using `sep` as 
+	separator. If `sep` is not given, '' is assumed.
+	*/
+	join: function join(sep) {
+		var result = '';
+		sep = ''+ (sep || '');
+		this.forEach(function (x, i) { 
+			result += (i === 0) ? x : sep + x; 
+		});
+		return result;
+	},
+	
 	// ## Sequence conversions #################################################
 	
 	/** `toArray(array=[])`: appends to `array` the elements of the sequence and 
@@ -533,18 +610,6 @@ var Iterable = exports.Iterable = declare({
 			obj[x[0]] = x[1];
 		});
 		return obj;
-	},
-	
-	/** `join(sep='')` concatenates all strings in the sequence using `sep` as 
-	separator. If `sep` is not given, '' is assumed.
-	*/
-	join: function join(sep) {
-		var result = '';
-		sep = ''+ (sep || '');
-		this.forEach(function (x, i) { 
-			result += (i === 0) ? x : sep + x; 
-		});
-		return result;
 	},
 	
 	// ## Whole sequence operations ############################################
@@ -776,8 +841,8 @@ var iterable = exports.iterable = function iterable(x) {
 	return x instanceof Iterable ? x : new Iterable(x);
 };
 
-/** There are static versions of some `Iterable` functions to use without an 
-instance.
+/** There are static versions of the following `Iterable` functions to use 
+without an instance: `chain`, `product` and `zip`.
 */
 (function () {
 	var shim = function (f, it) {

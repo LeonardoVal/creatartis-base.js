@@ -127,6 +127,31 @@
 			expectSequence(sequence.filterApply(filterFun, mapFun), 2, 56);
 		});
 		
+		it("take()", function () {
+			var seq = iterable([0,1,2]);
+			expectSequence(seq.take(0));
+			expectSequence(seq.take(1), 0);
+			expectSequence(seq.take(2), 0, 1);
+			expectSequence(seq.take(3), 0, 1, 2);
+			expectSequence(seq.take(4), 0, 1, 2);
+			expectSequence(iterable([]).take(0));
+			expectSequence(iterable([]).take(1));
+		});
+		
+		it("drop()", function () {
+			var elems = [0,1,2,3], seq;
+			for (var i = 0; i < elems.length; ++i) {
+				for (var j = 0; j < elems.length - i; ++j) {
+					seq = iterable(elems.slice(i)).drop(j);
+					if (i + j < elems.length) {
+						expect(seq.__iter__()()).toBe(elems[i + j]);
+					} else {
+						expect(seq.isEmpty()).toBe(true);
+					}
+				}
+			}
+		});
+		
 		it("head()", function () {
 			var empty = iterable([]);
 			expect(empty.head.bind(empty)).toThrow();
@@ -138,6 +163,14 @@
 			expect(iterable('abc').head()).toBe('a');
 		});
 		
+		it("tail()", function () {
+			var seq = iterable([]).tail();
+			expect(seq.isEmpty.bind(seq)).toThrow();
+			expect(iterable([1]).tail().isEmpty()).toBe(true);
+			expect(iterable([1, 2]).tail().isEmpty()).toBe(false);
+			expect(iterable([1, 2]).tail().head()).toBe(2);
+		});
+		
 		it("last()", function () {
 			var empty = iterable([]);
 			expect(empty.last.bind(empty)).toThrow();
@@ -147,6 +180,14 @@
 			expect(empty.last(17)).toBe(17);
 			expect(iterable([1,2,3]).last()).toBe(3);
 			expect(iterable('abc').last()).toBe('c');
+		});
+	
+		it("init()", function () {
+			var seq = iterable([]).init();
+			expect(seq.isEmpty.bind(seq)).toThrow();
+			expect(iterable([1]).init().isEmpty()).toBe(true);
+			expect(iterable([1, 2]).init().isEmpty()).toBe(false);
+			expect(iterable([1, 2]).init().head()).toBe(1);
 		});
 	
 		it("greater()", function () {
