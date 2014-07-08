@@ -50,7 +50,7 @@ true.
 */
 var raiseIf = exports.raiseIf = function raiseIf(condition) {
 	if (condition) {
-		raise.call(this, Array.prototype.slice.call(arguments, 1));
+		raise.apply(this, Array.prototype.slice.call(arguments, 1));
 	}
 };
 
