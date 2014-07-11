@@ -322,6 +322,20 @@
 			expectSequence(iterable('defabc').sorted(), 'a', 'b', 'c', 'd', 'e', 'f');
 			expectSequence(iterable('').sorted());
 		});
+		
+		it("slices()", function () {
+			var arrayJoin = function (array) {
+				expect(Array.isArray(array)).toBe(true);
+				return array.join('');
+			};
+			expectSequence(iterable('').slices(3));
+			expectSequence(iterable('ab').slices(1).map(arrayJoin), 'a', 'b');
+			expectSequence(iterable('ab').slices(2).map(arrayJoin), 'ab');
+			expectSequence(iterable('ab').slices(3).map(arrayJoin), 'ab');
+			expectSequence(iterable('abcdefgh').slices(3).map(arrayJoin), 'abc', 'def', 'gh');
+			expectSequence(iterable('abcdefgh').slices(4).map(arrayJoin), 'abcd', 'efgh');
+			expectSequence(iterable('abcdefgh').slices(5).map(arrayJoin), 'abcde', 'fgh');
+		});
 	
 	// Operations on many sequences. ///////////////////////////////////////////
 	

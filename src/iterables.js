@@ -631,7 +631,35 @@ var Iterable = exports.Iterable = declare({
 	sorted: function sorted(sortFunction) {
 		return new Iterable(this.toArray().sort(sortFunction));
 	},
-
+	
+	/** `slices(size=1)` builds another iterable that enumerates arrays of the
+	given size of elements of this iterable. 
+	*/
+	slices: function slices(size) {
+		var _this = this;
+		size = isNaN(size) || size < 1 ? 1 : size|0;
+		return new Iterable(function __iter__(){
+			var it = _this.__iter__(), slice;
+			return function __sliceIterator__() {
+				slice = [];
+				try {
+					for (var i = 0; i < size; ++i) {
+						slice.push(it());
+					}
+				} catch (err) {
+					if (err !== STOP_ITERATION) {
+						throw err;
+					}
+				}
+				if (slice.length > 0) {
+					return slice;
+				} else {
+					throw STOP_ITERATION;
+				}
+			};
+		});
+	},
+	
 	// ## Operations on many sequences #########################################
 	
 	/** `zip(iterables...)` builds an iterable that iterates over this and all 
@@ -651,6 +679,11 @@ var Iterable = exports.Iterable = declare({
 				});
 			};
 		});
+	},
+	
+	'static zip': function (it) {
+		it = it ? iterable(it) : this.EMPTY;
+		return this.prototype.zip.apply(it, Array.prototype.slice.call(arguments, 1));
 	},
 	
 	/** `product(iterables...)` builds an iterable that iterates over the 
@@ -693,6 +726,11 @@ var Iterable = exports.Iterable = declare({
 		});
 	},
 	
+	'static product': function (it) {
+		it = it ? iterable(it) : this.EMPTY;
+		return this.prototype.product.apply(it, Array.prototype.slice.call(arguments, 1));
+	},
+	
 	/** `chain(iterables...)` returns an iterable that iterates over the 
 	concatenation of this and all the given iterables.
 	*/
@@ -717,6 +755,11 @@ var Iterable = exports.Iterable = declare({
 		});
 	},
 
+	'static chain': function (it) {
+		it = it ? iterable(it) : this.EMPTY;
+		return this.prototype.chain.apply(it, Array.prototype.slice.call(arguments, 1));
+	},
+	
 	/** `flatten()` chains all the iterables in the elements of this iterable.
 	*/
 	flatten: function flatten() {
@@ -840,21 +883,3 @@ one from it.
 var iterable = exports.iterable = function iterable(x) {
 	return x instanceof Iterable ? x : new Iterable(x);
 };
-
-/** There are static versions of the following `Iterable` functions to use 
-without an instance: `chain`, `product` and `zip`.
-*/
-(function () {
-	var shim = function (f, it) {
-		if (arguments.length < 2) {
-			return this.EMPTY;
-		} else {
-			return f.apply(iterable(it), Array.prototype.slice.call(arguments, 2));
-		}
-	};
-	['product', 'chain', 'zip'].forEach(function (name) {
-		if (Iterable.prototype.hasOwnProperty(name) && typeof Iterable.prototype[name] === 'function') {
-			Iterable[name] = shim.bind(Iterable, Iterable.prototype[name]);
-		}
-	});
-})();
