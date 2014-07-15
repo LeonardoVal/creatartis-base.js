@@ -53,8 +53,8 @@ var obj = exports.obj = function obj() {
 };
 
 /** `copy(objTo, objFrom...)` copies all own properties of the given objects 
-into `objTo`, and returns it. If only one object is given, a copy of the `objTo`
-object is returned.
+missing in `objTo` to it, and returns `objTo`. If only one object is given, a 
+copy of the `objTo` object is returned.
 */
 var copy = exports.copy = function copy(objTo) {
 	var i = 1, k, objFrom;
