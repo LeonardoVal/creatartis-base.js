@@ -3,7 +3,7 @@
  Standard implementation of iterables and iterators (a.k.a. enumerations or
  sequences), and many functions that can be built with it. This implementation 
  is inspired in the Python iterables.
- An iterable is an object with a method __iter__() which returns an iterator 
+ An iterable is an object with a method `__iter__()` which returns an iterator 
  function. An iterator function returns the next element in the sequence, or 
  raises `STOP_ITERATION` if the sequence has ended. 
 */
@@ -13,7 +13,7 @@ var Iterable = exports.Iterable = declare({
 	/** The Iterable constructor builds different types of sequences depending
 	on the given object. It supports strings (iterating over each character), 
 	arrays, objects (key-value pairs) and functions (assuming it is the 
-	iterator maker). A value of null or undefined is not allowed. Everything 
+	iterator maker). A value of `null` or `undefined` is not allowed. Everything 
 	else is assumed to be the only value of a singleton sequence. If the object 
 	has an `__iter__` method it is assumed to be an Iterable already. In this 
 	case a copy of that Iterable is built.
@@ -28,7 +28,7 @@ var Iterable = exports.Iterable = declare({
 		} else if (Array.isArray(obj)) {
 			this.__iter__ = Iterable.__iteratorFromArray__(obj);
 		} else if (typeof obj === 'object') {
-			if (typeof obj.__iter__ == 'function') {
+			if (typeof obj.__iter__ === 'function') {
 				this.__iter__ = obj.__iter__.bind(obj);
 			} else {
 				this.__iter__ = Iterable.__iteratorFromObject__(obj);

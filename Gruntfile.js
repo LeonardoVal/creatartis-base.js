@@ -88,6 +88,6 @@ module.exports = function(grunt) {
 		'uglify:build', 'docker:build']);
 	grunt.registerTask('default', ['build']);
 	grunt.registerTask('test', ['concat_sourcemap:build', 'karma:build', 
-		'karma:chrome', 'karma:firefox', 'karma:opera', 'karma:iexplore']);
+		'karma:chrome', 'karma:firefox', /*'karma:opera',*/ 'karma:iexplore']);
 	grunt.registerTask('lib', ['bowercopy:lib']);
 };
