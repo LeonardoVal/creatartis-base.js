@@ -3056,6 +3056,54 @@ var Statistic = exports.Statistic = declare({
 		return this.add(this.__chronometer__.tick(), data);
 	},
 	
+	// ## Tests and inference ##################################################
+	
+	/** The static `t_test1` method returns the mean statistic for 
+	[Student's one-sample t-tests](http://en.wikipedia.org/wiki/Student%27s_t-test#One-sample_t-test) 
+	given: `mean`, `sampleCount`, `sampleMean` and `sampleVariance`.
+	*/
+	'static t_test1': function t_test1(mean, sampleCount, sampleMean, sampleVariance) {
+		return { 
+			t: (sampleMean - mean) / (sampleVariance / Math.sqrt(sampleCount))
+		};
+	},
+	
+	/** The instance `t_test1` method is analogue to the static one, using this 
+	object's data. The `mean` is assumed to be zero by default.
+	*/
+	t_test1: function t_test1(mean, sampleCount, sampleMean, sampleVariance) {
+		return Statistic.t_test1(
+			isNaN(mean) ? 0.0 : +mean,
+			isNaN(sampleCount) ? this.count() : +sampleCount,
+			isNaN(sampleMean) ? this.average() : +sampleMean,
+			isNaN(sampleVariance) ? this.variance() : +sampleVariance
+		);
+	},
+	
+	/** The static `t_test2` method returns the mean statistic for 
+	[Student's two-sample t-tests](http://en.wikipedia.org/wiki/Student%27s_t-test#Unequal_sample_sizes.2C_equal_variance) 
+	given the two sample groups' count, mean and variance.
+	*/
+	'static t_test2': function t_test2(sampleCount1, sampleCount2, 
+			sampleMean1, sampleMean2, sampleVariance1, sampleVariance2) {
+		var pooledVariance = (((sampleCount1 - 1) * sampleVariance1 + (sampleCount2 - 1) * sampleVariance2)
+			/ (sampleCount1 + sampleCount2 - 2));
+		return { 
+			t: (sampleMean1 - sampleMean2) / Math.sqrt(pooledVariance * (1 / sampleCount1 + 1 / sampleCount2))
+		};
+	},
+	
+	/** The instance `t_test2` method is analogue to the static one, using this 
+	object's and another one's data.
+	*/
+	t_test2: function t_test2(other) {
+		return Statistic.t_test2(
+			this.count(), other.count(),
+			this.average(), other.average(),
+			this.variance(), other.variance()
+		);
+	},
+	
 	// ## Other ################################################################
 	
 	/** The default string representation is the concatenation of the 

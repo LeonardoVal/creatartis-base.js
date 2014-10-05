@@ -1,6 +1,14 @@
 ﻿define(['base'], function (base) { "use strict";
 	var RANDOM = base.Randomness.DEFAULT,
-		EPSILON = 1e-100000;
+		EPSILON = 1e-15;
+	
+	function statFromNumbers(numbers) {
+		var stat = new base.Statistic();
+		numbers.forEach(function (n) {
+			stat.add(n, '#'+ n);
+		});
+		return stat;
+	}
 	
 	describe("Statistic", function () {
 		it("basics", function () {
@@ -61,5 +69,19 @@
 				});
 			}
 		}); // it "keys".
+		
+		it("test & inferences", function () {
+			var stat, numbers;
+			expect(statFromNumbers([]).t_test1().t +'').toBe('NaN'); // Because NaN === NaN is false, of course.
+			expect(statFromNumbers([1,1]).t_test1().t).toBe(Infinity);
+			expect(statFromNumbers([0,2,0,2]).t_test1().t).toBeCloseTo(2, EPSILON);
+			expect(statFromNumbers([0,2,0,2]).t_test1(1).t).toBeCloseTo(0, EPSILON);
+			for (var i = 0; i < 30; i++) {
+				stat = statFromNumbers(RANDOM.randoms((RANDOM.random() * 10 + 2)|0));
+				expect(stat.t_test1(stat.average()).t).toBeCloseTo(0, EPSILON);
+				expect(stat.t_test1(-1).t).not.toBeCloseTo(0, EPSILON);
+				expect(stat.t_test2(stat).t).toBeCloseTo(0, EPSILON);
+			}			
+		}); // it "test & inferences"
 	}); // describe.
 }); // define.
