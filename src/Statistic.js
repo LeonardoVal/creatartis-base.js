@@ -250,6 +250,29 @@ var Statistic = exports.Statistic = declare({
 	
 	// ## Tests and inference ##################################################
 	
+	/** The static `z_test` method returns the mean statistic for 
+	[z-tests](http://en.wikipedia.org/wiki/Z-test) given the expected `mean` and
+	`variance` and the `sampleCount` and `sampleMean`.	
+	*/
+	'static z_test': function z_test(mean, variance, sampleCount, sampleMean) {
+		var r = {},
+			z = r.z = (sampleMean - mean) / Math.sqrt(variance / sampleCount),
+			p = math.gauss_cdf(z);
+		r.p_lessThan    = z < 0 ? p : 0;
+		r.p_greaterThan = z > 0 ? 1 - p : 0;
+		r.p_notEqual    = z != 0 ? 2 * Math.max(r.p_lessThan, r.p_greaterThan) : 0; //TODO Check this.
+		return r;
+	},
+	
+	/** The instance `z_test` method is analogue to the static one, using this 
+	object's data. The `variance` is assumed to this sample's variance by 
+	default.
+	*/
+	z_test: function z_test(mean, variance) {
+		variance = isNaN(variance) ? this.variance() : +variance;
+		return Statistic.z_test(mean, variance, this.count(), this.average());
+	},
+	
 	/** The static `t_test1` method returns the mean statistic for 
 	[Student's one-sample t-tests](http://en.wikipedia.org/wiki/Student%27s_t-test#One-sample_t-test) 
 	given: `mean`, `sampleCount`, `sampleMean` and `sampleVariance`.

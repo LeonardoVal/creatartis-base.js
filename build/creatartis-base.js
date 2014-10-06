@@ -407,6 +407,53 @@ Text.formatDate = Text.prototype.formatDate;
 
 
 
+/** # Math
+
+Mathematical and numerical functions and utilities.
+*/
+var math = exports.math = {};
+
+// ## Probability. #############################################################
+
+/** The probability density function (or PDF) of the normal (or gaussian)
+distribution. The parameters `mean` and `variance` default to the standard
+normal (i.e `mean=0` and `variance=1`).
+*/
+math.gauss_pdf = function gauss_pdf(value, mean, variance) {
+	mean = isNaN(mean) ? 0 : +mean;
+	variance = isNaN(variance) ? 1 : +variance;
+	var standardDeviation = Math.sqrt(variance);
+
+    return Math.exp(-Math.pow(x - mean, 2) / (2 * variance)) 
+		/ standardDeviation * Math.sqrt(2 * Math.PI);
+};
+
+/** Complementary error function routine based on Chebyshev fitting as explained
+in [Numerical Recipes in C (2nd edition)](http://www.nr.com/), with fractional 
+error everywhere less than 1.2e-7.
+*/
+math.gauss_erfc = function gauss_erfc(value) {
+	var z = Math.abs(value),
+		t = 1.0 / (1.0 + 0.5 * z),
+		ans = t * Math.exp(-z * z - 1.26551223 + t * (1.00002368 + t * (0.37409196 +
+			t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + 
+			t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
+    return value >= 0.0 ? ans : 2.0 - ans;
+};
+
+/** The cumulative density function (or CDF) of the normal (or gaussian)
+distribution. The parameters `mean` and `variance` default to the standard
+normal (i.e `mean=0` and `variance=1`).
+*/
+math.gauss_cdf = function gauss_cdf(value, mean, variance) {
+	mean = isNaN(mean) ? 0 : +mean;
+	variance = isNaN(variance) ? 1 : +variance;
+	var standardDeviation = Math.sqrt(variance);
+	
+	return math.gauss_erfc(-(value - mean) / (standardDeviation * Math.sqrt(2))) / 2;
+};
+
+
 /** # Typed
 
 Functions and definitions regarding type checking, constraints,	validation and 
@@ -3057,6 +3104,29 @@ var Statistic = exports.Statistic = declare({
 	},
 	
 	// ## Tests and inference ##################################################
+	
+	/** The static `z_test` method returns the mean statistic for 
+	[z-tests](http://en.wikipedia.org/wiki/Z-test) given the expected `mean` and
+	`variance` and the `sampleCount` and `sampleMean`.	
+	*/
+	'static z_test': function z_test(mean, variance, sampleCount, sampleMean) {
+		var r = {},
+			z = r.z = (sampleMean - mean) / Math.sqrt(variance / sampleCount),
+			p = math.gauss_cdf(z);
+		r.p_lessThan    = z < 0 ? p : 0;
+		r.p_greaterThan = z > 0 ? 1 - p : 0;
+		r.p_notEqual    = z != 0 ? 2 * Math.max(r.p_lessThan, r.p_greaterThan) : 0; //TODO Check this.
+		return r;
+	},
+	
+	/** The instance `z_test` method is analogue to the static one, using this 
+	object's data. The `variance` is assumed to this sample's variance by 
+	default.
+	*/
+	z_test: function z_test(mean, variance) {
+		variance = isNaN(variance) ? this.variance() : +variance;
+		return Statistic.z_test(mean, variance, this.count(), this.average());
+	},
 	
 	/** The static `t_test1` method returns the mean statistic for 
 	[Student's one-sample t-tests](http://en.wikipedia.org/wiki/Student%27s_t-test#One-sample_t-test) 
