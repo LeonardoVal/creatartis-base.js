@@ -1253,11 +1253,34 @@ var Iterable = exports.Iterable = declare({
 		});
 	},
 	
+	/** `takeWhile(condition)` return an iterable with the first elements that
+	verify the given condition.
+	*/
+	takeWhile: function takeWhile(condition) {
+		var from = this; // for closures.
+		return new Iterable(function __iter__() {
+			var iter = from.__iter__(),
+				i = 0;
+			return function __takeWhileIterator__() {
+				if (i >= 0) {
+					var x = iter();
+					if (condition(x, i)) {
+						i++;
+						return x;
+					} else {
+						i = -Infinity;
+					}
+				}
+				from.stop();
+			};
+		});
+	},
+	
 	/** `take(n=1)` return an iterable with the first `n` elements of this one.
 	*/
 	take: function take(n) {
 		n = isNaN(n) ? 1 : n | 0;
-		return this.filter(function (x, i) {
+		return this.takeWhile(function (x, i) {
 			return i < n;
 		});
 	},
