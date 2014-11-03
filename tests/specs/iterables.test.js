@@ -139,17 +139,15 @@
 		});
 		
 		it("drop()", function () {
-			var elems = [0,1,2,3], seq;
-			for (var i = 0; i < elems.length; ++i) {
-				for (var j = 0; j < elems.length - i; ++j) {
-					seq = iterable(elems.slice(i)).drop(j);
-					if (i + j < elems.length) {
-						expect(seq.__iter__()()).toBe(elems[i + j]);
-					} else {
-						expect(seq.isEmpty()).toBe(true);
-					}
-				}
-			}
+			var seq = iterable([0,1,2,3]);
+			expectSequence(seq.drop(0), 0, 1, 2, 3);
+			expectSequence(seq.drop(1), 1, 2, 3);
+			expectSequence(seq.drop(2), 2, 3);
+			expectSequence(seq.drop(3), 3);
+			expectSequence(seq.drop(4));
+			expectSequence(seq.drop(5));
+			expectSequence(iterable([]).drop(0));
+			expectSequence(iterable([]).drop(1));
 		});
 		
 		it("head()", function () {

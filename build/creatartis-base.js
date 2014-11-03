@@ -1285,23 +1285,34 @@ var Iterable = exports.Iterable = declare({
 		});
 	},
 	
+	/** `dropWhile(condition)` returns an iterable with the same elements than 
+	this, except the first ones that comply with the condition.
+	*/
+	dropWhile: function dropWhile(condition) {
+		var from = this; // for closures.
+		return new Iterable(function __iter__() {
+			var iter = from.__iter__(),
+				i = 0,
+				dropping = true;
+			return function __dropWhileIterator__() {
+				var x;
+				do {
+					x = iter();
+					dropping = dropping && condition(x, i);
+					i++;
+				} while (dropping);
+				return x;
+			};
+		});
+	},
+	
 	/** `drop(n=1)` returns an iterable with the same elements than this, except 
 	the first `n` ones.
 	*/
 	drop: function drop(n) {
-		var from = this; // for closures.
-		n = Math.max(0, n | 0);
-		return new Iterable(function __iter__() {
-			var iter = from.__iter__();
-			for (var i = 0; i < n; ++i) {
-				try {
-					iter();
-				} catch (err) {
-					this.catchStop(err);
-					throw new Error("Iterable has less than "+ n +" elements!");
-				}
-			}
-			return iter;
+		n = isNaN(n) ? 1 : n | 0;
+		return this.dropWhile(function (x, i) {
+			return i < n;
 		});
 	},
 	
@@ -1325,7 +1336,17 @@ var Iterable = exports.Iterable = declare({
 	the first one.
 	*/
 	tail: function tail() {
-		return this.drop(1);
+		var from = this; // for closures.
+		return new Iterable(function __iter__() {
+			var iter = from.__iter__();
+			try {
+				iter();
+			} catch (err) {
+				this.catchStop(err);
+				throw new Error("Tried to get the tail of an empty Iterable.");
+			}
+			return iter;
+		});
 	},
 	
 	/** `last(defaultValue)` returns the last element. If the sequence is empty 
