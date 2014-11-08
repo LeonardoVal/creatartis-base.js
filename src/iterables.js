@@ -910,10 +910,35 @@ var Iterable = exports.Iterable = declare({
 				throw STOP_ITERATION; // In case n < 1.
 			};
 		});
-	}
+	},
+	
+	// ## Utility definitions. #################################################
+	
+	/** The string conversion of an iterable (`toString(n=5)`) returns a string
+	with the first `n` elements. It ends with `...` if there are more elements
+	in the sequence.
+	*/
+	toString: function toString(n) {
+		n = isNaN(n) ? 5 : n|0;
+		var str = 'Iterable([', 
+			it = this.__iter__(),
+			finished = false;
+		try {
+			str += it();
+			for (var i = 1; i < n; ++i) {
+				str += ', '+ it();
+			}
+			it();
+		} catch (err) {
+			this.catchStop(err);
+			finished = true;
+		}
+		if (!finished) {
+			str += ' ...';
+		}
+		return str + '])';
+	}	
 }); //// declare Iterable.
-
-// ## Utility definitions. #####################################################
 
 /** `Iterable.EMPTY` is a singleton holding an empty iterable.
 */
