@@ -398,7 +398,18 @@ var Text = exports.Text = declare({
 			pad = (pad || ' ') +'';
 			return (str + pad.repeat((len - str.length) / pad.length + 1)).substr(0, len);
 		}
-	}	
+	},
+	
+	/** `hashCode(str)` calculates a hash number for the given string.
+	*/
+	'static hashCode': function hashCode(str) {
+		var result = 0,
+			len = str.length;
+		for (var i = 0; i < len; ++i) { 
+			result = (result * 31 + str.charCodeAt(i)) & 0x7FFFFFFF;
+		}
+		return result;
+	}
 }); // declare Text.
 
 Text.escapeXML = Text.prototype.escapeXML;
@@ -2656,24 +2667,23 @@ var Events = exports.Events = declare({
 
 /** # Randomness
 
-Randomness is the base class for pseudorandom number generation algorithms and 
-related functions. A limitation with Javascript's `Math.random` function is that
-it cannot be seeded. This hinders its use for simulations and simular purposes.
+Randomness is the base class for pseudorandom number generation algorithms and related functions. A 
+limitation with Javascript's `Math.random` function is that it cannot be seeded. This hinders its 
+use for simulations and simular purposes.
 */
 var Randomness = exports.Randomness = declare({
-	/** The `Randomness` instances are build with a `generator` function. This 
-	is a function that is called without any parameters and returns a random 
-	number between 0 (inclusive) and 1 (exclusive). If none is given the 
-	standard `Math.random´ is used.
+	/** The `Randomness` instances are build with a `generator` function. This is a function that is 
+	called without any parameters and returns a random number between 0 (inclusive) and 1 
+	(exclusive). If none is given the standard `Math.random´ is used.
 	*/
 	constructor: function Randomness(generator) {
 		this.__random__ = generator || Math.random;
 	},
 
-	/** The basic use of the pseudorandom number generator is through the method 
-	`random`. Called without arguments returns a random number in [0,1). Called
-	with only the first argument x, returns a random number in [0, x). Called
-	with two arguments (x, y) return a random number in [x,y).
+	/** The basic use of the pseudorandom number generator is through the method `random`. Called 
+	without arguments returns a random number in [0,1). Called with only the first argument x, 
+	returns a random number in [0, x). Called with two arguments (x, y) return a random number in 
+	[x,y).
 	*/
 	random: function random() {
 		var n = this.__random__();
@@ -2684,24 +2694,23 @@ var Randomness = exports.Randomness = declare({
 		}
 	},
 
-	/** The method `randomInt` behaves the same way `random` does, but returns 
-	an integer instead.
+	/** The method `randomInt` behaves the same way `random` does, but returns an integer instead.
 	*/
 	randomInt: function randomInt() {
 		return Math.floor(this.random.apply(this, arguments));
 	},
 
-	/** The method `randomBool` tests against a probability (50% by default),
-	yielding true with the given chance, or else false.
+	/** The method `randomBool` tests against a probability (50% by default), yielding true with the 
+	given chance, or else false.
 	*/
 	randomBool: function randomBool(prob) {
 		return this.random() < (isNaN(prob) ? 0.5 : +prob);
 	},
 
-	// ## Sequence handling ###################################################
+	// ## Sequence handling ########################################################################
 
-	/** A shortcut for building an array of n random numbers calling is
-	`randoms`. Numbers are generated calling `random` many times.
+	/** A shortcut for building an array of n random numbers calling is `randoms`. Numbers are 
+	generated calling `random` many times.
 	*/
 	randoms: function randoms(n) {
 		var args = Array.prototype.slice.call(arguments, 1),
@@ -2713,9 +2722,8 @@ var Randomness = exports.Randomness = declare({
 		return result;
 	},
 
-	/** To randomnly selects an element from a sequence `xs` use `choice(xs)`.
-	If more than one argument is given, the element is chosen from the argument 
-	list.
+	/** To randomnly selects an element from a sequence `xs` use `choice(xs)`. If more than one 
+	argument is given, the element is chosen from the argument list.
 	*/
 	choice: function choice(from) {
 		from = arguments.length > 1 ? Array.prototype.slice.call(arguments) : 
@@ -2724,18 +2732,16 @@ var Randomness = exports.Randomness = declare({
 		return from.length < 1 ? undefined : from[this.randomInt(from.length)];
 	},
 
-	/** To randomnly selects `n` elements from a sequence `xs` use 
-	`choices(n, xs)`. If more than two arguments are given, the elements are 
-	taken from the second arguments on.
+	/** To randomnly selects `n` elements from a sequence `xs` use `choices(n, xs)`. If more than 
+	two arguments are given, the elements are taken from the second arguments on.
 	*/
 	choices: function choices(n, from) {
 		return this.split.apply(this, arguments)[0];
 	},
 	
-	/** To take `n` elements from a sequence `xs` randomnly use `split(n, xs)`.
-	It returns an array `[A, B]` with `A` being the taken elements and `B` the 
-	remaining ones. If more than two arguments are given, elements are taken 
-	from the second argument on.
+	/** To take `n` elements from a sequence `xs` randomnly use `split(n, xs)`. It returns an array 
+	`[A, B]` with `A` being the taken elements and `B` the remaining ones. If more than two 
+	arguments are given, elements are taken from the second argument on.
 	*/
 	split: function split(n, from) {
 		from = arguments.length > 2 ? Array.prototype.slice.call(arguments) : iterable(from).toArray();
@@ -2746,17 +2752,15 @@ var Randomness = exports.Randomness = declare({
 		return [r, from];
 	},
 
-	/** The method `shuffle(xs)` randomnly rearranges elements in xs; returning
-	a copy.
+	/** The method `shuffle(xs)` randomnly rearranges elements in xs; returning a copy.
 	*/
 	shuffle: function shuffle(elems) { //TODO This can be optimized by making random swaps.
 		return this.choices(elems.length, elems);
 	},
 
-	/** The method `weightedChoices` chooses `n` values from weighted values 
-	randomly, such that each value's probability of being selected is 
-	proportional to its weight. The `weightedValues` must be an iterable of 
-	pairs [weight, value]. Weights are normalized, but if there are negative 
+	/** The method `weightedChoices` chooses `n` values from weighted values randomly, such that 
+	each value's probability of being selected is proportional to its weight. The `weightedValues` 
+	must be an iterable of pairs [weight, value]. Weights are normalized, but if there are negative 
 	weights, the minimum value has probability zero.
 	*/
 	weightedChoices: function weightedChoices(n, weightedValues) {
@@ -2796,12 +2800,12 @@ var Randomness = exports.Randomness = declare({
 		return result;
 	},
 
-	// ## Distributions #######################################################
+	// ## Distributions ############################################################################
 
-	/** An `averagedDistribution(times)` of a `Randomness` instance is another 
-	`Randomness` instance based on this one, but generating numbers by averaging
-	its random values a given number of `times` (2 by default). The result is an
-	aproximation of the normal distribution as times increases.
+	/** An `averagedDistribution(times)` of a `Randomness` instance is another `Randomness` instance 
+	based on this one, but generating numbers by averaging its random values a given number of 
+	`times` (2 by default). The result is an aproximation of the normal distribution as times
+	increases.
 	*/
 	averagedDistribution: function averagedDistribution(n) {
 		n = Math.max(+n, 2);
@@ -2816,10 +2820,10 @@ var Randomness = exports.Randomness = declare({
 	}
 }); //- declare Randomness.
 
-// ## Default generator #######################################################
+// ## Default generator ############################################################################
 
-/** `Randomness.DEFAULT` holds the default static instance, provided for 
-convenience. Uses `Math.random()`.
+/** `Randomness.DEFAULT` holds the default static instance, provided for convenience. Uses 
+`Math.random()`.
 */
 Randomness.DEFAULT = new Randomness();
 
@@ -2829,14 +2833,13 @@ Randomness.DEFAULT = new Randomness();
 	Randomness[id] = Randomness.DEFAULT[id].bind(Randomness.DEFAULT);
 });
 
-// ## Algorithms ##############################################################
+// ## Algorithms ###################################################################################
 
-	// ### Linear congruential ################################################
+// ### Linear congruential #########################################################################
 
-/** static Randomness.linearCongruential(m, a, c):
-	Returns a pseudorandom number generator constructor implemented with the 
-	linear congruential algorithm. 
-	See <http://en.wikipedia.org/wiki/Linear_congruential_generator>.
+/** The method `Randomness.linearCongruential` returns a pseudorandom number generator constructor 
+implemented with the [linear congruential algorithm](http://en.wikipedia.org/wiki/Linear_congruential_generator).
+It also contain the following shortcuts to build common variants:
 */
 Randomness.linearCongruential = function linearCongruential(m, a, c) {
 	return function (seed) {
@@ -2847,27 +2850,75 @@ Randomness.linearCongruential = function linearCongruential(m, a, c) {
 	};
 };
 
-/** static Randomness.linearCongruential.numericalRecipies(seed):
-	Builds a linear congruential pseudorandom number generator as it is specified
-	in Numerical Recipies. See <http://www.nr.com/>.
+/** + `numericalRecipies(seed)`: builds a linear congruential pseudorandom number generator as it is 
+specified in [Numerical Recipies](http://www.nr.com/).
 */
 Randomness.linearCongruential.numericalRecipies = 
 	Randomness.linearCongruential(0xFFFFFFFF, 1664525, 1013904223);
 
-/** static Randomness.linearCongruential.numericalRecipies(seed):
-	Builds a linear congruential pseudorandom number generator as it used by
+/** + `borlandC(seed)`: builds a linear congruential pseudorandom number generator as it used by
 	Borland C/C++.
 */
 Randomness.linearCongruential.borlandC = 
 	Randomness.linearCongruential(0xFFFFFFFF, 22695477, 1);
 
-/** static Randomness.linearCongruential.numericalRecipies(seed):
-	Builds a linear congruential pseudorandom number generator as it used by
-	glibc. See <http://www.mscs.dal.ca/~selinger/random/>.
+/** + `glibc(seed)`: builds a linear congruential pseudorandom number generator as it used by
+	[glibc](http://www.mscs.dal.ca/~selinger/random/).
 */
 Randomness.linearCongruential.glibc = 
 	Randomness.linearCongruential(0xFFFFFFFF, 1103515245, 12345);
 
+// ### Mersenne twister ############################################################################
+
+/** The method `Randomness.mersenneTwister` returns a pseudorandom number generator constructor 
+implemented with the [Mersenne Twister algorithm](http://en.wikipedia.org/wiki/Mersenne_twister#Pseudocode).
+*/
+Randomness.mersenneTwister = (function (){
+	/** Bit operations in Javascript deal with signed 32 bit integers. This algorithm deals with
+	unsigned 32 bit integers. That is why this function is necessary.
+	*/
+	function unsigned(n) {
+		return n < 0 ? n + 0x100000000 : n;
+	}
+	
+	function initialize(seed) {
+		var numbers = new Array(624),
+			last;
+		numbers[0] = last = seed;
+		for (var i = 1; i < 624; ++i) {
+			numbers[i] = last = (0x6C078965 * unsigned(last ^ (last << 30)) + i) % 0xFFFFFFFF;
+		}
+		return numbers;
+	}
+	
+	function generate(numbers) {
+		for(var i = 0; i < 624; ++i) {
+			var y = (numbers[i] & 0x80000000) | (numbers[(i+1) % 624] & 0x7FFFFFFF);
+			numbers[i] = unsigned(numbers[(i + 397) % 624] ^ (y * 2));
+			if (y & 1 != 0) {
+				numbers[i] = unsigned(numbers[i] ^ 0x9908B0DF);
+			}
+		}
+	}
+
+	return function (seed) {
+		seed = isNaN(seed) ? Date.now() : seed|0;
+		var numbers = initialize(seed),
+			index = 0;
+		return new Randomness(function () {
+			if (index == 0) {
+				generate(numbers);
+			}
+			var y = numbers[index];
+			y = unsigned(y ^ (y << 11));
+			y = unsigned(y ^ ((y >>> 7) & 0x9D2C5680));
+			y = unsigned(y ^ ((y >>> 15) & 0xEFC60000));
+			y = unsigned(y ^ (y << 18));
+			index = (index + 1) % 624;
+			return y / 0xFFFFFFFF;
+		});
+	};
+})();
 
 /** # Chronometer
 
