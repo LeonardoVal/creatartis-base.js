@@ -134,7 +134,18 @@ var Text = exports.Text = declare({
 			pad = (pad || ' ') +'';
 			return (str + pad.repeat((len - str.length) / pad.length + 1)).substr(0, len);
 		}
-	}	
+	},
+	
+	/** `hashCode(str)` calculates a hash number for the given string.
+	*/
+	'static hashCode': function hashCode(str) {
+		var result = 0,
+			len = str.length;
+		for (var i = 0; i < len; ++i) { 
+			result = (result * 31 + str.charCodeAt(i)) & 0x7FFFFFFF;
+		}
+		return result;
+	}
 }); // declare Text.
 
 Text.escapeXML = Text.prototype.escapeXML;
