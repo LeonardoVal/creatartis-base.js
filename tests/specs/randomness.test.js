@@ -9,9 +9,7 @@
 		});
 	}
 
-	/*	Generic pseudorandom generator testing procedure.
-		References:
-		* <http://www.johndcook.com/Beautiful_Testing_ch10.pdf>.
+	/**	Generic pseudorandom generator testing procedure. See: <http://www.johndcook.com/Beautiful_Testing_ch10.pdf>.
 	*/
 	function testRandomGenerator(name, constructor) {
 		var seeds = [123, 123456, 978654, (new Date()).getTime()],
@@ -25,8 +23,7 @@
 				expect(value).not.toBeLessThan(0);
 				expect(value).toBeLessThan(1);
 			}
-			// Mean test. Warning! May fail upto 0.3% of the times.
-			var mean = sum / SAMPLE_COUNT;
+			var mean = sum / SAMPLE_COUNT; // Mean test. Warning! May fail upto 0.3% of the times.
 			expect(Math.abs(0.5 - mean) <= 3 * 0.5 / Math.sqrt(SAMPLE_COUNT)).toBe(true);
 			//TODO Variance test?
 			//TODO Chi2 test aka bucket test?
@@ -205,6 +202,11 @@
 			
 			expect(Randomness.linearCongruential.glibc).toBeOfType('function');
 			testRandomGenerator('linearCongruential.glibc', Randomness.linearCongruential.glibc);
-		});	
+		});
+		
+		it("Mersenne Twister generator", function () {
+			expect(Randomness.mersenneTwister).toBeOfType('function');
+			testRandomGenerator('mersenneTwister', Randomness.mersenneTwister);
+		});
 	}); //// describe.
 }); //// define.
