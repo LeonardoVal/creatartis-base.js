@@ -54,6 +54,33 @@
 			expect(iterable([]).count()).toBe(0);
 		});
 		
+		it("indexOf()", function () {
+			expect(iterable([]).indexOf(0)).toBe(-1);
+			expect(iterable([0]).indexOf(0)).toBe(0);
+			expect(iterable([0, 1, 2]).indexOf(0)).toBe(0);
+			expect(iterable([0, 1, 2]).indexOf(1)).toBe(1);
+			expect(iterable([0, 1, 2]).indexOf(2)).toBe(2);
+			expect(iterable([0, 1, 2]).indexOf(3)).toBe(-1);
+			expect(iterable([0, 1, 2]).indexOf(0, 1)).toBe(-1);
+			expect(iterable([0, 1, 2]).indexOf(1, 1)).toBe(1);
+			expect(iterable([0, 1, 2, 1]).indexOf(1, 2)).toBe(3);
+		});
+		
+		it("indexWhere()", function () {
+			var kTrue = function () { return true; },
+				kFalse = function () { return false; },
+				isEven = function (x) { return !(x % 2); };
+			expect(iterable([]).indexWhere(kTrue)).toBe(-1);
+			expect(iterable([]).indexWhere(kFalse)).toBe(-1);
+			expect(iterable([0, 1, 2]).indexWhere(kTrue)).toBe(0);
+			expect(iterable([0, 1, 2]).indexWhere(kTrue, 2)).toBe(2);
+			expect(iterable([0, 1, 2]).indexWhere(kFalse)).toBe(-1);
+			expect(iterable([0, 1, 2]).indexWhere(isEven)).toBe(0);
+			expect(iterable([0, 1, 2]).indexWhere(isEven, 1)).toBe(2);
+			expect(iterable([0, 1, 2]).indexWhere(isEven, 2)).toBe(2);
+			expect(iterable([0, 1, 2]).indexWhere(isEven, 3)).toBe(-1);
+		});
+		
 	// Sequence iteration. /////////////////////////////////////////////////////
 		it("forEach()", function () {
 			var array1 = [1, false, 2.2, 'a'], current = 0;
@@ -127,6 +154,18 @@
 			expectSequence(sequence.filterApply(filterFun, mapFun), 2, 56);
 		});
 		
+		it("takeWhile()", function () {
+			var kTrue = function () { return true; },
+				kFalse = function () { return false; },
+				isEven = function (x) { return !(x % 2); };
+			expectSequence(iterable([]).takeWhile(kFalse));
+			expectSequence(iterable([]).takeWhile(kTrue));
+			expectSequence(iterable([0, 1, 2]).takeWhile(kFalse));
+			expectSequence(iterable([0, 1, 2]).takeWhile(kTrue), 0, 1, 2);
+			expectSequence(iterable([0, 1, 2]).takeWhile(isEven), 0);
+			expectSequence(iterable([0, 2, 3]).takeWhile(isEven), 0, 2);
+		});
+		
 		it("take()", function () {
 			var seq = iterable([0,1,2]);
 			expectSequence(seq.take(0));
@@ -136,6 +175,18 @@
 			expectSequence(seq.take(4), 0, 1, 2);
 			expectSequence(iterable([]).take(0));
 			expectSequence(iterable([]).take(1));
+		});
+		
+		it("dropWhile()", function () {
+			var kTrue = function () { return true; },
+				kFalse = function () { return false; },
+				isEven = function (x) { return !(x % 2); };
+			expectSequence(iterable([]).dropWhile(kFalse));
+			expectSequence(iterable([]).dropWhile(kTrue));
+			expectSequence(iterable([0, 1, 2]).dropWhile(kFalse), 0, 1, 2);
+			expectSequence(iterable([0, 1, 2]).dropWhile(kTrue));
+			expectSequence(iterable([0, 1, 2]).dropWhile(isEven), 1, 2);
+			expectSequence(iterable([0, 2, 3]).dropWhile(isEven), 3);
 		});
 		
 		it("drop()", function () {
@@ -212,6 +263,14 @@
 			expectSequence(iterable(iterable([0,1,2,3,4,5,6]).lesser(evaluation)), 0, 3, 6);
 		});
 	
+		it("sample()", function () {
+			var ones = Iterable.repeat(1, 20);
+			expectSequence(iterable([]).sample(2));
+			expectSequence(ones.sample(0));
+			expectSequence(ones.sample(1), 1);
+			expectSequence(ones.sample(5), 1, 1, 1, 1, 1);
+		});	
+	
 	// Aggregations. ///////////////////////////////////////////////////////////
 		it("foldl()", function () {
 			expect(Iterable.range(7).foldl(Math.max)).toBe(6);
@@ -282,8 +341,17 @@
 			expect(emptyRange.any()).toBe(false);
 		});
 	
+		it("join()", function () {
+			expect(Iterable.range(1, 4).join(',')).toBe('1,2,3');
+			expect(iterable('abc').join('.')).toBe('a.b.c');
+			expect(iterable('abc').join('')).toBe('abc');
+			expect(iterable('abc').join()).toBe('abc');
+			expect(Iterable.range(1, 2).join(',')).toBe('1');
+			expect(Iterable.range().join(',')).toBe('');
+		});
+	
 	// Sequence conversions. ///////////////////////////////////////////////////
-		it("toArray()", function toArray() {
+		it("toArray()", function () {
 			var it = Iterable.range(0,4);
 			expect(it.toArray).toBeOfType('function');
 			var array1 = it.toArray();
@@ -293,16 +361,17 @@
 			expect(Array.isArray(array1)).toBe(true);
 			expect(array1.length).toBe(0);
 		});
-	
-		it("join()", function () {
-			expect(Iterable.range(1, 4).join(',')).toBe('1,2,3');
-			expect(iterable('abc').join('.')).toBe('a.b.c');
-			expect(iterable('abc').join('')).toBe('abc');
-			expect(iterable('abc').join()).toBe('abc');
-			expect(Iterable.range(1, 2).join(',')).toBe('1');
-			expect(Iterable.range().join(',')).toBe('');
-		});
 
+		it("toObject()", function () {
+			expect(typeof iterable([]).toObject()).toBe('object');
+			expect(JSON.stringify(iterable([]).toObject()))
+				.toBe(JSON.stringify({}));
+			expect(JSON.stringify(iterable([['a', true]]).toObject()))
+				.toBe(JSON.stringify({a: true}));
+			expect(JSON.stringify(iterable([['a', 1], ['b', 2]]).toObject()))
+				.toBe(JSON.stringify({a: 1, b: 2}));
+		});
+		
 	// Whole sequence operations. //////////////////////////////////////////////
 		it("reverse()", function reverse() {
 			expect(iterable('abcdef').reverse().join('')).toBe('fedcba');
