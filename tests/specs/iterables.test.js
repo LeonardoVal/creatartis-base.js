@@ -66,6 +66,17 @@
 			expect(iterable([0, 1, 2, 1]).indexOf(1, 2)).toBe(3);
 		});
 		
+		it("indexesOf()", function () {
+			expectSequence(iterable('').indexesOf('a'));
+			expectSequence(iterable('aaa').indexesOf('a'), 0, 1, 2);
+			expectSequence(iterable('aaa').indexesOf('a', 1), 1, 2);
+			expectSequence(iterable('aaa').indexesOf('a', 3));
+			expectSequence(iterable('ababa').indexesOf('a'), 0, 2, 4);
+			expectSequence(iterable('ababa').indexesOf('b'), 1, 3);
+			expectSequence(iterable('ababa').indexesOf('a', 2), 2, 4);
+			expectSequence(iterable('ababa').indexesOf('b', 3), 3);
+		});
+		
 		it("indexWhere()", function () {
 			var kTrue = function () { return true; },
 				kFalse = function () { return false; },
@@ -79,6 +90,19 @@
 			expect(iterable([0, 1, 2]).indexWhere(isEven, 1)).toBe(2);
 			expect(iterable([0, 1, 2]).indexWhere(isEven, 2)).toBe(2);
 			expect(iterable([0, 1, 2]).indexWhere(isEven, 3)).toBe(-1);
+		});
+		
+		it("indexesWhere()", function () {
+			var kTrue = function () { return true; },
+				kFalse = function () { return false; },
+				isEven = function (x) { return !(x % 2); };
+			expectSequence(iterable([]).indexesWhere(kTrue));
+			expectSequence(iterable([]).indexesWhere(kFalse));
+			expectSequence(iterable([0, 1, 2]).indexesWhere(kTrue), 0, 1, 2);
+			expectSequence(iterable([0, 1, 2]).indexesWhere(kTrue, 1), 1, 2);
+			expectSequence(iterable([0, 1, 2]).indexesWhere(kFalse));
+			expectSequence(iterable([0, 1, 2]).indexesWhere(isEven), 0, 2);
+			expectSequence(iterable([0, 1, 2]).indexesWhere(isEven, 1), 2);
 		});
 		
 	// Sequence iteration. /////////////////////////////////////////////////////

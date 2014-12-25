@@ -176,6 +176,17 @@ var Iterable = exports.Iterable = declare({
 		return -1;
 	},
 	
+	/** `indexesOf(value, from=0)` is a sequence of the positions of the value in this iterable.
+	*/
+	indexesOf: function indexesOf(value, from) {
+		from = from|0;
+		return this.filter(function (v, i) {
+			return i >= from && v === value;
+		}, function (v, i) {
+			return i;
+		});
+	},
+	
 	/** `indexWhere(condition, from=0)` returns the position of the first value of this iterable 
 	that complies with the given `condition`, or -1 if there is none. 
 	*/
@@ -192,6 +203,18 @@ var Iterable = exports.Iterable = declare({
 			this.catchStop(err);
 		}
 		return -1;
+	},
+	
+	/** `indexesWhere(condition, from=0)` is a sequence of the positions in this iterable of values
+	that comply with the given `condition`.
+	*/
+	indexesWhere: function indexesWhere(condition, from) {
+		from = from|0;
+		return this.filter(function (v, i) {
+			return i >= from && condition(v);
+		}, function (v, i) {
+			return i;
+		});
 	},
 	
 	// ## Iteration methods ########################################################################
