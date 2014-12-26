@@ -722,6 +722,41 @@ var Iterable = exports.Iterable = declare({
 		return new Iterable(this.toArray().sort(sortFunction));
 	},
 	
+	/** `permutations(k)` returns an iterable that runs over the permutations of `k` elements of 
+	this iterable. Permutations are not generated in any particular order.
+	
+	Warning! It stores all this iterable's elements in memory.
+	*/
+	permutations: function permutations(k) {
+		k = k|0;
+		var pool = this.toArray(),
+			n = pool.length;
+		if (k < 1 || k > n) {
+			return Iterable.EMPTY;
+		} else {
+			var count = math.factorial(n) / math.factorial(n - k);
+			return new Iterable(function () {
+				var current = 0,
+					indices = Iterable.range(n).toArray();
+				return function __permutationIterator__() {
+					if (current < count) {
+						var result = new Array(k),
+							is = indices.slice(), // copy indices array.
+							i = current;
+						for (var p = 0; p < k; ++p) {
+							result[p] = pool[is.splice(i % (n - p), 1)[0]];
+							i = (i / (n - p)) |0;
+						}
+						++current;
+						return result;
+					} else {
+						throw STOP_ITERATION;
+					}
+				};
+			});
+		}
+	},
+	
 	/** `slices(size=1)` builds another iterable that enumerates arrays of the given size of 
 	elements of this iterable. 
 	*/

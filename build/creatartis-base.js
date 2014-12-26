@@ -424,11 +424,24 @@ Mathematical and numerical functions and utilities.
 */
 var math = exports.math = {};
 
-// ## Probability. #############################################################
+// ## Combinatorics ################################################################################
 
-/** The probability density function (or PDF) of the normal (or gaussian)
-distribution. The parameters `mean` and `variance` default to the standard
-normal (i.e `mean=0` and `variance=1`).
+math.factorial = function factorial(n) {
+	n = n|0;
+	if (n < 0) {
+		return NaN;
+	} else {
+		for (var f = 1; n > 0; --n) {
+			f *= n;
+		}
+		return f;
+	}
+};
+
+// ## Probability ##################################################################################
+
+/** The probability density function (or PDF) of the normal (or gaussian) distribution. The 
+parameters `mean` and `variance` default to the standard normal (i.e `mean=0` and `variance=1`).
 */
 math.gauss_pdf = function gauss_pdf(value, mean, variance) {
 	mean = isNaN(mean) ? 0 : +mean;
@@ -439,9 +452,9 @@ math.gauss_pdf = function gauss_pdf(value, mean, variance) {
 		/ standardDeviation * Math.sqrt(2 * Math.PI);
 };
 
-/** Complementary error function routine based on Chebyshev fitting as explained
-in [Numerical Recipes in C (2nd edition)](http://www.nr.com/), with fractional 
-error everywhere less than 1.2e-7.
+/** Complementary error function routine based on Chebyshev fitting as explained in 
+[Numerical Recipes in C (2nd edition)](http://www.nr.com/), with fractional error everywhere less 
+than 1.2e-7.
 */
 math.gauss_erfc = function gauss_erfc(value) {
 	var z = Math.abs(value),
@@ -452,9 +465,8 @@ math.gauss_erfc = function gauss_erfc(value) {
     return value >= 0.0 ? ans : 2.0 - ans;
 };
 
-/** The cumulative density function (or CDF) of the normal (or gaussian)
-distribution. The parameters `mean` and `variance` default to the standard
-normal (i.e `mean=0` and `variance=1`).
+/** The cumulative density function (or CDF) of the normal (or gaussian) distribution. The 
+parameters `mean` and `variance` default to the standard normal (i.e `mean=0` and `variance=1`).
 */
 math.gauss_cdf = function gauss_cdf(value, mean, variance) {
 	mean = isNaN(mean) ? 0 : +mean;
@@ -1711,6 +1723,41 @@ var Iterable = exports.Iterable = declare({
 	*/
 	sorted: function sorted(sortFunction) {
 		return new Iterable(this.toArray().sort(sortFunction));
+	},
+	
+	/** `permutations(k)` returns an iterable that runs over the permutations of `k` elements of 
+	this iterable. Permutations are not generated in any particular order.
+	
+	Warning! It stores all this iterable's elements in memory.
+	*/
+	permutations: function permutations(k) {
+		k = k|0;
+		var pool = this.toArray(),
+			n = pool.length;
+		if (k < 1 || k > n) {
+			return Iterable.EMPTY;
+		} else {
+			var count = math.factorial(n) / math.factorial(n - k);
+			return new Iterable(function () {
+				var current = 0,
+					indices = Iterable.range(n).toArray();
+				return function __permutationIterator__() {
+					if (current < count) {
+						var result = new Array(k),
+							is = indices.slice(), // copy indices array.
+							i = current;
+						for (var p = 0; p < k; ++p) {
+							result[p] = pool[is.splice(i % (n - p), 1)[0]];
+							i = (i / (n - p)) |0;
+						}
+						++current;
+						return result;
+					} else {
+						throw STOP_ITERATION;
+					}
+				};
+			});
+		}
 	},
 	
 	/** `slices(size=1)` builds another iterable that enumerates arrays of the given size of 

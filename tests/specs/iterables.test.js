@@ -414,6 +414,20 @@
 			expectSequence(iterable('').sorted());
 		});
 		
+		it("permutations()", function () {
+			var xs = iterable('abc'),
+				f = function (perm) { return perm.join(''); };
+			[-2, -1, 0, 4, 5].forEach(function (k) {
+				expectSequence(xs.permutations(k));
+			});
+			expectSequence(xs.permutations(1).map(f).sorted(), 'a', 'b', 'c');
+			expectSequence(xs.permutations(2).map(f).sorted(), 'ab', 'ac', 'ba', 'bc', 'ca', 'cb');
+			expectSequence(xs.permutations(3).map(f).sorted(), 'abc', 'acb', 'bac', 'bca', 'cab', 'cba');
+			[-1, 0, 1].forEach(function (k) {
+				expectSequence(iterable('').permutations(k));
+			});
+		});
+		
 		it("slices()", function () {
 			var arrayJoin = function (array) {
 				expect(Array.isArray(array)).toBe(true);
