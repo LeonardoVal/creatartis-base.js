@@ -6,6 +6,8 @@ var math = exports.math = {};
 
 // ## Combinatorics ################################################################################
 
+/** The `factorial` functions needs little introduction. It receives `n` and returns `n!`.
+*/
 math.factorial = function factorial(n) {
 	n = n|0;
 	if (n < 0) {
