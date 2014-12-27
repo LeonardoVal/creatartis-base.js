@@ -66,15 +66,15 @@
 			expect(iterable([0, 1, 2, 1]).indexOf(1, 2)).toBe(3);
 		});
 		
-		it("indexesOf()", function () {
-			expectSequence(iterable('').indexesOf('a'));
-			expectSequence(iterable('aaa').indexesOf('a'), 0, 1, 2);
-			expectSequence(iterable('aaa').indexesOf('a', 1), 1, 2);
-			expectSequence(iterable('aaa').indexesOf('a', 3));
-			expectSequence(iterable('ababa').indexesOf('a'), 0, 2, 4);
-			expectSequence(iterable('ababa').indexesOf('b'), 1, 3);
-			expectSequence(iterable('ababa').indexesOf('a', 2), 2, 4);
-			expectSequence(iterable('ababa').indexesOf('b', 3), 3);
+		it("indicesOf()", function () {
+			expectSequence(iterable('').indicesOf('a'));
+			expectSequence(iterable('aaa').indicesOf('a'), 0, 1, 2);
+			expectSequence(iterable('aaa').indicesOf('a', 1), 1, 2);
+			expectSequence(iterable('aaa').indicesOf('a', 3));
+			expectSequence(iterable('ababa').indicesOf('a'), 0, 2, 4);
+			expectSequence(iterable('ababa').indicesOf('b'), 1, 3);
+			expectSequence(iterable('ababa').indicesOf('a', 2), 2, 4);
+			expectSequence(iterable('ababa').indicesOf('b', 3), 3);
 		});
 		
 		it("indexWhere()", function () {
@@ -92,17 +92,17 @@
 			expect(iterable([0, 1, 2]).indexWhere(isEven, 3)).toBe(-1);
 		});
 		
-		it("indexesWhere()", function () {
+		it("indicesWhere()", function () {
 			var kTrue = function () { return true; },
 				kFalse = function () { return false; },
 				isEven = function (x) { return !(x % 2); };
-			expectSequence(iterable([]).indexesWhere(kTrue));
-			expectSequence(iterable([]).indexesWhere(kFalse));
-			expectSequence(iterable([0, 1, 2]).indexesWhere(kTrue), 0, 1, 2);
-			expectSequence(iterable([0, 1, 2]).indexesWhere(kTrue, 1), 1, 2);
-			expectSequence(iterable([0, 1, 2]).indexesWhere(kFalse));
-			expectSequence(iterable([0, 1, 2]).indexesWhere(isEven), 0, 2);
-			expectSequence(iterable([0, 1, 2]).indexesWhere(isEven, 1), 2);
+			expectSequence(iterable([]).indicesWhere(kTrue));
+			expectSequence(iterable([]).indicesWhere(kFalse));
+			expectSequence(iterable([0, 1, 2]).indicesWhere(kTrue), 0, 1, 2);
+			expectSequence(iterable([0, 1, 2]).indicesWhere(kTrue, 1), 1, 2);
+			expectSequence(iterable([0, 1, 2]).indicesWhere(kFalse));
+			expectSequence(iterable([0, 1, 2]).indicesWhere(isEven), 0, 2);
+			expectSequence(iterable([0, 1, 2]).indicesWhere(isEven, 1), 2);
 		});
 		
 	// Sequence iteration. /////////////////////////////////////////////////////
@@ -293,6 +293,8 @@
 			expectSequence(ones.sample(0));
 			expectSequence(ones.sample(1), 1);
 			expectSequence(ones.sample(5), 1, 1, 1, 1, 1);
+			expectSequence(iterable('abcde').sample(5), 'a', 'b', 'c', 'd', 'e');
+			expectSequence(iterable('abcde').sample(7), 'a', 'b', 'c', 'd', 'e');
 		});	
 	
 	// Aggregations. ///////////////////////////////////////////////////////////
@@ -428,6 +430,22 @@
 			});
 		});
 		
+		it("combinations()", function () {
+			var f = function (perm) { 
+				return perm.join(''); 
+			};
+			[-2, -1, 0, 4, 5].forEach(function (k) {
+				expectSequence(iterable('abc').combinations(k));
+			});
+			expectSequence(iterable('abc').combinations(1).map(f), 'a', 'b', 'c');
+			expectSequence(iterable('abc').combinations(2).map(f), 'ab', 'ac', 'bc');
+			expectSequence(iterable('abc').combinations(3).map(f), 'abc');
+			expectSequence(iterable('abcd').combinations(3).map(f), 'abc', 'abd', 'acd', 'bcd');
+			[-1, 0, 1].forEach(function (k) {
+				expectSequence(iterable('').combinations(k));
+			});
+		});
+		
 		it("slices()", function () {
 			var arrayJoin = function (array) {
 				expect(Array.isArray(array)).toBe(true);
@@ -440,6 +458,19 @@
 			expectSequence(iterable('abcdefgh').slices(3).map(arrayJoin), 'abc', 'def', 'gh');
 			expectSequence(iterable('abcdefgh').slices(4).map(arrayJoin), 'abcd', 'efgh');
 			expectSequence(iterable('abcdefgh').slices(5).map(arrayJoin), 'abcde', 'fgh');
+		});
+		
+		it("groupAll()", function () {
+			expect(JSON.stringify(iterable('').groupAll())).toBe(JSON.stringify({}));
+			expect(JSON.stringify(iterable('a').groupAll())).toBe(JSON.stringify({a:['a']}));
+			expect(JSON.stringify(iterable('ab').groupAll())).toBe(JSON.stringify({a:['a'], b:['b']}));
+			expect(JSON.stringify(iterable('aba').groupAll())).toBe(JSON.stringify({a:['a','a'], b:['b']}));
+			var toUpperCase = function (str) { return str.toUpperCase(); };
+			expect(JSON.stringify(iterable('abA').groupAll(toUpperCase)))
+				.toBe(JSON.stringify({A:['a','A'], B:['b']}));
+			expect(JSON.stringify(iterable('abABb').groupAll(toUpperCase, function (xs, x) { 
+				return (xs|0) + 1;
+			}))).toBe(JSON.stringify({A:2, B:3}));
 		});
 	
 	// Operations on many sequences. ///////////////////////////////////////////
@@ -484,7 +515,56 @@
 			expectSequence(iterable([1, 2]).flatten(), 1, 2);
 		});
 	
-	// Sequence builders. //////////////////////////////////////////////////////
+	// Set related /////////////////////////////////////////////////////////////////////////////////
+		it("nub()", function () {
+			expectSequence(iterable([]).nub());
+			expectSequence(iterable('aa').nub(), 'a');
+			expectSequence(iterable('abbaabba').nub(), 'a', 'b');
+			expectSequence(iterable([0,1,'0','1']).nub(), 0, 1, '0', '1');
+			expectSequence(iterable([0,1,'0','1']).nub(function (x, y) {
+				return +x === +y;
+			}), 0, 1);
+		});
+		
+		it("union() & unionBy()", function () {
+			expectSequence(iterable('').union(''));
+			expectSequence(iterable('a').union(''), 'a');
+			expectSequence(iterable('').union('a'), 'a');
+			expectSequence(iterable('a').union('a'), 'a');
+			expectSequence(iterable('ab').union('a'), 'a', 'b');
+			expectSequence(iterable([0,1]).union(['0','1']), 0, 1, '0', '1');
+			expectSequence(iterable([0,1]).unionBy(function (x, y) {
+				return +x === +y;
+			}, ['0','1']), 0, 1);
+		});
+		
+		it("intersection() & intersectionBy()", function () {
+			expectSequence(iterable('').intersection(''));
+			expectSequence(iterable('a').intersection(''));
+			expectSequence(iterable('').intersection('a'));
+			expectSequence(iterable('a').intersection('a'), 'a');
+			expectSequence(iterable('ab').intersection('a'), 'a');
+			expectSequence(iterable([0,1]).intersection(['0','1']));
+			expectSequence(iterable([0,1]).intersectionBy(function (x, y) {
+				return +x === +y;
+			}, ['0','1']).map(function (x) { 
+				return +x; 
+			}), 0, 1);
+		});
+		
+		it("difference() & differenceBy()", function () {
+			expectSequence(iterable('').difference(''));
+			expectSequence(iterable('a').difference(''), 'a');
+			expectSequence(iterable('').difference('a'));
+			expectSequence(iterable('a').difference('a'));
+			expectSequence(iterable('ab').difference('a'), 'b');
+			expectSequence(iterable([0,1]).difference(['0','1']), 0, 1);
+			expectSequence(iterable([0,1]).differenceBy(function (x, y) {
+				return +x === +y;
+			}, ['0','1']));
+		});
+	
+	// Sequence builders. //////////////////////////////////////////////////////////////////////////
 		it("range()", function () {
 			expect(Iterable.range).toBeOfType('function');
 			expectSequence(Iterable.range(3), 0, 1, 2);

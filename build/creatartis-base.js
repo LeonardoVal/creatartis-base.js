@@ -426,6 +426,8 @@ var math = exports.math = {};
 
 // ## Combinatorics ################################################################################
 
+/** The `factorial` functions needs little introduction. It receives `n` and returns `n!`.
+*/
 math.factorial = function factorial(n) {
 	n = n|0;
 	if (n < 0) {
@@ -1181,7 +1183,7 @@ var Iterable = exports.Iterable = declare({
 	
 	/** `indexesOf(value, from=0)` is a sequence of the positions of the value in this iterable.
 	*/
-	indexesOf: function indexesOf(value, from) {
+	indicesOf: function indexesOf(value, from) {
 		from = from|0;
 		return this.filter(function (v, i) {
 			return i >= from && v === value;
@@ -1211,7 +1213,7 @@ var Iterable = exports.Iterable = declare({
 	/** `indexesWhere(condition, from=0)` is a sequence of the positions in this iterable of values
 	that comply with the given `condition`.
 	*/
-	indexesWhere: function indexesWhere(condition, from) {
+	indicesWhere: function indexesWhere(condition, from) {
 		from = from|0;
 		return this.filter(function (v, i) {
 			return i >= from && condition(v);
@@ -1515,21 +1517,17 @@ var Iterable = exports.Iterable = declare({
 		var buffer = [];
 		this.forEach(function (x, i) {
 			var r = random.random();
-			if (buffer.length < n) {
-				buffer.push([r, x, i]);
-			} else if (r < buffer[buffer.length - 1][0]) {
-				buffer.push([r, x, i]);
-				buffer.sort(function (t1, t2) {
-					return t1[0] - t2[0]; // Order by random value.
-				});
+			for (var p = buffer.length; p > 0 && buffer[p-1][0] < r; --p); // Ordered insertion.
+			buffer.splice(p, 0, [r, x, i]);
+			while (buffer.length > n) {
 				buffer.pop();
-			}		
+			}	
 		});
-		buffer.sort(function (t1, t2) {
-			return t1[2] - t2[2]; // Order by index.
+		buffer.sort(function (t1, t2) { // Order by index.
+			return t1[2] - t2[2];
 		});
-		return new Iterable(buffer.map(function (t) {
-			return t[1]; // Keep only the elements.
+		return new Iterable(buffer.map(function (t) { // Keep only the elements.
+			return t[1];
 		}));
 	},
 	
@@ -1741,7 +1739,7 @@ var Iterable = exports.Iterable = declare({
 			return new Iterable(function () {
 				var current = 0,
 					indices = Iterable.range(n).toArray();
-				return function __permutationIterator__() {
+				return function __permutationsIterator__() {
 					if (current < count) {
 						var result = new Array(k),
 							is = indices.slice(), // copy indices array.
@@ -1755,6 +1753,43 @@ var Iterable = exports.Iterable = declare({
 					} else {
 						throw STOP_ITERATION;
 					}
+				};
+			});
+		}
+	},
+	
+	/** `combinations(k)` returns an iterable that runs over the combinations of `k` elements of 
+	this iterable. Combinations are generated in lexicographical order. The implementations is 
+	inspired in [Python's itertools](https://docs.python.org/3/library/itertools.html#itertools.combinations).
+	
+	Warning! It stores all this iterable's elements in memory.
+	*/
+	combinations: function combinations(k) {
+		k = k|0;
+		var pool = this.toArray(),
+			n = pool.length;
+		if (k < 1 || k > n) {
+			return Iterable.EMPTY;
+		} else {
+			return new Iterable(function () {
+				var indices = Iterable.range(k).toArray(),
+					current = indices.map(function (i) { return pool[i]; });
+				return function __combinationsIterator__() {
+					if (!current) throw STOP_ITERATION;
+					var result = current;
+					for (var i = k-1; i >= 0; --i) {
+						if (indices[i] !== i + n - k) break;
+					}
+					if (i < 0) {
+						current = null;
+					} else {
+						indices[i] += 1;
+						for (var j = i+1; j < k; ++j) {
+							indices[j] = indices[j-1] + 1;
+						}
+						current = indices.map(function (i) { return pool[i]; });
+					}
+					return result;
 				};
 			});
 		}
@@ -1787,6 +1822,32 @@ var Iterable = exports.Iterable = declare({
 			};
 		});
 	},
+	
+	/** `groupAll(key, accum)` returns an object with one member per group of elements. The 
+	elements' keys are calculated by the `key` function, or the default string conversion by 
+	default. If a `accum` function is given, it is used to accumulate the groups. By default an 
+	array is built.
+	*/
+	groupAll: (function () {
+		function DEFAULT_KEY(x) { 
+			return x +''; 
+		}
+		function DEFAULT_ACCUM(xs, x) { 
+			xs = xs || [];
+			xs.push(x);
+			return xs;
+		}
+		return function groupAll(key, accum) {
+			var result = {},
+				key = key || DEFAULT_KEY,
+				accum = accum || DEFAULT_ACCUM;
+			this.forEach(function (elem) {
+				var k = key(elem);
+				result[k] = accum(result[k], elem);
+			});
+			return result;
+		};
+	})(),
 	
 	// ## Operations on many sequences #############################################################
 	
@@ -1908,7 +1969,109 @@ var Iterable = exports.Iterable = declare({
 		});
 	},
 	
-	// ## Sequence builders. #######################################################################
+	// ## Set related ##############################################################################
+	
+	/** The `nub` of a sequence is another sequence with each element only appearing once. Basically
+	repeated elements are removed. The argument `comp` may have a function to compare the sequence's
+	values.
+	
+	Warning! All the elements of the result are stored in memory.
+	*/
+	nub: function nub(comp) {
+		var buffer = [];
+		return this.filter(function (x) {
+			if (comp) {
+				for (var i = buffer.length-1; i >= 0; --i) {
+					if (comp(buffer[i], x)) {
+						return false;
+					}
+				}
+			} else if (buffer.indexOf(x) >= 0) {
+				return false;
+			}
+			buffer.push(x);
+			return true;
+		});
+	},
+	
+	/** The `union(iterable...)` and `unionBy(comp, iterable...)` methods treat this and each 
+	iterable argument as sets, and calculate the union of all. `unionBy` allows to define a specific
+	equality criteria between the elements.
+	
+	Warning! All the elements of the result are stored in memory.
+	*/
+	union: function union() {
+		var args = [void 0].concat(Array.prototype.slice.call(arguments));
+		return this.unionBy.apply(this, args);
+	},
+	
+	unionBy: function unionBy(comp) {
+		return this.chain.apply(this, Array.prototype.slice.call(arguments, 1)).nub(comp);
+	},
+	
+	/** The `intersection(iterable...)` and `intersectionBy(comp, iterable...)` methods intersection 
+	of the iterable arguments with `this`. This iterable is assumed not to have repeated elements. 
+	`intersectionBy` allows to define a specific equality criteria between the elements.
+	
+	Warning! All the elements of the result are stored in memory.
+	*/
+	intersection: function intersection() {
+		var args = [void 0].concat(Array.prototype.slice.call(arguments));
+		return this.intersectionBy.apply(this, args);
+	},
+	
+	intersectionBy: function intersectionBy(comp) {
+		var buffer = this.toArray();
+		for (var i = 1; i < arguments.length; ++i) {
+			buffer = iterable(arguments[i]).filter(function (x) {
+				if (comp) {
+					for (var i = buffer.length-1; i >= 0; --i) {
+						if (comp(buffer[i], x)) {
+							return true;
+						}
+					}
+					return false;
+				} else {
+					return buffer.indexOf(x) >= 0;
+				}
+			}).toArray();
+		}
+		return iterable(buffer);
+	},
+	
+	/** The `difference(iterable...)` and `differenceBy(comp, iterable...)` methods difference of
+	the iterable arguments with `this`. This iterable is assumed not to have repeated elements. 
+	`differenceBy` allows to define a specific equality criteria between the elements.
+	
+	Warning! All the elements of given sequences are stored in memory.
+	*/
+	difference: function difference() {
+		var args = [void 0].concat(Array.prototype.slice.call(arguments));
+		return this.differenceBy.apply(this, args);
+	},
+	
+	differenceBy: function differenceBy(comp) {
+		var result = this, 
+			buffer;
+		for (var i = 1; i < arguments.length; ++i) {
+			buffer = iterable(arguments[i]).toArray();
+			result = result.filter(function (x) {
+				if (comp) {
+					for (var i = buffer.length-1; i >= 0; --i) {
+						if (comp(buffer[i], x)) {
+							return false;
+						}
+					}
+					return true;
+				} else {
+					return buffer.indexOf(x) < 0;
+				}
+			});
+		}
+		return result;
+	},
+	
+	// ## Sequence builders ########################################################################
 	
 	/** `range(from=0, to, step=1)` builds an Iterable object with number from `from` upto `to` with
 	the given `step`. For example, `range(2,12,3)` represents the sequence `[2, 5, 8, 11]`.
