@@ -147,6 +147,32 @@
 			expectSequence(sequence.mapApply(mapFun), 2, 16, 30);
 			expectSequence(sequence.mapApply(mapFun, filterFun), 2, 16);
 		});
+		
+		it("select()", function () {
+			function str(x) {
+				return JSON.stringify(x);
+			}
+			var seq1 = iterable([[0,1,2],[3,4,5],[6,7,8]]);
+			expectSequence(iterable('').select(0));
+			expectSequence(iterable([[0,1,2]]).select(0), 0);
+			expectSequence(iterable([[0,1,2],[3,4,5]]).select(1), 1, 4);
+			expectSequence(seq1.select(2), 2, 5, 8);
+			expectSequence(seq1.select([0,2]).map(str),
+				str([0,2]), str([3,5]), str([6,8]));
+			expectSequence(seq1.select({a: 1}).map(str), 
+				str({a:1}), str({a:4}), str({a:7}));
+			expectSequence(seq1.select({a: 1, b: [0,2]}).map(str), 
+				str({a:1, b:[0,2]}), str({a:4, b:[3,5]}), str({a:7, b:[6,8]}));
+			expectSequence(seq1.select({a: 1, b: function sum0p2(x) {
+				return x[0]+x[2];
+			}}).map(str), str({a:1, b:2}), str({a:4, b:8}), str({a:7, b:14}));
+			var seq2 = iterable([{x:0,y:0}, {x:1,y:0}, {x:0, y:1}])
+			expectSequence(seq2.select('x'), 0, 1, 0);
+			expectSequence(seq2.select('y'), 0, 0, 1);
+			expectSequence(seq2.select(['y', 'x']).map(str), 
+				str([0,0]), str([0,1]), str([1,0]));
+			expectSequence(seq2.select(function (o) { return +(''+ o.x + o.y); }), 0, 10, 1);
+		});
 	
 	// Filter and selection. ///////////////////////////////////////////////////
 		it("filter()", function () {
@@ -458,6 +484,25 @@
 			expectSequence(iterable('abcdefgh').slices(3).map(arrayJoin), 'abc', 'def', 'gh');
 			expectSequence(iterable('abcdefgh').slices(4).map(arrayJoin), 'abcd', 'efgh');
 			expectSequence(iterable('abcdefgh').slices(5).map(arrayJoin), 'abcde', 'fgh');
+		});
+		
+		it("groupBy()", function () {
+			function str(x) {
+				return JSON.stringify(x);
+			}
+			function toUpper(x) {
+				return (x +'').toUpperCase();
+			}
+			expectSequence(iterable('').groupBy());
+			expectSequence(iterable('a').groupBy().map(str), str(['a', ['a']]));
+			expectSequence(iterable('aba').groupBy().map(str), 
+				str(['a', ['a']]), str(['b', ['b']]), str(['a', ['a']]));
+			expectSequence(iterable('aabb').groupBy().map(str), 
+				str(['a', ['a', 'a']]), str(['b', ['b', 'b']]));
+			expectSequence(iterable('aAbB').groupBy().map(str), 
+				str(['a', ['a']]), str(['A', ['A']]), str(['b', ['b']]), str(['B', ['B']]));
+			expectSequence(iterable('aAbB').groupBy(toUpper).map(str), 
+				str(['A', ['a', 'A']]), str(['B', ['b', 'B']]));
 		});
 		
 		it("groupAll()", function () {

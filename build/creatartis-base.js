@@ -1285,14 +1285,33 @@ var Iterable = exports.Iterable = declare({
 		}, filterFunction);
 	},
 	
-	/** `pluck(member)` is a shortcut for a map that extracts a member from the objects in the 
-	sequence. It was inspired by [Underscores's `pluck`](http://underscorejs.org/#pluck).
+	/** `select(members)` is a shortcut for a map that extracts a member or members from the objects 
+	in the sequence. If `members` is an object, then for each value in the sequence another object 
+	is built with a selection for each key in the object. Arrays can also be built in a similar
+	fashion.
 	*/
-	pluck: function pluck(member) {
-		return this.map(function (obj) {
-			return obj[member];
-		});
-	},
+	select: (function () {
+		function __selection__(from, member) {
+			if (Array.isArray(member)) {
+				return member.map(__selection__.bind(this, from));
+			} else if (typeof member === 'object') {
+				var result = {};
+				Object.keys(member).forEach(function (k) {
+					result[k] = __selection__.call(this, from, member[k]);
+				});
+				return result;
+			} else if (typeof member === 'function') {
+				return member(from);
+			} else {
+				return from[member];
+			}
+		}
+		return function select(members) {
+			return this.map(function (obj) {
+				return __selection__(obj, members);
+			});
+		};
+	})(),
 	
 	// ## Sequence selection and filtering #########################################################
 	
@@ -1818,6 +1837,49 @@ var Iterable = exports.Iterable = declare({
 					return slice;
 				} else {
 					throw STOP_ITERATION;
+				}
+			};
+		});
+	},
+	
+	/** `groupBy(key)` returns an iterable that runs over the subsequent elements of this iterable
+	that when applied the `key` function return the same value. If no `key` function is given, the
+	actual values are used. Each element in the grouped iterable is a pair, with the key value first
+	and an array second.
+	*/
+	groupBy: function groupBy(key) {
+		var it = this;
+		return new Iterable(function __iter__() {
+			var iter = it.__iter__(), 
+				currentValues = null, currentKey;
+			try {
+				currentValues = [iter()];
+				currentKey = key ? key(currentValues[0]) : currentValues[0];
+			} catch (err) {
+				it.catchStop(err);
+			}
+			return function __groupByIterator__() {
+				var value, valueKey, pair;
+				if (!currentValues) {
+					it.stop();
+				} else while (true) {
+					try {
+						value = iter();
+						valueKey = key ? key(value) : value;
+						if (valueKey === currentKey) {
+							currentValues.push(value);
+						} else {
+							pair = [currentKey, currentValues];
+							currentKey = valueKey;
+							currentValues = [value];
+							return pair;
+						}
+					} catch (err) {
+						it.catchStop(err);
+						pair = [currentKey, currentValues];
+						currentValues = null;
+						return pair;
+					}
 				}
 			};
 		});
