@@ -1,4 +1,4 @@
-/** # Objects
+﻿/** # Objects
 	
 OOP related functions and definitions.
 */

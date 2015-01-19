@@ -1,4 +1,4 @@
-/** # HttpRequest
+﻿/** # HttpRequest
 
 A wrapper of XMLHttpRequest, adding some functionality and dealing with	asynchronism 
 with futures.

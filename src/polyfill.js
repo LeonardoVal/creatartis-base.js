@@ -1,4 +1,4 @@
-/** # Polyfill
+﻿/** # Polyfill
 
 This part of the library contains all code meant to equalize Javascript 
 execution environments, to provide some sort of forward compatibility.

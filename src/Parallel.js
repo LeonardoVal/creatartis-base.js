@@ -1,4 +1,4 @@
-/** # Parallel
+﻿/** # Parallel
 
 Wrapper for standard web workers, that includes bootstraping and a future 
 oriented interface.

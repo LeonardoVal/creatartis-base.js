@@ -1,4 +1,4 @@
-/** # Statistic
+﻿/** # Statistic
 
 Component representing statistical accounting for one concept.
 */

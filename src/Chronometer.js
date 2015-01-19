@@ -1,4 +1,4 @@
-/** # Chronometer
+﻿/** # Chronometer
 
 A Chronometer is a simple tool to measure time.
 */

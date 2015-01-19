@@ -1,4 +1,4 @@
-/** ## Initializer
+﻿/** ## Initializer
 
 Initializers are object builders, allowing the declaration of default values, 
 type checks and coercions, and other checks.

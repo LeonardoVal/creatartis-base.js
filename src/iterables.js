@@ -654,8 +654,8 @@ var Iterable = exports.Iterable = declare({
 	all: function all(predicate, strict) {
 		predicate = typeof predicate === 'function' ? predicate : function (x) { return !!x; };
 		var result = true;
-		this.forEach(function (x) { 
-			if (!predicate(x)) {
+		this.forEach(function (x, i) { 
+			if (!predicate(x, i)) {
 				result = false;
 				if (!strict) {
 					throw STOP_ITERATION; // Shortcircuit.
@@ -671,8 +671,8 @@ var Iterable = exports.Iterable = declare({
 	any: function any(predicate, strict) {
 		predicate = typeof predicate === 'function' ? predicate : function (x) { return !!x; };
 		var result = false;
-		this.forEach(function (x) { 
-			if (predicate(x)) {
+		this.forEach(function (x, i) { 
+			if (predicate(x, i)) {
 				result = true;
 				if (!strict) {
 					throw STOP_ITERATION; // Shortcut.

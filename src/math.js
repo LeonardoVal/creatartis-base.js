@@ -1,4 +1,4 @@
-/** # Math
+﻿/** # Math
 
 Mathematical and numerical functions and utilities.
 */
