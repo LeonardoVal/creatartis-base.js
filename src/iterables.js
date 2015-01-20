@@ -898,9 +898,9 @@ var Iterable = exports.Iterable = declare({
 			var result = {},
 				key = key || DEFAULT_KEY,
 				accum = accum || DEFAULT_ACCUM;
-			this.forEach(function (elem) {
-				var k = key(elem);
-				result[k] = accum(result[k], elem);
+			this.forEach(function (elem, i) {
+				var k = key(elem, i);
+				result[k] = accum(result[k], elem, i);
 			});
 			return result;
 		};
