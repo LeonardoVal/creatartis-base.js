@@ -4,6 +4,14 @@ Mathematical and numerical functions and utilities.
 */
 var math = exports.math = {};
 
+// ## Conditionals #################################################################################
+
+/** Clamps forces a `value` to be between `min` and `max`.
+*/
+math.clamp = function clamp(value, min, max) {
+	return Math.min(max, Math.max(min, value));
+};
+
 // ## Combinatorics ################################################################################
 
 /** The `factorial` functions needs little introduction. It receives `n` and returns `n!`.
