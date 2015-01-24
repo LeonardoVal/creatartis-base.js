@@ -12,6 +12,13 @@ math.clamp = function clamp(value, min, max) {
 	return Math.min(max, Math.max(min, value));
 };
 
+/** A simple function to calculate the sign of a number. See [Math.sign](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sign).
+*/
+math.sign = function sign(x) {
+	x = +x;
+	return (x === 0 || isNaN(x)) ? x : x > 0 ? 1 : -1;
+};
+
 // ## Combinatorics ################################################################################
 
 /** The `factorial` functions needs little introduction. It receives `n` and returns `n!`.
