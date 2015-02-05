@@ -2,7 +2,14 @@
 
 Text manipulation functions and definitions.
 */
-var Text = exports.Text = declare({
+var XML_ENTITIES = { 
+		'<': '&lt;', 
+		'>': '&gt;', 
+		'&': '&amp;', 
+		'"': '&quot;', 
+		"'": '&apos;' 
+	},
+	Text = exports.Text = declare({
 	/** Text is similar to Java's [`StringBuilder`](http://docs.oracle.com/javase/7/docs/api/java/lang/StringBuilder.html), 
 	but with extended formatting features.
 	*/
@@ -18,8 +25,7 @@ var Text = exports.Text = declare({
 		return text;
 	},
 	
-	/** `add(...strings)` concatenates all arguments conversions to string to 
-	the buffer.
+	/** `add(...strings)` concatenates all arguments conversions to string to the buffer.
 	*/
 	add: function add() {
 		for (var i = 0; i < arguments.length; i++) {
@@ -27,17 +33,18 @@ var Text = exports.Text = declare({
 		}
 	},
 	
-	/** The default conversion to string returns the content of the buffer. */
+	/** The default conversion to string returns the content of the buffer.
+	*/
 	toString: function toString() {
 		return this.text;
 	},
 	
-	// ## Formatting, encoding and decoding ####################################
+	// ## Formatting, encoding and decoding ########################################################
 	
-	// ### XML (and HTML for most intends and purposes) ########################
+	// ### XML (and HTML for most intends and purposes) ############################################
 	
-	/** `escapeXML(str)` returns the string with XML reserved characters 
-	replaced by the corresponding character entities.
+	/** `escapeXML(str)` returns the string with XML reserved characters replaced by the 
+	corresponding character entities.
 	*/
 	escapeXML: function escapeXML(str) {
 		var XML_ENTITIES = this.XML_ENTITIES;
@@ -48,16 +55,10 @@ var Text = exports.Text = declare({
 	
 	/** The XML character entities are defined in `XML_ENTITIES`:
 	*/
-	XML_ENTITIES: { 
-		'<': '&lt;', 
-		'>': '&gt;', 
-		'&': '&amp;', 
-		'"': '&quot;', 
-		"'": '&apos;' 
-	},
+	XML_ENTITIES: XML_ENTITIES,
+	'static XML_ENTITIES': XML_ENTITIES,
 
-	/** `addXML(...str)` appends all arguments string conversions after applying 
-	`escapeXML()`.
+	/** `addXML(...str)` appends all arguments string conversions after applying `escapeXML()`.
 	*/
 	addXML: function addXML() {
 		for (var i = 0; i < arguments.length; i++) {
@@ -65,21 +66,20 @@ var Text = exports.Text = declare({
 		}
 	},
 	
-	// ### Regular expressions #################################################
+	// ### Regular expressions #####################################################################
 	
-	/** `escapeRegExp(str)` returns the `str` string with the reserved 
-	characters of regular expressions escaped with `'\'`.
+	/** `escapeRegExp(str)` returns the `str` string with the reserved characters of regular 
+	expressions escaped with `'\'`.
 	*/
 	escapeRegExp: function escapeRegExp(str) {
 		return (str +'').replace(/[\-\[\]{}()*+?.^$\\]/g, '\\$&');
 	},
 	
-	// ### Dates ###############################################################
+	// ### Dates ###################################################################################
 	
-	/** `formatDate(date=now, format=Date.toString, useUTC=false)` formats a
-	Date. The `format` string  may use `y` for year, `m` for month, `d` for day 
-	(in month), `h` for hour (24), `H` for hour (am/pm), `n` for minutes, `s` 
-	for seconds, `S` for milliseconds, and `a` or `A` for am/pm.
+	/** `formatDate(date=now, format=Date.toString, useUTC=false)` formats a Date. The `format` 
+	string  may use `y` for year, `m` for month, `d` for day (in month), `h` for hour (24), `H` for
+	hour (am/pm), `n` for minutes, `s` for seconds, `S` for milliseconds, and `a` or `A` for am/pm.
 	*/
 	formatDate: function formatDate(date, format, useUTC) {
 		date = date || new Date();
@@ -103,17 +103,17 @@ var Text = exports.Text = declare({
 			});
 	},
 	
-	/** `addDate(date=now, format=Date.toString, useUTC=false)` appends the 
-	`date` formatted using `formatDate()`.
+	/** `addDate(date=now, format=Date.toString, useUTC=false)` appends the `date` formatted using
+	`formatDate()`.
 	*/
 	addDate: function addDate(date, format, useUTC) {
 		this.text += this.formatDate(date, format, useUTC);
 	},
 	
-	// ## _Static_ members #####################################################
+	// ## _Static_ members #########################################################################
 	
-	/** `lpad(str, len, pad=' ')` returns a copy of the `str` string padded with 
-	`pad` (or space by default) to the left upto `len` length.
+	/** `lpad(str, len, pad=' ')` returns a copy of the `str` string padded with `pad` (or space by 
+	default) to the left upto `len` length.
 	*/
 	'static lpad': function lpad(str, len, pad) {
 		if (isNaN(len) || str.length >= len) {
@@ -124,8 +124,8 @@ var Text = exports.Text = declare({
 		}
 	},
 
-	/** `rpad(str, len, pad=' ')` returns a copy of the `str` string padded with 
-	`pad` (or space by default) to the right upto `len` length.
+	/** `rpad(str, len, pad=' ')` returns a copy of the `str` string padded with `pad` (or space by 
+	default) to the right upto `len` length.
 	*/
 	'static rpad': function rpad(str, len, pad) {
 		if (isNaN(len) || str.length >= len) {
@@ -151,4 +151,3 @@ var Text = exports.Text = declare({
 Text.escapeXML = Text.prototype.escapeXML;
 Text.escapeRegExp = Text.prototype.escapeRegExp;
 Text.formatDate = Text.prototype.formatDate;
-
