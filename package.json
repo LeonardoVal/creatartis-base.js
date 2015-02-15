@@ -2,7 +2,7 @@
 	"name": "creatartis-base",
 	"description": "Basic and generic utility functions and definitions.",
 	"keywords": [ "iterables", "oop", "promises" ],
-	"version": "0.1.4",
+	"version": "0.1.4-beta.1",
 	"author": {
 		"name": "Leonardo Val",
 		"email": "leonardo.val@creatartis.com"
@@ -15,8 +15,10 @@
 		"url": "http://github.com/LeonardoVal/creatartis-base"
 	},
 	"main": "build/creatartis-base.min.js",
-	"files": [ "build" ],
-	"private": true,
+	"files": [
+		"build",
+		"LICENSE.md"
+	],
 	"dependencies": {},
 	"devDependencies": {
 		"requirejs": "~2.1.9",
@@ -37,7 +39,6 @@
 	},
 	"scripts": {
 		"setup-dev": "npm install && grunt lib && grunt build",
-		"postinstall": "npm dedupe",
 		"test": "grunt test"
 	}
 }
