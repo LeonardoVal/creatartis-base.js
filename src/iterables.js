@@ -1238,9 +1238,8 @@ Iterable.EMPTY = new Iterable(function () {
 	return Iterable.prototype.stop;
 });
 
-/** `iterable(x)` returns an iterable, either if `x` is already one or builds 
-one from it.
+/** `iterable(obj)` returns an iterable, either if `obj` is already one or builds one from it.
 */
-var iterable = exports.iterable = function iterable(x) {
-	return x instanceof Iterable ? x : new Iterable(x);
+var iterable = exports.iterable = function iterable(obj) {
+	return obj && typeof obj.__iter__ === 'function' ? obj : new Iterable(obj);
 };
