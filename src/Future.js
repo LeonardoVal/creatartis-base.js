@@ -10,7 +10,7 @@ calculated asynchronously. Callbacks are registered for when the value becomes a
 raised.
 */
 var Future = exports.Future = declare({
-	/** The constructor builds a resolved future is a value is given, else it builds a pending 
+	/** The constructor builds a resolved future if a value is given, else it builds a pending 
 	future.
 	*/
 	constructor: function Future(value) {
@@ -27,6 +27,10 @@ var Future = exports.Future = declare({
 	*/
 	__future__: function __future__() {
 		return this;
+	},
+	
+	'static __isFuture__': function __isFuture__(obj) {
+		return typeof obj !== 'undefined' && obj !== null && typeof obj.__future__ === 'function';
 	},
 	
 	// ## State ####################################################################################
@@ -197,7 +201,7 @@ var Future = exports.Future = declare({
 			var futureValue;
 			try {
 				value = onResolved ? onResolved(value) : value;
-				if (value && typeof value.__future__ === 'function') { // Assume value is a future.
+				if (__isFuture__(value)) {
 					result.bind(value.__future__());
 				} else {
 					result.resolve(value);
@@ -212,7 +216,7 @@ var Future = exports.Future = declare({
 			} else {
 				try {
 					reason = onRejected(reason);
-					if (reason && typeof reason.__future__ === 'function') {
+					if (__isFuture__(reason)) {
 						result.bind(reason.__future__());
 					} else {
 						result.resolve(reason);
@@ -232,7 +236,7 @@ var Future = exports.Future = declare({
 	returned as it is. Else a new future is returned resolved with the given value.
 	*/
 	'static when': function when(value) {
-		return value && typeof value.__future__ === 'function' ? value.__future__() : new Future(value);
+		return __isFuture__(value) ? value.__future__() : new Future(value);
 	},
 
 	/** The static version of `then(value, onResolved, onRejected)` is another way of unifying 
@@ -244,7 +248,7 @@ var Future = exports.Future = declare({
 	is more probable.
 	*/
 	'static then': function then(value, onResolved, onRejected) {
-		return value && typeof value.__future__ === 'function' ? value.__future__().then(onResolved, onRejected) : onResolved(value);
+		return __isFuture__(value) ? value.__future__().then(onResolved, onRejected) : onResolved(value);
 	},
 	
 	/** `invoke(fn, _this, args...)` calls the function synchronously, returning a future resolved 
@@ -419,4 +423,5 @@ var Future = exports.Future = declare({
 	}
 }); // declare Future.
 
-var when = Future.when;
+var when = Future.when,
+	__isFuture__ = Future.__isFuture__;

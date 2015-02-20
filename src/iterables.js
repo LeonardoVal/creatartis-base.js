@@ -1241,5 +1241,5 @@ Iterable.EMPTY = new Iterable(function () {
 /** `iterable(obj)` returns an iterable, either if `obj` is already one or builds one from it.
 */
 var iterable = exports.iterable = function iterable(obj) {
-	return obj && typeof obj.__iter__ === 'function' ? obj : new Iterable(obj);
+	return typeof obj !== 'undefined' && obj !== null && typeof obj.__iter__ === 'function' ? obj : new Iterable(obj);
 };
