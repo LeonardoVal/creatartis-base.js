@@ -79,4 +79,4 @@ var Parallel = exports.Parallel = declare({
 			parallel.worker.terminate();
 		});
 	}
-}) // declare Parallel.
+}); // declare Parallel.

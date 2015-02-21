@@ -18,9 +18,11 @@ var Events = exports.Events = declare({
 			.number('maxListeners', { defaultValue: Infinity, coerce: true, minimum: 1 })
 			.bool('isOpen', { defaultValue: true });
 		var __listeners__ = this.__listeners__ = {};
-		config && Array.isArray(config.events) && config.events.forEach(function (eventName) {
-			__listeners__[eventName] = [];
-		});
+		if (config && Array.isArray(config.events)) {
+			config.events.forEach(function (eventName) {
+				__listeners__[eventName] = [];
+			});
+		}
 	},
 
 	/** `listeners(eventName)` returns an array with the listeners for the 
@@ -59,7 +61,7 @@ var Events = exports.Events = declare({
 			.filter(function (listener) {
 				if (listener[1] > 0) {
 					setTimeout(function () {
-						return listener[0].apply(global, args)
+						return listener[0].apply(global, args);
 					}, 1);
 					listener[1]--;
 					return listener[1] > 0;

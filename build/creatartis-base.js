@@ -1,7 +1,6 @@
 /** Package wrapper and layout.
 */
-"use strict";
-(function (global, init) { // Universal Module Definition. See <https://github.com/umdjs/umd>.
+(function (global, init) { "use strict"; // Universal Module Definition. See <https://github.com/umdjs/umd>.
 	if (typeof define === 'function' && define.amd) {
 		define([], init); // AMD module.
 	} else if (typeof exports === 'object' && module.exports) {
@@ -9,7 +8,7 @@
 	} else { // Browser or web worker (probably).
 		global.base = init();
 	}
-})(this, function __init__(){
+})(this, function __init__() { "use strict";
 // Library layout. /////////////////////////////////////////////////////////////
 	var exports = {
 		__name__: 'creatartis-base',
@@ -20,7 +19,7 @@
 				members = Object.keys(this);
 			members.sort();
 			return "module creatartis-base[ "+ members.filter(function (member) {
-				return !privateRegExp.exec(member)
+				return !privateRegExp.exec(member);
 			}).map(function (member) {
 				return member + (typeof module[member] === 'function' ? '()' : '');
 			}).join(" ") + " ]";
@@ -32,21 +31,23 @@
 Generic algorithms and utility definitions.
 */
 
-/** Depending on the execution environment the global scope may be different:
-`window` in browsers, `global` under NodeJS, `self` in web workers, etc. 
-`global` holds a reference to this object.
+/** Depending on the execution environment the global scope may be different: `window` in browsers,
+`global` under NodeJS, `self` in web workers, etc. `global` holds a reference to this 
+object.
 */
-var global = exports.global = (0, eval)('this');
+var global = exports.global = (function () {
+	var f = Function;
+	return f('return this;')();
+})();
 
-/** `raise(message...)` builds a new instance of Error with the concatenation 
-of the arguments as its message and throws it.
+/** `raise(message...)` builds a new instance of Error with the concatenation of the arguments as 
+its message and throws it.
 */
 var raise = exports.raise = function raise() {
 	throw new Error(Array.prototype.slice.call(arguments, 0).join(''));
 };
 
-/** `raiseIf(condition, message...)` does the same as `raise` if `condition` is
-true.
+/** `raiseIf(condition, message...)` does the same as `raise` if `condition` is true.
 */
 var raiseIf = exports.raiseIf = function raiseIf(condition) {
 	if (condition) {
@@ -54,10 +55,9 @@ var raiseIf = exports.raiseIf = function raiseIf(condition) {
 	}
 };
 
-/** Browsers and different environments have different ways to obtain the 
-current call stack. `callStack(error=none)` unifies these. Returns an array with 
-the callstack of error or (if missing) a new one is used, hence returning the 
-current callStack.
+/** Browsers and different environments have different ways to obtain the current call stack. 
+`callStack(error=none)` unifies these. Returns an array with the callstack of error or (if missing)
+a new one is used, hence returning the current callStack.
 */
 var callStack = exports.callStack = function callStack(exception) {
 	if (exception) {
@@ -70,8 +70,8 @@ var callStack = exports.callStack = function callStack(exception) {
 	return (exception.stack || exception.stacktrace || '').split('\n').slice(1);
 };
 
-/** Javascript object literals (as of ES5) cannot be built with expressions as
-keys. `obj(key, value...)` is an object constructor based on key-value pairs.
+/** Javascript object literals (as of ES5) cannot be built with expressions as keys. 
+`obj(key, value...)` is an object constructor based on key-value pairs.
 */
 var obj = exports.obj = function obj() {
 	var result = ({});
@@ -81,9 +81,8 @@ var obj = exports.obj = function obj() {
 	return result;
 };
 
-/** `copy(objTo, objFrom...)` copies all own properties of the given objects 
-missing in `objTo` to it, and returns `objTo`. If only one object is given, a 
-copy of the `objTo` object is returned.
+/** `copy(objTo, objFrom...)` copies all own properties of the given objects missing in `objTo` to 
+it, and returns `objTo`. If only one object is given, a copy of the `objTo` object is returned.
 */
 var copy = exports.copy = function copy(objTo) {
 	var i = 1, k, objFrom;
@@ -121,12 +120,12 @@ if (!Function.prototype.bind) {
 		}
 		var args = Array.prototype.slice.call(arguments, 1), 
 			fToBind = this,
-			fNOP = function () {},
+			F_NOP = function () {},
 			fBound = function () {
 				return fToBind.apply(_this, args.concat(Array.prototype.slice.call(arguments)));
 			};
-		fNOP.prototype = this.prototype;
-		fBound.prototype = new fNOP();
+		F_NOP.prototype = this.prototype;
+		fBound.prototype = new F_NOP();
 		return fBound;
 	};
 }
@@ -152,7 +151,7 @@ var objects = exports.objects = (function () {
 	a new one is used.
 	*/
 	var subconstructor = this.subconstructor = function subconstructor(parent, constructor) {
-		var proto, placeholder;
+		var proto, Placeholder;
 		if (typeof constructor !== 'function') { // If no constructor is given ...
 			constructor = (function () { // ... provide a default constructor.
 				parent.apply(this, arguments);
@@ -163,9 +162,9 @@ var objects = exports.objects = (function () {
 		It is preferred since it does not require the parent constructor to 
 		support being called without arguments.			
 		*/
-		placeholder = function () {};
-		placeholder.prototype = parent.prototype;
-		constructor.prototype = new placeholder();
+		Placeholder = function () {};
+		Placeholder.prototype = parent.prototype;
+		constructor.prototype = new Placeholder();
 		constructor.prototype.constructor = constructor;
 		return constructor;
 	};
@@ -185,8 +184,8 @@ var objects = exports.objects = (function () {
 	*/
 	var addMember = this.addMember = function addMember(constructor, key, value, force) {
 		var modifiers = key.split(/\s+/),
-			key = modifiers.pop(),
 			scope = constructor.prototype;
+		key = modifiers.pop();
 		if (modifiers.indexOf('static') >= 0) {
 			scope = constructor;
 		}
@@ -464,8 +463,8 @@ math.gauss_pdf = function gauss_pdf(value, mean, variance) {
 	variance = isNaN(variance) ? 1 : +variance;
 	var standardDeviation = Math.sqrt(variance);
 
-    return Math.exp(-Math.pow(x - mean, 2) / (2 * variance)) 
-		/ standardDeviation * Math.sqrt(2 * Math.PI);
+    return Math.exp(-Math.pow(x - mean, 2) / (2 * variance)) / 
+		standardDeviation * Math.sqrt(2 * Math.PI);
 };
 
 /** Complementary error function routine based on Chebyshev fitting as explained in 
@@ -1014,7 +1013,7 @@ var Initializer = exports.Initializer = declare({
 */
 var initialize = exports.initialize = function initialize(subject, args) {
 	return new Initializer(subject, args);
-}
+};
 
 
 /** # Iterables
@@ -1307,11 +1306,11 @@ var Iterable = exports.Iterable = declare({
 	select: (function () {
 		function __selection__(from, member) {
 			if (Array.isArray(member)) {
-				return member.map(__selection__.bind(this, from));
+				return member.map(__selection__.bind(null, from));
 			} else if (typeof member === 'object') {
 				var result = {};
 				Object.keys(member).forEach(function (k) {
-					result[k] = __selection__.call(this, from, member[k]);
+					result[k] = __selection__.call(null, from, member[k]);
 				});
 				return result;
 			} else if (typeof member === 'function') {
@@ -1593,7 +1592,7 @@ var Iterable = exports.Iterable = declare({
 			var iter = from.__iter__(), value, count = -1;
 			return function __scanlIterator__() {
 				count++;
-				if (count == 0) {
+				if (count === 0) {
 					value = initial === undefined ? iter() : initial;
 				} else {
 					value = foldFunction(value, iter());
@@ -1914,9 +1913,9 @@ var Iterable = exports.Iterable = declare({
 			return xs;
 		}
 		return function groupAll(key, accum) {
-			var result = {},
-				key = key || DEFAULT_KEY,
-				accum = accum || DEFAULT_ACCUM;
+			var result = {};
+			key = key || DEFAULT_KEY;
+			accum = accum || DEFAULT_ACCUM;
 			this.forEach(function (elem, i) {
 				var k = key(elem, i);
 				result[k] = accum(result[k], elem, i);
@@ -2623,9 +2622,9 @@ var Future = exports.Future = declare({
 		var loopEnd = new Future(),
 			reject = loopEnd.reject.bind(loopEnd);
 		function loop(value) {
-			Future.invoke(condition, this, value).then(function (checks) {
+			Future.invoke(condition, null, value).then(function (checks) {
 				if (checks) {
-					Future.invoke(action, this, value).then(loop, reject);
+					Future.invoke(action, null, value).then(loop, reject);
 				} else {
 					loopEnd.resolve(value);
 				}
@@ -2861,7 +2860,7 @@ var Parallel = exports.Parallel = declare({
 			parallel.worker.terminate();
 		});
 	}
-}) // declare Parallel.
+}); // declare Parallel.
 
 /** # Events
 
@@ -2883,9 +2882,11 @@ var Events = exports.Events = declare({
 			.number('maxListeners', { defaultValue: Infinity, coerce: true, minimum: 1 })
 			.bool('isOpen', { defaultValue: true });
 		var __listeners__ = this.__listeners__ = {};
-		config && Array.isArray(config.events) && config.events.forEach(function (eventName) {
-			__listeners__[eventName] = [];
-		});
+		if (config && Array.isArray(config.events)) {
+			config.events.forEach(function (eventName) {
+				__listeners__[eventName] = [];
+			});
+		}
 	},
 
 	/** `listeners(eventName)` returns an array with the listeners for the 
@@ -2924,7 +2925,7 @@ var Events = exports.Events = declare({
 			.filter(function (listener) {
 				if (listener[1] > 0) {
 					setTimeout(function () {
-						return listener[0].apply(global, args)
+						return listener[0].apply(global, args);
 					}, 1);
 					listener[1]--;
 					return listener[1] > 0;
@@ -3094,7 +3095,7 @@ var Randomness = exports.Randomness = declare({
 		//- Normalize weights.
 		sum -= min * length;
 		weightedValues = iterable(weightedValues).map(function (weightedValue) {
-			return [(weightedValue[0] - min) / sum, weightedValue[1]]
+			return [(weightedValue[0] - min) / sum, weightedValue[1]];
 		}).toArray();
 		//- Make selection.
 		for (var i = 0; i < n && weightedValues.length > 0; i++) {
@@ -3212,7 +3213,7 @@ Randomness.mersenneTwister = (function (){
 		for(var i = 0; i < 624; ++i) {
 			var y = (numbers[i] & 0x80000000) | (numbers[(i+1) % 624] & 0x7FFFFFFF);
 			numbers[i] = unsigned(numbers[(i + 397) % 624] ^ (y * 2));
-			if (y & 1 != 0) {
+			if ((y & 1) !== 0) {
 				numbers[i] = unsigned(numbers[i] ^ 0x9908B0DF);
 			}
 		}
@@ -3223,7 +3224,7 @@ Randomness.mersenneTwister = (function (){
 		var numbers = initialize(seed),
 			index = 0;
 		return new Randomness(function () {
-			if (index == 0) {
+			if (index === 0) {
 				generate(numbers);
 			}
 			var y = numbers[index];
@@ -3267,7 +3268,7 @@ var Chronometer = exports.Chronometer = declare({
 	the chronometer, and resets it.
 	*/
 	tick: function tick(t) {
-		var result = this.time()
+		var result = this.time();
 		this.reset(t);
 		return result;
 	},
@@ -3300,14 +3301,8 @@ var Statistic = exports.Statistic = declare({
 	with many values for different aspects of the statistic.
 	*/
 	constructor: function Statistic(keys) {
-		switch (typeof keys) {
-			case 'undefined': break;
-			case 'object': 
-				if (keys !== null) {
-					this.keys = keys;
-					break;
-				}
-			default: this.keys = keys === null ? '' : keys +'';
+		if (typeof keys !== 'undefined') {
+			this.keys = typeof keys === 'object' ? 	(keys !== null ? keys : '') : keys +'';
 		}
 		this.reset(); // At first all stats must be reset.
 	},
@@ -3336,28 +3331,30 @@ var Statistic = exports.Statistic = declare({
 		} else if (keys === null) {
 			keys = '';
 		}
-		switch (typeof this.keys) {
-			case 'undefined': return false;
-			case 'object':
-				if (typeof keys === 'object') {
-					if (Array.isArray(this.keys) && Array.isArray(keys)) {
-						for (var i in keys) {
-							if (this.keys.indexOf(keys[i]) < 0) {
-								return false;
-							}
-						}
-					} else { 
-						for (var i in keys) {
-							if (typeof this.keys[i] === 'undefined' || keys[i] !== this.keys[i]) {
-								return false;
-							}
+		if (typeof this.keys === 'undefined') {
+			return false;
+		} else if (typeof this.keys === 'object') {
+			var i;
+			if (typeof keys === 'object') {
+				if (Array.isArray(this.keys) && Array.isArray(keys)) {
+					for (i in keys) {
+						if (this.keys.indexOf(keys[i]) < 0) {
+							return false;
 						}
 					}
-					return true;
-				} else {
-					return false;
+				} else { 
+					for (i in keys) {
+						if (typeof this.keys[i] === 'undefined' || keys[i] !== this.keys[i]) {
+							return false;
+						}
+					}
 				}
-			default: return typeof keys !== 'object' && this.keys === keys +'';
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return typeof keys !== 'object' && this.keys === keys +'';
 		}
 	},
 	
@@ -3552,7 +3549,7 @@ var Statistic = exports.Statistic = declare({
 			p = math.gauss_cdf(z);
 		r.p_lessThan    = z < 0 ? p : 0;
 		r.p_greaterThan = z > 0 ? 1 - p : 0;
-		r.p_notEqual    = z != 0 ? 2 * Math.max(r.p_lessThan, r.p_greaterThan) : 0; //TODO Check this.
+		r.p_notEqual    = z !== 0 ? 2 * Math.max(r.p_lessThan, r.p_greaterThan) : 0; //TODO Check this.
 		return r;
 	},
 	
@@ -3593,8 +3590,8 @@ var Statistic = exports.Statistic = declare({
 	*/
 	'static t_test2': function t_test2(sampleCount1, sampleCount2, 
 			sampleMean1, sampleMean2, sampleVariance1, sampleVariance2) {
-		var pooledVariance = (((sampleCount1 - 1) * sampleVariance1 + (sampleCount2 - 1) * sampleVariance2)
-			/ (sampleCount1 + sampleCount2 - 2));
+		var pooledVariance = (((sampleCount1 - 1) * sampleVariance1 + (sampleCount2 - 1) * sampleVariance2) /
+			(sampleCount1 + sampleCount2 - 2));
 		return { 
 			t: (sampleMean1 - sampleMean2) / Math.sqrt(pooledVariance * (1 / sampleCount1 + 1 / sampleCount2))
 		};
@@ -3622,7 +3619,7 @@ var Statistic = exports.Statistic = declare({
 		var keys = typeof this.keys !== 'object' ? this.keys + '' :
 			iterable(this.keys).map(function (kv) {
 				return kv[0] +':'+ kv[1];
-			}).join(', ')
+			}).join(', ');
 		return [keys, this.count(), this.minimum(), this.average(), 
 			this.maximum(), this.standardDeviation()].join(sep);
 	}
@@ -3707,7 +3704,7 @@ var Statistics = exports.Statistics = declare({
 		var self = this;
 		stats.stats(keys).forEach(function (stat) {
 			self.stat(stat.keys).addStatistic(stat);
-		})
+		});
 		return this;
 	},
 	

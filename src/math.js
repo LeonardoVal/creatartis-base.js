@@ -45,8 +45,8 @@ math.gauss_pdf = function gauss_pdf(value, mean, variance) {
 	variance = isNaN(variance) ? 1 : +variance;
 	var standardDeviation = Math.sqrt(variance);
 
-    return Math.exp(-Math.pow(x - mean, 2) / (2 * variance)) 
-		/ standardDeviation * Math.sqrt(2 * Math.PI);
+    return Math.exp(-Math.pow(x - mean, 2) / (2 * variance)) / 
+		standardDeviation * Math.sqrt(2 * Math.PI);
 };
 
 /** Complementary error function routine based on Chebyshev fitting as explained in 

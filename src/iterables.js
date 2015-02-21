@@ -288,11 +288,11 @@ var Iterable = exports.Iterable = declare({
 	select: (function () {
 		function __selection__(from, member) {
 			if (Array.isArray(member)) {
-				return member.map(__selection__.bind(this, from));
+				return member.map(__selection__.bind(null, from));
 			} else if (typeof member === 'object') {
 				var result = {};
 				Object.keys(member).forEach(function (k) {
-					result[k] = __selection__.call(this, from, member[k]);
+					result[k] = __selection__.call(null, from, member[k]);
 				});
 				return result;
 			} else if (typeof member === 'function') {
@@ -574,7 +574,7 @@ var Iterable = exports.Iterable = declare({
 			var iter = from.__iter__(), value, count = -1;
 			return function __scanlIterator__() {
 				count++;
-				if (count == 0) {
+				if (count === 0) {
 					value = initial === undefined ? iter() : initial;
 				} else {
 					value = foldFunction(value, iter());
@@ -895,9 +895,9 @@ var Iterable = exports.Iterable = declare({
 			return xs;
 		}
 		return function groupAll(key, accum) {
-			var result = {},
-				key = key || DEFAULT_KEY,
-				accum = accum || DEFAULT_ACCUM;
+			var result = {};
+			key = key || DEFAULT_KEY;
+			accum = accum || DEFAULT_ACCUM;
 			this.forEach(function (elem, i) {
 				var k = key(elem, i);
 				result[k] = accum(result[k], elem, i);

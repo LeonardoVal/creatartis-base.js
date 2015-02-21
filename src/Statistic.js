@@ -8,14 +8,8 @@ var Statistic = exports.Statistic = declare({
 	with many values for different aspects of the statistic.
 	*/
 	constructor: function Statistic(keys) {
-		switch (typeof keys) {
-			case 'undefined': break;
-			case 'object': 
-				if (keys !== null) {
-					this.keys = keys;
-					break;
-				}
-			default: this.keys = keys === null ? '' : keys +'';
+		if (typeof keys !== 'undefined') {
+			this.keys = typeof keys === 'object' ? 	(keys !== null ? keys : '') : keys +'';
 		}
 		this.reset(); // At first all stats must be reset.
 	},
@@ -44,28 +38,30 @@ var Statistic = exports.Statistic = declare({
 		} else if (keys === null) {
 			keys = '';
 		}
-		switch (typeof this.keys) {
-			case 'undefined': return false;
-			case 'object':
-				if (typeof keys === 'object') {
-					if (Array.isArray(this.keys) && Array.isArray(keys)) {
-						for (var i in keys) {
-							if (this.keys.indexOf(keys[i]) < 0) {
-								return false;
-							}
-						}
-					} else { 
-						for (var i in keys) {
-							if (typeof this.keys[i] === 'undefined' || keys[i] !== this.keys[i]) {
-								return false;
-							}
+		if (typeof this.keys === 'undefined') {
+			return false;
+		} else if (typeof this.keys === 'object') {
+			var i;
+			if (typeof keys === 'object') {
+				if (Array.isArray(this.keys) && Array.isArray(keys)) {
+					for (i in keys) {
+						if (this.keys.indexOf(keys[i]) < 0) {
+							return false;
 						}
 					}
-					return true;
-				} else {
-					return false;
+				} else { 
+					for (i in keys) {
+						if (typeof this.keys[i] === 'undefined' || keys[i] !== this.keys[i]) {
+							return false;
+						}
+					}
 				}
-			default: return typeof keys !== 'object' && this.keys === keys +'';
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return typeof keys !== 'object' && this.keys === keys +'';
 		}
 	},
 	
@@ -260,7 +256,7 @@ var Statistic = exports.Statistic = declare({
 			p = math.gauss_cdf(z);
 		r.p_lessThan    = z < 0 ? p : 0;
 		r.p_greaterThan = z > 0 ? 1 - p : 0;
-		r.p_notEqual    = z != 0 ? 2 * Math.max(r.p_lessThan, r.p_greaterThan) : 0; //TODO Check this.
+		r.p_notEqual    = z !== 0 ? 2 * Math.max(r.p_lessThan, r.p_greaterThan) : 0; //TODO Check this.
 		return r;
 	},
 	
@@ -301,8 +297,8 @@ var Statistic = exports.Statistic = declare({
 	*/
 	'static t_test2': function t_test2(sampleCount1, sampleCount2, 
 			sampleMean1, sampleMean2, sampleVariance1, sampleVariance2) {
-		var pooledVariance = (((sampleCount1 - 1) * sampleVariance1 + (sampleCount2 - 1) * sampleVariance2)
-			/ (sampleCount1 + sampleCount2 - 2));
+		var pooledVariance = (((sampleCount1 - 1) * sampleVariance1 + (sampleCount2 - 1) * sampleVariance2) /
+			(sampleCount1 + sampleCount2 - 2));
 		return { 
 			t: (sampleMean1 - sampleMean2) / Math.sqrt(pooledVariance * (1 / sampleCount1 + 1 / sampleCount2))
 		};
@@ -330,7 +326,7 @@ var Statistic = exports.Statistic = declare({
 		var keys = typeof this.keys !== 'object' ? this.keys + '' :
 			iterable(this.keys).map(function (kv) {
 				return kv[0] +':'+ kv[1];
-			}).join(', ')
+			}).join(', ');
 		return [keys, this.count(), this.minimum(), this.average(), 
 			this.maximum(), this.standardDeviation()].join(sep);
 	}

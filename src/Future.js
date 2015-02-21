@@ -357,9 +357,9 @@ var Future = exports.Future = declare({
 		var loopEnd = new Future(),
 			reject = loopEnd.reject.bind(loopEnd);
 		function loop(value) {
-			Future.invoke(condition, this, value).then(function (checks) {
+			Future.invoke(condition, null, value).then(function (checks) {
 				if (checks) {
-					Future.invoke(action, this, value).then(loop, reject);
+					Future.invoke(action, null, value).then(loop, reject);
 				} else {
 					loopEnd.resolve(value);
 				}

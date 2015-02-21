@@ -157,4 +157,4 @@ var Initializer = exports.Initializer = declare({
 */
 var initialize = exports.initialize = function initialize(subject, args) {
 	return new Initializer(subject, args);
-}
+};

@@ -76,7 +76,7 @@ var Statistics = exports.Statistics = declare({
 		var self = this;
 		stats.stats(keys).forEach(function (stat) {
 			self.stat(stat.keys).addStatistic(stat);
-		})
+		});
 		return this;
 	},
 	

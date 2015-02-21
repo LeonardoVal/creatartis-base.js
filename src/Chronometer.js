@@ -28,7 +28,7 @@ var Chronometer = exports.Chronometer = declare({
 	the chronometer, and resets it.
 	*/
 	tick: function tick(t) {
-		var result = this.time()
+		var result = this.time();
 		this.reset(t);
 		return result;
 	},

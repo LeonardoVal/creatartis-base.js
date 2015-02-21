@@ -8,7 +8,7 @@ var objects = exports.objects = (function () {
 	a new one is used.
 	*/
 	var subconstructor = this.subconstructor = function subconstructor(parent, constructor) {
-		var proto, placeholder;
+		var proto, Placeholder;
 		if (typeof constructor !== 'function') { // If no constructor is given ...
 			constructor = (function () { // ... provide a default constructor.
 				parent.apply(this, arguments);
@@ -19,9 +19,9 @@ var objects = exports.objects = (function () {
 		It is preferred since it does not require the parent constructor to 
 		support being called without arguments.			
 		*/
-		placeholder = function () {};
-		placeholder.prototype = parent.prototype;
-		constructor.prototype = new placeholder();
+		Placeholder = function () {};
+		Placeholder.prototype = parent.prototype;
+		constructor.prototype = new Placeholder();
 		constructor.prototype.constructor = constructor;
 		return constructor;
 	};
@@ -41,8 +41,8 @@ var objects = exports.objects = (function () {
 	*/
 	var addMember = this.addMember = function addMember(constructor, key, value, force) {
 		var modifiers = key.split(/\s+/),
-			key = modifiers.pop(),
 			scope = constructor.prototype;
+		key = modifiers.pop();
 		if (modifiers.indexOf('static') >= 0) {
 			scope = constructor;
 		}

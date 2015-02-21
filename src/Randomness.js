@@ -110,7 +110,7 @@ var Randomness = exports.Randomness = declare({
 		//- Normalize weights.
 		sum -= min * length;
 		weightedValues = iterable(weightedValues).map(function (weightedValue) {
-			return [(weightedValue[0] - min) / sum, weightedValue[1]]
+			return [(weightedValue[0] - min) / sum, weightedValue[1]];
 		}).toArray();
 		//- Make selection.
 		for (var i = 0; i < n && weightedValues.length > 0; i++) {
@@ -228,7 +228,7 @@ Randomness.mersenneTwister = (function (){
 		for(var i = 0; i < 624; ++i) {
 			var y = (numbers[i] & 0x80000000) | (numbers[(i+1) % 624] & 0x7FFFFFFF);
 			numbers[i] = unsigned(numbers[(i + 397) % 624] ^ (y * 2));
-			if (y & 1 != 0) {
+			if ((y & 1) !== 0) {
 				numbers[i] = unsigned(numbers[i] ^ 0x9908B0DF);
 			}
 		}
@@ -239,7 +239,7 @@ Randomness.mersenneTwister = (function (){
 		var numbers = initialize(seed),
 			index = 0;
 		return new Randomness(function () {
-			if (index == 0) {
+			if (index === 0) {
 				generate(numbers);
 			}
 			var y = numbers[index];
