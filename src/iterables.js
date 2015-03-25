@@ -39,20 +39,19 @@ var Iterable = exports.Iterable = declare({
 	/** `STOP_ITERATION` is the singleton error raised when an sequence	has finished. It is catched 
 	by all Iterable's functions.
 	*/
-	"static STOP_ITERATION": STOP_ITERATION,
-	STOP_ITERATION: STOP_ITERATION,
+	"dual STOP_ITERATION": STOP_ITERATION,
 
 	/** `stop()` raises the STOP_ITERATION exception. If used inside an iterator it breaks the 
 	iteration.
 	*/
-	stop: function stop() {
+	"dual stop": function stop() {
 		throw STOP_ITERATION;
 	},
 
 	/** `catchStop(exception)` does nothing `exception` is `STOP_ITERATION`, but if it isn't the 
 	exception is thrown.
 	*/
-	catchStop: function catchStop(exception) {
+	"dual catchStop": function catchStop(exception) {
 		if (exception !== STOP_ITERATION) {
 			throw exception;
 		}
