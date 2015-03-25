@@ -12,16 +12,6 @@
 // Library layout. /////////////////////////////////////////////////////////////
 	var exports = {
 		__name__: 'creatartis-base',
-		__init__: (__init__.dependencies = [], __init__),
-		toString: function toString() {
-			var module = this,
-				privateRegExp = /^__+(.*?)__+$/,
-				members = Object.keys(this);
-			members.sort();
-			return "module creatartis-base[ "+ members.filter(function (member) {
-				return !privateRegExp.exec(member);
-			}).map(function (member) {
-				return member + (typeof module[member] === 'function' ? '()' : '');
-			}).join(" ") + " ]";
-		}
+		__init__: __init__,
+		__dependencies__: []
 	};
