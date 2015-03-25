@@ -40,26 +40,31 @@ var objects = exports.objects = (function () {
 		`Object.defineProperty()`, with a setter that throws an error.
 	*/
 	var addMember = this.addMember = function addMember(constructor, key, value, force) {
-		var modifiers = key.split(/\s+/),
-			scope = constructor.prototype;
+		var modifiers = key.split(/\s+/), scopes;
 		key = modifiers.pop();
-		if (modifiers.indexOf('static') >= 0) {
-			scope = constructor;
+		if (modifiers.indexOf('dual') >= 0) {
+			scopes = [constructor, constructor.prototype];
+		} else if (modifiers.indexOf('static') >= 0) {
+			scopes = [constructor];
+		} else {
+			scopes = [constructor.prototype];
 		}
-		if (force || typeof scope[key] === 'undefined') {
-			if (modifiers.indexOf('property') >= 0) {
-				return Object.defineProperty(scope, key, value);
-			} else if (modifiers.indexOf('const') >= 0) {
-				return Object.defineProperty(scope, key, { 
-					get: function () { return value; },
-					set: function () { throw new Error(key +" is readonly!"); },
-					enumerable: true, 
-					configurable: false 
-				});
-			} else {
-				return scope[key] = value;
+		scopes.forEach(function (scope) {
+			if (force || typeof scope[key] === 'undefined') {
+				if (modifiers.indexOf('property') >= 0) {
+					return Object.defineProperty(scope, key, value);
+				} else if (modifiers.indexOf('const') >= 0) {
+					return Object.defineProperty(scope, key, { 
+						get: function () { return value; },
+						set: function () { throw new Error(key +" is readonly!"); },
+						enumerable: true, 
+						configurable: false 
+					});
+				} else {
+					return scope[key] = value;
+				}
 			}
-		}
+		});
 	};
 	
 	/** `objects.addMembers(constructor, members, force=false)` adds all own 
