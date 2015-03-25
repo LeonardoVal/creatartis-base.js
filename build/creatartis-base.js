@@ -12,18 +12,8 @@
 // Library layout. /////////////////////////////////////////////////////////////
 	var exports = {
 		__name__: 'creatartis-base',
-		__init__: (__init__.dependencies = [], __init__),
-		toString: function toString() {
-			var module = this,
-				privateRegExp = /^__+(.*?)__+$/,
-				members = Object.keys(this);
-			members.sort();
-			return "module creatartis-base[ "+ members.filter(function (member) {
-				return !privateRegExp.exec(member);
-			}).map(function (member) {
-				return member + (typeof module[member] === 'function' ? '()' : '');
-			}).join(" ") + " ]";
-		}
+		__init__: __init__,
+		__dependencies__: []
 	};
 
 /** # Core
@@ -183,26 +173,31 @@ var objects = exports.objects = (function () {
 		`Object.defineProperty()`, with a setter that throws an error.
 	*/
 	var addMember = this.addMember = function addMember(constructor, key, value, force) {
-		var modifiers = key.split(/\s+/),
-			scope = constructor.prototype;
+		var modifiers = key.split(/\s+/), scopes;
 		key = modifiers.pop();
-		if (modifiers.indexOf('static') >= 0) {
-			scope = constructor;
+		if (modifiers.indexOf('dual') >= 0) {
+			scopes = [constructor, constructor.prototype];
+		} else if (modifiers.indexOf('static') >= 0) {
+			scopes = [constructor];
+		} else {
+			scopes = [constructor.prototype];
 		}
-		if (force || typeof scope[key] === 'undefined') {
-			if (modifiers.indexOf('property') >= 0) {
-				return Object.defineProperty(scope, key, value);
-			} else if (modifiers.indexOf('const') >= 0) {
-				return Object.defineProperty(scope, key, { 
-					get: function () { return value; },
-					set: function () { throw new Error(key +" is readonly!"); },
-					enumerable: true, 
-					configurable: false 
-				});
-			} else {
-				return scope[key] = value;
+		scopes.forEach(function (scope) {
+			if (force || typeof scope[key] === 'undefined') {
+				if (modifiers.indexOf('property') >= 0) {
+					return Object.defineProperty(scope, key, value);
+				} else if (modifiers.indexOf('const') >= 0) {
+					return Object.defineProperty(scope, key, { 
+						get: function () { return value; },
+						set: function () { throw new Error(key +" is readonly!"); },
+						enumerable: true, 
+						configurable: false 
+					});
+				} else {
+					return scope[key] = value;
+				}
 			}
-		}
+		});
 	};
 	
 	/** `objects.addMembers(constructor, members, force=false)` adds all own 
@@ -1057,20 +1052,19 @@ var Iterable = exports.Iterable = declare({
 	/** `STOP_ITERATION` is the singleton error raised when an sequence	has finished. It is catched 
 	by all Iterable's functions.
 	*/
-	"static STOP_ITERATION": STOP_ITERATION,
-	STOP_ITERATION: STOP_ITERATION,
+	"dual STOP_ITERATION": STOP_ITERATION,
 
 	/** `stop()` raises the STOP_ITERATION exception. If used inside an iterator it breaks the 
 	iteration.
 	*/
-	stop: function stop() {
+	"dual stop": function stop() {
 		throw STOP_ITERATION;
 	},
 
 	/** `catchStop(exception)` does nothing `exception` is `STOP_ITERATION`, but if it isn't the 
 	exception is thrown.
 	*/
-	catchStop: function catchStop(exception) {
+	"dual catchStop": function catchStop(exception) {
 		if (exception !== STOP_ITERATION) {
 			throw exception;
 		}
@@ -3076,46 +3070,62 @@ var Randomness = exports.Randomness = declare({
 		return this.choices(elems.length, elems);
 	},
 
-	/** The method `weightedChoices` chooses `n` values from weighted values randomly, such that 
-	each value's probability of being selected is proportional to its weight. The `weightedValues` 
-	must be an iterable of pairs [weight, value]. Weights are normalized, but if there are negative 
-	weights, the minimum value has probability zero.
+	// ## Weighted choices #########################################################################
+	
+	/** Given a sequence of `weightedValues` (pairs `[value, weight]`), a normalization scales all 
+	weights proportionally, so they add up to 1 and hence can be treated as probabilities. If any
+	weight is negative, an error is raised.
 	*/
-	weightedChoices: function weightedChoices(n, weightedValues) {
-		var sum = 0.0, min = Infinity, length = 0, 
-			result = [], r;
-		iterable(weightedValues).forEach(function (weightedValue) {
-			var weight = weightedValue[0];
+	normalizeWeights: function normalizeWeights(weightedValues) {
+		weightedValues = iterable(weightedValues);
+		var sum = 0, min = Infinity, length = 0;
+		weightedValues.forEachApply(function (value, weight) {
+			raiseIf(weight < 0, "Cannot normalize with negative weights!");
 			sum += weight;
 			if (weight < min) {
 				min = weight;
 			}
 			length++;
 		});
-		//- Normalize weights.
 		sum -= min * length;
-		weightedValues = iterable(weightedValues).map(function (weightedValue) {
-			return [(weightedValue[0] - min) / sum, weightedValue[1]];
-		}).toArray();
-		//- Make selection.
-		for (var i = 0; i < n && weightedValues.length > 0; i++) {
-			r = this.random();
-			for (var j = 0; j < weightedValues.length; j++) {
-				r -= weightedValues[j][0];
-				if (r <= 0) {
-					result.push(weightedValues[j][1]);
-					weightedValues.splice(j, 1); // Remove selected element.
-					break;
-				}
+		return weightedValues.mapApply(function (value, weight) {
+			return [value, (weight - min) / sum];
+		});
+	},
+	
+	/** A `weightedChoice` is a choice where each value has its own probability. The given 
+	`weightedValues` must be normalized, i.e. the weights must add up to 1.
+	*/
+	weightedChoice: function weightedChoice(weightedValues) {
+		var chance = this.random(), result;
+		iterable(weightedValues).forEachApply(function (value, weight) {
+			chance -= weight;
+			if (chance <= 0) {
+				result = value;
+				Iterable.stop();
 			}
-			//- Fallback when no element has been selected. Unprobable, but may 
-			//- happen due to rounding errors.
-			if (result.length <= i) {
-				result.push(weightedValues[0][1]);
-				weightedValues.splice(0, 1);
-			}
-		}
+		});
 		return result;
+	},
+	
+	/** The method `weightedChoices` performs `n` weighted choices, without repeating values.
+	*/
+	weightedChoices: function weightedChoices(n, weightedValues) {
+		weightedValues = iterable(weightedValues).toArray();
+		var maxProb = 1, results = [], random;
+		for (var i = 0; i < n; ++i) {
+			random = this.random(maxProb);
+			iterable(weightedValues).forEachApply(function (value, weight, i) {
+				random -= weight;
+				if (random <= 0) {
+					results.push(value);
+					maxProb -= weight;
+					weightedValues.splice(i, 1); // Remove selected element.
+					Iterable.stop();
+				}
+			});
+		}
+		return results;
 	},
 
 	// ## Distributions ############################################################################

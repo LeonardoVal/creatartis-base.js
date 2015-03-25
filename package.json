@@ -1,8 +1,8 @@
 ﻿{
 	"name": "creatartis-base",
 	"description": "Basic and generic utility functions and definitions.",
-	"keywords": [ "iterables", "oop", "promises" ],
-	"version": "0.1.4-beta.1",
+	"keywords": [ "iterables", "oop", "promises", "random numbers", "statistics" ],
+	"version": "0.1.4",
 	"author": {
 		"name": "Leonardo Val",
 		"email": "leonardo.val@creatartis.com"
@@ -38,7 +38,6 @@
 			"karma-sourcemap-loader": "~0.1"
 	},
 	"scripts": {
-		"setup-dev": "npm install && grunt lib && grunt build",
 		"test": "grunt test"
 	}
 }
