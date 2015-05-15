@@ -137,7 +137,7 @@ var Future = exports.Future = declare({
 			}
 			return this;
 		} else {
-			throw new Error("Callback must be a function, and not "+ callback);
+			throw new Error("Callback must be a function, and not ("+ callback +")!");
 		}
 	},
 
