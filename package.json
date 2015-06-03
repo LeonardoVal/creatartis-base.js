@@ -2,7 +2,7 @@
 	"name": "creatartis-base",
 	"description": "Basic and generic utility functions and definitions.",
 	"keywords": [ "iterables", "oop", "promises", "random numbers", "statistics" ],
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"author": {
 		"name": "Leonardo Val",
 		"email": "leonardo.val@creatartis.com"
