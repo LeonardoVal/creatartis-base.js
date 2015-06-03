@@ -2,7 +2,7 @@
 */
 module.exports = function(grunt) {
 	var SOURCE_FILES = ['src/__prologue__.js',
-		'src/core.js', 'src/polyfill.js', 'src/objects.js',
+		'src/core.js', 'src/polyfill.js', 'src/objects.js', 'src/serialization.js',
 		'src/text.js', 'src/math.js',
 		'src/typed.js', 'src/Initializer.js',
 		'src/iterables.js', // iterators and FP utilities. 
@@ -96,7 +96,7 @@ module.exports = function(grunt) {
 		
 // Register tasks. /////////////////////////////////////////////////////////////
 	grunt.registerTask('compile', ['concat_sourcemap:build', 'jshint:build', 'uglify:build']); 
-	grunt.registerTask('build', ['compile', 'karma:build', 'uglify:build', 'docker:build']);
+	grunt.registerTask('build', ['compile', 'karma:build', 'docker:build']);
 	grunt.registerTask('default', ['build']);
 	grunt.registerTask('test', ['compile', 'karma:build', 'karma:chrome', 'karma:firefox', 'karma:iexplore']);
 	grunt.registerTask('lib', ['bowercopy:lib']);

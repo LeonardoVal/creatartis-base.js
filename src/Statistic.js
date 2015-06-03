@@ -3,9 +3,9 @@
 Component representing statistical accounting for one concept.
 */
 var Statistic = exports.Statistic = declare({
-	/** Every statistic object has a set of keys that identify the numerical 
-	value it represents. This can be as simple as one string, or an object 
-	with many values for different aspects of the statistic.
+	/** Every statistic object has a set of keys that identify the numerical value it represents. 
+	This can be as simple as one string, or an object with many values for different aspects of the 
+	statistic.
 	*/
 	constructor: function Statistic(keys) {
 		if (typeof keys !== 'undefined') {
@@ -14,8 +14,7 @@ var Statistic = exports.Statistic = declare({
 		this.reset(); // At first all stats must be reset.
 	},
 	
-	/** Resetting a statistic deletes all registered values and sets all 
-	properties to zero.
+	/** Resetting a statistic deletes all registered values and sets all properties to zero.
 	*/
 	reset: function reset() {
 		this.__count__ = 0; 
@@ -28,9 +27,9 @@ var Statistic = exports.Statistic = declare({
 		return this; // For chaining.
 	},
 
-	/** An Statistic object may apply to a certain concept or not, depending on
-	its `keys`. When dealing with sets of keys (objects), `applies(keys)` checks
-	if all the given keys are this statistic's keys.
+	/** An Statistic object may apply to a certain concept or not, depending on its `keys`. When 
+	dealing with sets of keys (objects), `applies(keys)` checks if all the given keys are this 
+	statistic's keys.
 	*/
 	applies: function applies(keys) {
 		if (typeof keys === 'undefined') {
@@ -65,7 +64,7 @@ var Statistic = exports.Statistic = declare({
 		}
 	},
 	
-	// ## Querying statistics ##################################################
+	// ## Querying statistics ######################################################################
 	
 	/** `count()` gets the current count, or 0 if values have not been added.
 	*/
@@ -79,52 +78,48 @@ var Statistic = exports.Statistic = declare({
 		return this.__sum__;
 	},
 	
-	/** `squareSum()` gets the current sum of squares, or zero if values have 
-	not been added.
+	/** `squareSum()` gets the current sum of squares, or zero if values have not been added.
 	*/
 	squareSum: function squareSum() {
 		return this.__sqrSum__;
 	},
 	
-	/** `minimum()` gets the current minimum, or Infinity if values have not 
-	been added.
+	/** `minimum()` gets the current minimum, or Infinity if values have not been added.
 	*/
 	minimum: function minimum() {
 		return this.__min__;
 	},
 	
-	/** `maximum()` gets the current maximum, or -Infinity if values have not 
-	been added.
+	/** `maximum()` gets the current maximum, or -Infinity if values have not been added.
 	*/
 	maximum: function maximum() {
 		return this.__max__;
 	},
 	
-	/** `minData()` gets the data associated with the current minimum, or 
-	`undefined` if there is not one.
+	/** `minData()` gets the data associated with the current minimum, or `undefined` if there is 
+	not one.
 	*/
 	minData: function minData() {
 		return this.__minData__;
 	},
 	
-	/** `maxData()` gets the data associated with the current maximum, or 
-	`undefined` if there is not one.
+	/** `maxData()` gets the data associated with the current maximum, or `undefined` if there is 
+	not one.
 	*/
 	maxData: function maxData() {
 		return this.__maxData__;
 	},
 
-	/** `average()` calculates the current average, or zero if values have not 
-	been added.
+	/** `average()` calculates the current average, or zero if values have not been added.
 	*/
 	average: function average() {	
 		var count = this.count();
 		return count > 0 ? this.sum() / count : 0.0;
 	},
 	
-	/** `variance(center=average)` calculates current variance, as the average 
-	squared difference of each element with the center, which is equal to the 
-	average by default. Returns zero if values have not been added.
+	/** `variance(center=average)` calculates current variance, as the average squared difference of
+	each element with the center, which is equal to the average by default. Returns zero if values 
+	have not been added.
 	*/
 	variance: function variance(center) {
 		if (isNaN(center)) {
@@ -134,17 +129,17 @@ var Statistic = exports.Statistic = declare({
 		return count > 0 ? center * center + (this.squareSum() - 2 * center * this.sum()) / count : 0.0;
 	},
 
-	/** `standardDeviation(center=average)` calculates current standard 
-	deviation, as the square root of the current variance.
+	/** `standardDeviation(center=average)` calculates current standard deviation, as the square 
+	root of the current variance.
 	*/
 	standardDeviation: function standardDeviation(center) {
 		return Math.sqrt(this.variance(center));
 	},
 	
-	// ## Updating statistics ##################################################
+	// ## Updating statistics ######################################################################
 	
-	/** Values are added to a statistic with `add(value, data=none)`, which 
-	updates the statistic. Optionally data about the instances can be attached.
+	/** Values are added to a statistic with `add(value, data=none)`, which updates the statistic. 
+	Optionally data about the instances can be attached.
 	*/
 	add: function add(value, data) {
 		if (value === undefined) {
@@ -175,9 +170,9 @@ var Statistic = exports.Statistic = declare({
 		return this; // For chaining.
 	},
 	
-	/** `gain(value, factor=DEFAULT_GAIN_FACTOR, data=none)` is similar to 
-	`add()`, but fades previous values by multiplying them by the given factor.
-	This is useful to implement schemes similar to exponential moving averages.
+	/** `gain(value, factor=DEFAULT_GAIN_FACTOR, data=none)` is similar to `add()`, but fades 
+	previous values by multiplying them by the given factor. This is useful to implement schemes 
+	similar to exponential moving averages.
 	*/
 	gain: function gain(value, factor, data) {
 		factor = isNaN(factor) ? this.DEFAULT_GAIN_FACTOR : +factor;
@@ -191,8 +186,8 @@ var Statistic = exports.Statistic = declare({
 	*/
 	DEFAULT_GAIN_FACTOR: 0.99,
 	
-	/** `gainAll(values, factor=DEFAULT_GAIN_FACTOR, data=none)` gains all the 
-	given values (using `gain()`).
+	/** `gainAll(values, factor=DEFAULT_GAIN_FACTOR, data=none)` gains all the given values (using 
+	`gain()`).
 	*/
 	gainAll: function gainAll(values, factor, data) {	
 		for (var i = 0; i < values.length; i++) {
@@ -201,8 +196,7 @@ var Statistic = exports.Statistic = declare({
 		return this; // For chaining.
 	},
 	
-	/** `addStatistic(stat)` adds the values in the given Statistic object to 
-	this one.
+	/** `addStatistic(stat)` adds the values in the given Statistic object to this one.
 	*/
 	addStatistic: function addStatistic(stat) {
 		this.__count__ += stat.__count__; 
@@ -219,7 +213,7 @@ var Statistic = exports.Statistic = declare({
 		return this;
 	},
 	
-	// ### Time handling #######################################################
+	// ### Time handling ###########################################################################
 	
 	/** `startTime(timestamp=now)` starts a chronometer for this statistic.
 	*/
@@ -228,27 +222,25 @@ var Statistic = exports.Statistic = declare({
 		return chronometer.reset(timestamp);
 	},
 	
-	/** `addTime(data=undefined)` adds to this statistic the time since 
-	`startTime` was called.
+	/** `addTime(data=undefined)` adds to this statistic the time since `startTime` was called.
 	*/
 	addTime: function addTime(data) {
 		raiseIf(!this.__chronometer__, "Statistic's chronometer has not been started.");
 		return this.add(this.__chronometer__.time(), data);
 	},
 
-	/** `addTick(data=undefined)` adds to this statistic the time since 
-	`startTime` was called, and resets the chronometer.
+	/** `addTick(data=undefined)` adds to this statistic the time since `startTime` was called, and 
+	resets the chronometer.
 	*/
 	addTick: function addTick(data) {
 		raiseIf(!this.__chronometer__, "Statistic's chronometer has not been started.");
 		return this.add(this.__chronometer__.tick(), data);
 	},
 	
-	// ## Tests and inference ##################################################
+	// ## Tests and inference ######################################################################
 	
-	/** The static `z_test` method returns the mean statistic for 
-	[z-tests](http://en.wikipedia.org/wiki/Z-test) given the expected `mean` and
-	`variance` and the `sampleCount` and `sampleMean`.	
+	/** The static `z_test` method returns the mean statistic for [z-tests](http://en.wikipedia.org/wiki/Z-test)
+	given the expected `mean` and `variance` and the `sampleCount` and `sampleMean`.	
 	*/
 	'static z_test': function z_test(mean, variance, sampleCount, sampleMean) {
 		var r = {},
@@ -260,9 +252,8 @@ var Statistic = exports.Statistic = declare({
 		return r;
 	},
 	
-	/** The instance `z_test` method is analogue to the static one, using this 
-	object's data. The `variance` is assumed to this sample's variance by 
-	default.
+	/** The instance `z_test` method is analogue to the static one, using this object's data. The 
+	`variance` is assumed to this sample's variance by default.
 	*/
 	z_test: function z_test(mean, variance) {
 		variance = isNaN(variance) ? this.variance() : +variance;
@@ -279,8 +270,8 @@ var Statistic = exports.Statistic = declare({
 		};
 	},
 	
-	/** The instance `t_test1` method is analogue to the static one, using this 
-	object's data. The `mean` is assumed to be zero by default.
+	/** The instance `t_test1` method is analogue to the static one, using this object's data. The 
+	`mean` is assumed to be zero by default.
 	*/
 	t_test1: function t_test1(mean, sampleCount, sampleMean, sampleVariance) {
 		return Statistic.t_test1(
@@ -304,8 +295,8 @@ var Statistic = exports.Statistic = declare({
 		};
 	},
 	
-	/** The instance `t_test2` method is analogue to the static one, using this 
-	object's and another one's data.
+	/** The instance `t_test2` method is analogue to the static one, using this object's and another
+	one's data.
 	*/
 	t_test2: function t_test2(other) {
 		return Statistic.t_test2(
@@ -315,11 +306,10 @@ var Statistic = exports.Statistic = declare({
 		);
 	},
 	
-	// ## Other ################################################################
+	// ## Other ####################################################################################
 	
-	/** The default string representation is the concatenation of the 
-	statistic's id, count, minimum, average, maximum and standard deviation, 
-	separated by tabs.
+	/** The default string representation is the concatenation of the statistic's id, count, 
+	minimum, average, maximum and standard deviation, separated by tabs.
 	*/
 	toString: function toString(sep) {
 		sep = ''+ (sep || '\t');
@@ -329,5 +319,23 @@ var Statistic = exports.Statistic = declare({
 			}).join(', ');
 		return [keys, this.count(), this.minimum(), this.average(), 
 			this.maximum(), this.standardDeviation()].join(sep);
+	},
+	
+	/** Serialization and materialization are done using JSON. Serialization is analogous to the 
+	default `Serialization.serialize`, but is defined here redundantly as an optimization.
+	*/
+	__serialize__: function __serialize__() {
+		return copy({'._id': 'creatartis-base.Statistic'}, this);
+	},
+	
+	'static __materialize__': function __materialize__(data) {
+		if (typeof data !== 'object') {
+			data = JSON.parse(data);
+		}
+		var result = new Statistic(data.keys);
+		result.addStatistic(data);
+		return result;
 	}
 }); // declare Statistic.
+
+Serialization.register('creatartis-base.Statistic', Statistic);
