@@ -2,13 +2,13 @@
 */
 (function (global, init) { "use strict"; // Universal Module Definition. See <https://github.com/umdjs/umd>.
 	if (typeof define === 'function' && define.amd) {
-		define([], init); // AMD module.
+		define(['sermat'], init); // AMD module.
 	} else if (typeof exports === 'object' && module.exports) {
-		module.exports = init(); // CommonJS module.
+		module.exports = init(require('sermat')); // CommonJS module.
 	} else { // Browser or web worker (probably).
-		global.base = init();
+		global.base = init(global.Sermat);
 	}
-})(this, function __init__() { "use strict";
+})(this, function __init__(Sermat) { "use strict";
 // Library layout. /////////////////////////////////////////////////////////////
 	var exports = {
 		__name__: 'creatartis-base',
@@ -255,112 +255,6 @@ var objects = exports.objects = (function () {
 
 // `objects.declare` is also available through `creatartis_base.declare`.
 var declare = objects.declare;
-
-/** # Serialization
-
-Global registry of classes (constructors) and their methods to serialize and materialize 
-(i.e. deserialize) instances of them.
-*/
-var Serialization = exports.Serialization = declare(Object, {
-	/** The global registry of serialization methods is a static non-configurable property of 
-	`Serializable`.
-	*/
-	"static property __registry__": {
-		value: {},
-		configurable: false
-	},
-
-	/** An instance of `Serialization` is an object that deals with both serialization and 
-	materialization of a given class (or constructor). The serialization of each class is a 
-	singleton, automatically registered in the global registry.
-	
-	If the serialization method is not included, but the class' prototype has an instance method
-	named `__serialize__`, this is used. In similar fashion is the materialization method is not
-	provided, but the class' constructor has a static method named `__materialize__`, this is used.
-	Otherwise the default implementations are used.
-	*/
-	constructor: function Serialization(_id, _class, serialization, materialization) {
-		if (Serialization.__registry__.hasOwnProperty(_id)) {
-			return Serialization.__registry__[_id];
-		} else {
-			raiseIf(!_id, "Invalid id '", _id, "'!");
-			this._id = _id;
-			raiseIf(typeof _class !== 'function', 
-				"Serialization's class must be a function (and not ", typeof _class, ")!");
-			this._class = _class;
-			if (!serialization) {
-				if (typeof _class.prototype.__serialize__ === 'function') {
-					this.serialization = function serialization(obj) {
-						return obj.__serialize__();
-					};
-				}
-			} else {
-				raiseIf(typeof serialization !== 'function', 
-					"Serialization method must be a function (and not ", typeof serialization, ")!");
-				this.serialization = serialization;
-			}
-			if (!materialization) {
-				if (typeof _class.__materialize__ === 'function') {
-					this.materialization = _class.__materialize__.bind(_class);
-				}
-			} else {
-				raiseIf(typeof materialization !== 'function',
-					"Serialization method must be a function (and not ", typeof materialization, ")!");
-				this.materialization = materialization;
-			}
-			Serialization.__registry__[_id] = this;
-		}
-	},
-
-	/** Registering a class simply means creating an instance of `Serialization` for it.
-	*/
-	"static register": function register(_id, _class, serialization, materialization) {
-		return new Serialization(_id, _class, serialization, materialization);
-	},
-	
-	/** The default `serialization` method creates an object with all the own properties of the 
-	instance, adds the serialization `id`. It is assumed that the result can be properly 
-	_stringified_ using JSON. This is not done in the function so it may be included in the
-	serialization of another object.
-	*/
-	serialization: function serialization(obj) {
-		return copy({'._id': this._id}, obj);
-	}, 
-	
-	/** Returns the serialization of the given `obj` as registered for the given `id`.
-	*/
-	"static serialize": function serialize(id, obj) {
-		var s = Serialization.__registry__[id];
-		raiseIf(!s, "No serialization method found for ", id, "!");
-		return s.serialization(obj);
-	},
-	
-	/** The default `materialization` method calls the constructor with the given `data`. If `data`
-	is not an object it is parsed as JSON.
-	*/
-	materialization: function materialization(data) {
-		if (typeof data !== 'object') {
-			data = JSON.parse(data +'');
-		}
-		return new this._class(data);
-	},
-	
-	/** The method `Serialization.materialize` can be use to create an object of a registered class,
-	given its serialization. If the `id` is not provided it will be retrieved from the `data`. 
-	*/
-	"static materialize": function materialize(data, id) {
-		if (!id) {
-			raiseIf(!data, "No data provided!");
-			if (typeof data !== 'object') {
-				data = JSON.parse(data +'');
-			}
-			id = data['._id'];
-		}
-		var s = Serialization.__registry__[id];
-		raiseIf(!s, "No materialization method found for ", id, "!");
-		return s.materialization(data);
-	}
-}); // Serialization
 
 /** # Text
 
@@ -3730,24 +3624,39 @@ var Statistic = exports.Statistic = declare({
 			this.maximum(), this.standardDeviation()].join(sep);
 	},
 	
-	/** Serialization and materialization are done using JSON. Serialization is analogous to the 
-	default `Serialization.serialize`, but is defined here redundantly as an optimization.
+	/** Serialization and materialization using Sermat, registered with identifier
+	`creatartis-base.Statistic`.
 	*/
-	__serialize__: function __serialize__() {
-		return copy({'._id': 'creatartis-base.Statistic'}, this);
-	},
-	
-	'static __materialize__': function __materialize__(data) {
-		if (typeof data !== 'object') {
-			data = JSON.parse(data);
+	'static __SERMAT__': {
+		id: 'creatartis-base.Statistic',
+		serializer: function serialize_Statistic(obj) {
+			var result = [obj.keys || null, obj.__count__, obj.__sum__, obj.__sqrSum__, obj.__min__, obj.__max__];
+			if (typeof obj.__minData__ !== 'undefined') { // Assumes this implies (typeof obj.__maxData__ !== 'undefined')
+				return result.concat([obj.__minData__, obj.__maxData__]);
+			} else {
+				return result;
+			}
+		},
+		materializer: function materialize_Statistic(obj, args  /* [keys, count, sum, sqrSum, min, max, minData, maxData] */) {
+			if (!args) {
+				return null;
+			}
+			var stat = args[0] ? new Statistic(args[0]) : new Statistic();
+			stat.__count__ = +args[1]; 
+			stat.__sum__ = +args[2];
+			stat.__sqrSum__ = +args[3];
+			stat.__min__ = +args[4];
+			stat.__max__ = +args[5];
+			if (stat.__count__ > 0) {
+				stat.__minData__ = args[6];
+				stat.__maxData__ = args[7];
+			}
+			return stat;
 		}
-		var result = new Statistic(data.keys);
-		result.addStatistic(data);
-		return result;
 	}
 }); // declare Statistic.
 
-Serialization.register('creatartis-base.Statistic', Statistic);
+Sermat.register(Statistic);
 
 
 /** # Statistics
@@ -3962,34 +3871,31 @@ var Statistics = exports.Statistics = declare({
 		}).join(rsep);
 	},
 	
-	/** Serialization and materialization are done using JSON.
+	/** Serialization and materialization using Sermat, registered with identifier 
+	`creatartis-base.Statistics`.
 	*/
-	__serialize__: function __serialize__() {
-		var result = {
-			'._id': 'creatartis-base.Statistics', 
-			__stats__: {}
-		};
-		for (var id in this.__stats__) {
-			result.__stats__[id] = this.__stats__[id].__serialize__();
+	'static __SERMAT__': {
+		id: 'creatartis-base.Statistics',
+		serializer: function serialize_Statistics(obj) {
+			var stats = obj.__stats__;
+			return Object.keys(stats).map(function (k) {
+				return stats[k];
+			});
+		},
+		materializer: function materialize_Statistics(obj, args) {
+			if (!args) {
+				return null;
+			}
+			var result = new Statistics();
+			args.forEach(function (stat) {
+				result.addStatistic(stat);
+			});
+			return result;
 		}
-		return result;
-	},
-	
-	'static __materialize__': function __materialize__(data) {
-		var result = new Statistics(), 
-			stat;
-		if (typeof data !== 'object') {
-			data = JSON.parse(data);
-		}
-		for (var id in data.__stats__) {
-			stat = data.__stats__[id];
-			result.addStatistic(stat);
-		}
-		return result;
 	}
 }); // declare Statistics.
 
-Serialization.register('creatartis-base.Statistics', Statistics);
+Sermat.register(Statistics);
 
 
 /** # Logger
