@@ -2,19 +2,21 @@
 <html><head>
 	<title>creatartis-base console.</title>
 	<meta charset="UTF-8"/>
-	<script src="../lib/require.js"></script>
+	<script src="lib/require.js"></script>
 </head><body onload="main();">
 	<script type="text/javascript"> "use strict";
 function main() {
 	require.config({ 
 		paths: {
-			'base': '../build/creatartis-base',
+			'base': 'lib/creatartis-base',
+			'sermat': 'lib/sermat',
 		},
 	});
-	require(['base'], function (base) {
+	require(['base', 'sermat'], function (base, Sermat) {
 		window.base = base;
+		window.Sermat = Sermat;
 		(function (s){ // See: <http://jsconsole.com>.
-			s.src = 'jsconsole/inject.js';
+			s.src = 'lib/jsconsole/inject.js';
 			document.body.appendChild(s);
 		})(document.createElement('script'));
 	}, function (error) {
