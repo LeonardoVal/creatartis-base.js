@@ -7,24 +7,24 @@
 			expect(cons.prototype.x).toBeUndefined();
 			expect(cons.prototype.y).toBeUndefined();
 			
-			var class1 = base.declare({ constructor: cons, x: 1, y: "a" });
-			expect(class1).toBe(cons);
-			expect(class1.prototype.x).toBe(1);
-			expect(class1.prototype.y).toBe("a");
+			var Class1 = base.declare({ constructor: cons, x: 1, y: "a" });
+			expect(Class1).toBe(cons);
+			expect(Class1.prototype.x).toBe(1);
+			expect(Class1.prototype.y).toBe("a");
 
-			var class2a = base.declare(class1, { z: 2.2 });
-			expect(class2a).not.toBe(cons);
-			expect(class2a.prototype.x).toBe(1);
-			expect(class2a.prototype.y).toBe("a");
-			expect(class2a.prototype.z).toBe(2.2);
-			expect(new class2a()).toBeOfType(class1);
+			var Class2a = base.declare(Class1, { z: 2.2 });
+			expect(Class2a).not.toBe(cons);
+			expect(Class2a.prototype.x).toBe(1);
+			expect(Class2a.prototype.y).toBe("a");
+			expect(Class2a.prototype.z).toBe(2.2);
+			expect(new Class2a()).toBeOfType(Class1);
 			
-			var class2b = base.declare(class1, class2a, { constructor: cons2 });
-			expect(class2b).toBe(cons2);
-			expect(class2b.prototype.x).toBe(1);
-			expect(class2b.prototype.y).toBe("a");
-			expect(class2b.prototype.z).toBe(2.2);
-			expect(new class2b()).toBeOfType(class1);
+			var Class2b = base.declare(Class1, Class2a, { constructor: cons2 });
+			expect(Class2b).toBe(cons2);
+			expect(Class2b.prototype.x).toBe(1);
+			expect(Class2b.prototype.y).toBe("a");
+			expect(Class2b.prototype.z).toBe(2.2);
+			expect(new Class2b()).toBeOfType(Class1);
 		});
 
 		it("creatartis-base.obj()", function () {

@@ -46,7 +46,7 @@
 			test = future.then(function done(value) {
 				expect(value).toEqual(resolution);
 			}, function fail(value) {
-				throw new Error('onRejected called on resolved future.')
+				throw new Error('onRejected called on resolved future.');
 			});
 			future.resolve(resolution);
 			return test;
@@ -56,7 +56,7 @@
 			var future = new Future(), 
 				rejection = Math.random(), test;
 			test = future.then(function done(value) {
-				throw new Error('onResolved called on rejected future.')
+				throw new Error('onResolved called on rejected future.');
 			}, function fail(reason) {
 				if (typeof reason !== 'number') { // If reason is not a number...
 					throw error; // ... then is an error that must be raised.
@@ -79,7 +79,7 @@
 			test.__onCancel__(function () {
 				result.resolve();
 			});
-			test.cancel()
+			test.cancel();
 			return result;
 		});
 		

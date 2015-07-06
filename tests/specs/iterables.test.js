@@ -3,11 +3,12 @@
 		iterable = base.iterable;
 	
 	function expectSequence(sequence) { // Used mainly to test iterables.
-		var iterator = sequence.__iter__(), x;
-		for (var i = 1; i < arguments.length; ++i) {
+		var iterator = sequence.__iter__(), 
+			x, i;
+		for (i = 1; i < arguments.length; ++i) {
 			expect(iterator()).toEqual(arguments[i]);
 		}
-		for (var i = 0; i < 3; ++i) {
+		for (i = 0; i < 3; ++i) {
 			expect(iterator).toThrow(Iterable.STOP_ITERATION);
 		}
 	}
@@ -80,7 +81,7 @@
 		it("indexWhere()", function () {
 			var kTrue = function () { return true; },
 				kFalse = function () { return false; },
-				isEven = function (x) { return !(x % 2); };
+				isEven = function (x) { return x % 2 === 0; };
 			expect(iterable([]).indexWhere(kTrue)).toBe(-1);
 			expect(iterable([]).indexWhere(kFalse)).toBe(-1);
 			expect(iterable([0, 1, 2]).indexWhere(kTrue)).toBe(0);
@@ -95,7 +96,7 @@
 		it("indicesWhere()", function () {
 			var kTrue = function () { return true; },
 				kFalse = function () { return false; },
-				isEven = function (x) { return !(x % 2); };
+				isEven = function (x) { return x % 2 === 0; };
 			expectSequence(iterable([]).indicesWhere(kTrue));
 			expectSequence(iterable([]).indicesWhere(kFalse));
 			expectSequence(iterable([0, 1, 2]).indicesWhere(kTrue), 0, 1, 2);
@@ -166,7 +167,7 @@
 			expectSequence(seq1.select({a: 1, b: function sum0p2(x) {
 				return x[0]+x[2];
 			}}).map(str), str({a:1, b:2}), str({a:4, b:8}), str({a:7, b:14}));
-			var seq2 = iterable([{x:0,y:0}, {x:1,y:0}, {x:0, y:1}])
+			var seq2 = iterable([{x:0,y:0}, {x:1,y:0}, {x:0, y:1}]);
 			expectSequence(seq2.select('x'), 0, 1, 0);
 			expectSequence(seq2.select('y'), 0, 0, 1);
 			expectSequence(seq2.select(['y', 'x']).map(str), 
@@ -207,7 +208,7 @@
 		it("takeWhile()", function () {
 			var kTrue = function () { return true; },
 				kFalse = function () { return false; },
-				isEven = function (x) { return !(x % 2); };
+				isEven = function (x) { return x % 2 === 0; };
 			expectSequence(iterable([]).takeWhile(kFalse));
 			expectSequence(iterable([]).takeWhile(kTrue));
 			expectSequence(iterable([0, 1, 2]).takeWhile(kFalse));
@@ -230,7 +231,7 @@
 		it("dropWhile()", function () {
 			var kTrue = function () { return true; },
 				kFalse = function () { return false; },
-				isEven = function (x) { return !(x % 2); };
+				isEven = function (x) { return x % 2 === 0; };
 			expectSequence(iterable([]).dropWhile(kFalse));
 			expectSequence(iterable([]).dropWhile(kTrue));
 			expectSequence(iterable([0, 1, 2]).dropWhile(kFalse), 0, 1, 2);
