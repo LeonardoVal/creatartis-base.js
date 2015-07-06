@@ -2,7 +2,7 @@
 */
 module.exports = function(grunt) {
 	var SOURCE_FILES = ['src/__prologue__.js',
-		'src/core.js', 'src/polyfill.js', 'src/objects.js', 'src/serialization.js',
+		'src/core.js', 'src/polyfill.js', 'src/objects.js',
 		'src/text.js', 'src/math.js',
 		'src/typed.js', 'src/Initializer.js',
 		'src/iterables.js', // iterators and FP utilities. 
@@ -14,10 +14,10 @@ module.exports = function(grunt) {
 		'src/__epilogue__.js'];
 
 	grunt.file.defaultEncoding = 'utf8';
-// Init config. ////////////////////////////////////////////////////////////////
+// Init config. ////////////////////////////////////////////////////////////////////////////////////
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		concat_sourcemap: { ////////////////////////////////////////////////////
+		concat_sourcemap: { ////////////////////////////////////////////////////////////////////////
 			build: {
 				src: SOURCE_FILES,
 				dest: 'build/<%= pkg.name %>.js',
@@ -26,27 +26,26 @@ module.exports = function(grunt) {
 				}
 			},
 		},
-		jshint: { //////////////////////////////////////////////////////////////
+		jshint: { //////////////////////////////////////////////////////////////////////////////////
 			build: {
 				options: { // Check <http://jshint.com/docs/options/>.
 					loopfunc: true,
 					boss: true,
 					evil: true
 				},
-				src: ['build/<%= pkg.name %>.js'],
+				src: ['build/<%= pkg.name %>.js', 'tests/specs/*.js'],
 			},
 		},
-		karma: { ///////////////////////////////////////////////////////////////
+		karma: { ///////////////////////////////////////////////////////////////////////////////////
 			options: {
 				configFile: 'tests/karma.conf.js'
 			},
 			build: { browsers: ['PhantomJS'] },
 			chrome: { browsers: ['Chrome'] },
 			firefox: { browsers: ['Firefox'] },
-			opera: { browsers: ['Opera'] },
 			iexplore: { browsers: ['IE'] }
 		},
-		uglify: { //////////////////////////////////////////////////////////////
+		uglify: { //////////////////////////////////////////////////////////////////////////////////
 			build: {
 				src: 'build/<%= pkg.name %>.js',
 				dest: 'build/<%= pkg.name %>.min.js',
@@ -59,45 +58,48 @@ module.exports = function(grunt) {
 				}
 			}
 		},
-		docker: { //////////////////////////////////////////////////////////////
+		docker: { //////////////////////////////////////////////////////////////////////////////////
 			build: {
-				src: ["src/**/*.js", "README.md"],
-				dest: "docs/docker",
+				src: ['src/**/*.js', 'README.md'],
+				dest: 'docs/docker',
 				options: {
 					colourScheme: 'borland',
 					ignoreHidden: true,
 					exclude: 'src/__prologue__.js,src/__epilogue__.js'
 				}
 			}
-		},
-		bowercopy: { ///////////////////////////////////////////////////////////
-			options: {
-				clean: true,
-				runBower: true,
-				srcPrefix: 'bower_components'
-			},
-			lib: {
-				options: {
-					destPrefix: 'lib'
-				},
-				files: {
-					'require.js': 'requirejs/require.js'
-				},
-			}
 		}
 	});
-// Load tasks. /////////////////////////////////////////////////////////////////
+// Load tasks. /////////////////////////////////////////////////////////////////////////////////////
 	grunt.loadNpmTasks('grunt-concat-sourcemap');
 	grunt.loadNpmTasks('grunt-karma');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-docker');
-	grunt.loadNpmTasks('grunt-bowercopy');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
+	
+// Custom tasks ////////////////////////////////////////////////////////////////////////////////////
+	grunt.registerTask('test-lib', 'Copies libraries for the testing facilities to use.', function() {
+		var path = require('path'),
+			pkg = grunt.config.get('pkg');
+		grunt.log.writeln("Copied to tests/lib/: "+ [
+			'node_modules/requirejs/require.js',
+			'node_modules/sermat/build/sermat.js',
+			'node_modules/sermat/build/sermat.js.map',
+			'build/'+ pkg.name +'.js', 
+			'build/'+ pkg.name +'.js.map'
+		].map(function (fileToCopy) {
+			var baseName = path.basename(fileToCopy);
+			grunt.file.copy('./'+ fileToCopy, './tests/lib/'+ baseName);
+			return baseName;
+		}).join(", ") +".");
+	}); // test-lib
 		
-// Register tasks. /////////////////////////////////////////////////////////////
-	grunt.registerTask('compile', ['concat_sourcemap:build', 'jshint:build', 'uglify:build']); 
-	grunt.registerTask('build', ['compile', 'karma:build', 'docker:build']);
-	grunt.registerTask('default', ['build']);
-	grunt.registerTask('test', ['compile', 'karma:build', 'karma:chrome', 'karma:firefox', 'karma:iexplore']);
+// Register tasks. /////////////////////////////////////////////////////////////////////////////////
 	grunt.registerTask('lib', ['bowercopy:lib']);
+	grunt.registerTask('compile', ['concat_sourcemap:build', 'jshint:build', 'uglify:build']);
+	grunt.registerTask('test', ['test-lib', 'karma:build']);
+	grunt.registerTask('test-all', ['test', 'karma:chrome', 'karma:firefox', 'karma:iexplore']);
+	grunt.registerTask('build', ['compile', 'test', 'docker:build']);
+	grunt.registerTask('default', ['build']);
+	
 };

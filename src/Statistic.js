@@ -321,21 +321,36 @@ var Statistic = exports.Statistic = declare({
 			this.maximum(), this.standardDeviation()].join(sep);
 	},
 	
-	/** Serialization and materialization are done using JSON. Serialization is analogous to the 
-	default `Serialization.serialize`, but is defined here redundantly as an optimization.
+	/** Serialization and materialization using Sermat, registered with identifier
+	`creatartis-base.Statistic`.
 	*/
-	__serialize__: function __serialize__() {
-		return copy({'._id': 'creatartis-base.Statistic'}, this);
-	},
-	
-	'static __materialize__': function __materialize__(data) {
-		if (typeof data !== 'object') {
-			data = JSON.parse(data);
+	'static __SERMAT__': {
+		id: 'creatartis-base.Statistic',
+		serializer: function serialize_Statistic(obj) {
+			var result = [obj.keys || null, obj.__count__, obj.__sum__, obj.__sqrSum__, obj.__min__, obj.__max__];
+			if (typeof obj.__minData__ !== 'undefined') { // Assumes this implies (typeof obj.__maxData__ !== 'undefined')
+				return result.concat([obj.__minData__, obj.__maxData__]);
+			} else {
+				return result;
+			}
+		},
+		materializer: function materialize_Statistic(obj, args  /* [keys, count, sum, sqrSum, min, max, minData, maxData] */) {
+			if (!args) {
+				return null;
+			}
+			var stat = args[0] ? new Statistic(args[0]) : new Statistic();
+			stat.__count__ = +args[1]; 
+			stat.__sum__ = +args[2];
+			stat.__sqrSum__ = +args[3];
+			stat.__min__ = +args[4];
+			stat.__max__ = +args[5];
+			if (stat.__count__ > 0) {
+				stat.__minData__ = args[6];
+				stat.__maxData__ = args[7];
+			}
+			return stat;
 		}
-		var result = new Statistic(data.keys);
-		result.addStatistic(data);
-		return result;
 	}
 }); // declare Statistic.
 
-Serialization.register('creatartis-base.Statistic', Statistic);
+Sermat.register(Statistic);

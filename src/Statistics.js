@@ -210,31 +210,28 @@ var Statistics = exports.Statistics = declare({
 		}).join(rsep);
 	},
 	
-	/** Serialization and materialization are done using JSON.
+	/** Serialization and materialization using Sermat, registered with identifier 
+	`creatartis-base.Statistics`.
 	*/
-	__serialize__: function __serialize__() {
-		var result = {
-			'._id': 'creatartis-base.Statistics', 
-			__stats__: {}
-		};
-		for (var id in this.__stats__) {
-			result.__stats__[id] = this.__stats__[id].__serialize__();
+	'static __SERMAT__': {
+		id: 'creatartis-base.Statistics',
+		serializer: function serialize_Statistics(obj) {
+			var stats = obj.__stats__;
+			return Object.keys(stats).map(function (k) {
+				return stats[k];
+			});
+		},
+		materializer: function materialize_Statistics(obj, args) {
+			if (!args) {
+				return null;
+			}
+			var result = new Statistics();
+			args.forEach(function (stat) {
+				result.addStatistic(stat);
+			});
+			return result;
 		}
-		return result;
-	},
-	
-	'static __materialize__': function __materialize__(data) {
-		var result = new Statistics(), 
-			stat;
-		if (typeof data !== 'object') {
-			data = JSON.parse(data);
-		}
-		for (var id in data.__stats__) {
-			stat = data.__stats__[id];
-			result.addStatistic(stat);
-		}
-		return result;
 	}
 }); // declare Statistics.
 
-Serialization.register('creatartis-base.Statistics', Statistics);
+Sermat.register(Statistics);
