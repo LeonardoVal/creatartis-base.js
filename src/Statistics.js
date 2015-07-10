@@ -214,7 +214,7 @@ var Statistics = exports.Statistics = declare({
 	`creatartis-base.Statistics`.
 	*/
 	'static __SERMAT__': {
-		id: 'creatartis-base.Statistics',
+		identifier: SERMAT_LIB_PREFIX +'Statistics',
 		serializer: function serialize_Statistics(obj) {
 			var stats = obj.__stats__;
 			return Object.keys(stats).map(function (k) {
@@ -233,5 +233,3 @@ var Statistics = exports.Statistics = declare({
 		}
 	}
 }); // declare Statistics.
-
-Sermat.register(Statistics);

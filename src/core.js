@@ -72,3 +72,7 @@ var copy = exports.copy = function copy(objTo) {
 	}
 	return objTo;
 };
+
+/** This is the prefix used in the identifiers of all types that are serialiable with Sermat.
+*/
+var SERMAT_LIB_PREFIX = 'creatartis-base.';

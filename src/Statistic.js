@@ -325,7 +325,7 @@ var Statistic = exports.Statistic = declare({
 	`creatartis-base.Statistic`.
 	*/
 	'static __SERMAT__': {
-		id: 'creatartis-base.Statistic',
+		identifier: SERMAT_LIB_PREFIX +'Statistic',
 		serializer: function serialize_Statistic(obj) {
 			var result = [obj.keys || null, obj.__count__, obj.__sum__, obj.__sqrSum__, obj.__min__, obj.__max__];
 			if (typeof obj.__minData__ !== 'undefined') { // Assumes this implies (typeof obj.__maxData__ !== 'undefined')
@@ -352,5 +352,3 @@ var Statistic = exports.Statistic = declare({
 		}
 	}
 }); // declare Statistic.
-
-Sermat.register(Statistic);
