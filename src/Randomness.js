@@ -10,9 +10,13 @@ var Randomness = exports.Randomness = declare({
 	(exclusive). If none is given the standard `Math.random´ is used.
 	*/
 	constructor: function Randomness(generator) {
-		this.__random__ = generator || Math.random;
+		if (typeof generator === 'function') {
+			this.__random__ = generator;
+		}
 	},
 
+	__random__: Math.random,
+	
 	/** The basic use of the pseudorandom number generator is through the method `random`. Called 
 	without arguments returns a random number in [0,1). Called with only the first argument x, 
 	returns a random number in [0, x). Called with two arguments (x, y) return a random number in 
@@ -166,6 +170,20 @@ var Randomness = exports.Randomness = declare({
 			}
 			return s / n;
 		});
+	},
+	
+	// ## Utilities ################################################################################
+	
+	/** Serialization and materialization using Sermat.
+	*/
+	'static __SERMAT__': {
+		identifier: SERMAT_LIB_PREFIX +'Randomness',
+		serializer: function serialize_Randomness(obj) {
+			return obj.__random__ !== Math.random ? [obj.__random__] : [];
+		},
+		materializer: function materialize_Randomness(obj, args) {
+			return args && (args.length < 1 ? Randomness.DEFAULT : new Randomness(args[0]));
+		}
 	}
 }); //- declare Randomness.
 
@@ -186,43 +204,54 @@ Randomness.DEFAULT = new Randomness();
 
 // ### Linear congruential #########################################################################
 
-/** The method `Randomness.linearCongruential` returns a pseudorandom number generator constructor 
-implemented with the [linear congruential algorithm](http://en.wikipedia.org/wiki/Linear_congruential_generator).
+/** `Randomness.LinearCongruential` builds a pseudorandom number generator constructor implemented 
+with the [linear congruential algorithm](http://en.wikipedia.org/wiki/Linear_congruential_generator).
 It also contain the following shortcuts to build common variants:
 */
-Randomness.linearCongruential = function linearCongruential(m, a, c) {
-	return function (seed) {
-		var i = seed || 0;
-		return new Randomness(function () {
+var LinearCongruential = Randomness.LinearCongruential = declare(Randomness, {
+	constructor: function LinearCongruential(m, a, c, seed) {
+		var i = isNaN(seed) ? Date.now() : Math.floor(seed);
+		this.__arguments__ = [m, a, c, i];
+		this.__random__ = function __random__() {
 			return (i = (a * i + c) % m) / m;
-		});
-	};
-};
-
-/** + `numericalRecipies(seed)`: builds a linear congruential pseudorandom number generator as it is 
-specified in [Numerical Recipies](http://www.nr.com/).
-*/
-Randomness.linearCongruential.numericalRecipies = 
-	Randomness.linearCongruential(0xFFFFFFFF, 1664525, 1013904223);
-
-/** + `borlandC(seed)`: builds a linear congruential pseudorandom number generator as it used by
-	Borland C/C++.
-*/
-Randomness.linearCongruential.borlandC = 
-	Randomness.linearCongruential(0xFFFFFFFF, 22695477, 1);
-
-/** + `glibc(seed)`: builds a linear congruential pseudorandom number generator as it used by
-	[glibc](http://www.mscs.dal.ca/~selinger/random/).
-*/
-Randomness.linearCongruential.glibc = 
-	Randomness.linearCongruential(0xFFFFFFFF, 1103515245, 12345);
+		};
+	},
+	
+	'static __SERMAT__': {
+		identifier: SERMAT_LIB_PREFIX +'LinearCongruential',
+		serializer: function serializer_LinearCongruential(obj) {
+			return obj.__arguments__;
+		}
+	},
+	
+	/** + `numericalRecipies(seed)`: builds a linear congruential pseudorandom number generator as 
+		it is specified in [Numerical Recipies](http://www.nr.com/).
+	*/
+	'static numericalRecipies': function (seed) {
+		return new LinearCongruential(0xFFFFFFFF, 1664525, 1013904223, seed);
+	},
+	
+	/** + `borlandC(seed)`: builds a linear congruential pseudorandom number generator as it used by
+		Borland C/C++.
+	*/
+	'static borlandC': function (seed) {
+		return new LinearCongruential(0xFFFFFFFF, 22695477, 1, seed);
+	},
+	
+	/** + `glibc(seed)`: builds a linear congruential pseudorandom number generator as it used by
+		[glibc](http://www.mscs.dal.ca/~selinger/random/).
+	*/
+	'static glibc': function (seed) {
+		return new LinearCongruential(0xFFFFFFFF, 1103515245, 12345, seed);
+	}
+});
 
 // ### Mersenne twister ############################################################################
 
 /** The method `Randomness.mersenneTwister` returns a pseudorandom number generator constructor 
 implemented with the [Mersenne Twister algorithm](http://en.wikipedia.org/wiki/Mersenne_twister#Pseudocode).
 */
-Randomness.mersenneTwister = (function (){
+Randomness.MersenneTwister = (function (){
 	/** Bit operations in Javascript deal with signed 32 bit integers. This algorithm deals with
 	unsigned 32 bit integers. That is why this function is necessary.
 	*/
@@ -250,21 +279,30 @@ Randomness.mersenneTwister = (function (){
 		}
 	}
 
-	return function (seed) {
-		seed = isNaN(seed) ? Date.now() : seed|0;
-		var numbers = initialize(seed),
-			index = 0;
-		return new Randomness(function () {
-			if (index === 0) {
-				generate(numbers);
+	return declare(Randomness, {
+		constructor: function MersenneTwister(seed) {
+			this.__seed__ = isNaN(seed) ? Date.now() : Math.floor(seed);
+			var numbers = initialize(this.__seed__),
+				index = 0;
+			this.__random__ = function () {
+				if (index === 0) {
+					generate(numbers);
+				}
+				var y = numbers[index];
+				y = unsigned(y ^ (y << 11));
+				y = unsigned(y ^ ((y >>> 7) & 0x9D2C5680));
+				y = unsigned(y ^ ((y >>> 15) & 0xEFC60000));
+				y = unsigned(y ^ (y << 18));
+				index = (index + 1) % 624;
+				return y / 0xFFFFFFFF;
+			};
+		},
+		
+		'static __SERMAT__': {
+			identifier: SERMAT_LIB_PREFIX +'MersenneTwister',
+			serializer: function serializer_MersenneTwister(obj) {
+				return [obj.__seed__];
 			}
-			var y = numbers[index];
-			y = unsigned(y ^ (y << 11));
-			y = unsigned(y ^ ((y >>> 7) & 0x9D2C5680));
-			y = unsigned(y ^ ((y >>> 15) & 0xEFC60000));
-			y = unsigned(y ^ (y << 18));
-			index = (index + 1) % 624;
-			return y / 0xFFFFFFFF;
-		});
-	};
+		},
+	});
 })();

@@ -192,21 +192,26 @@
 		});
 
 		it("linearCongruential generators", function () {
-			expect(Randomness.linearCongruential).toBeOfType('function');
+			expect(Randomness.LinearCongruential).toBeOfType('function');
 			
-			expect(Randomness.linearCongruential.numericalRecipies).toBeOfType('function');
-			testRandomGenerator('linearCongruential.numericalRecipies', Randomness.linearCongruential.numericalRecipies);
+			var nr = Randomness.LinearCongruential.numericalRecipies;
+			expect(nr).toBeOfType('function');
+			testRandomGenerator('LinearCongruential.numericalRecipies', nr);
 			
-			expect(Randomness.linearCongruential.borlandC).toBeOfType('function');
-			testRandomGenerator('linearCongruential.borlandC', Randomness.linearCongruential.borlandC);
+			var bc = Randomness.LinearCongruential.borlandC;
+			expect(bc).toBeOfType('function');
+			testRandomGenerator('LinearCongruential.borlandC', bc);
 			
-			expect(Randomness.linearCongruential.glibc).toBeOfType('function');
-			testRandomGenerator('linearCongruential.glibc', Randomness.linearCongruential.glibc);
+			var gc = Randomness.LinearCongruential.glibc;
+			expect(gc).toBeOfType('function');
+			testRandomGenerator('LinearCongruential.glibc', gc);
 		});
 		
 		it("Mersenne Twister generator", function () {
-			expect(Randomness.mersenneTwister).toBeOfType('function');
-			testRandomGenerator('mersenneTwister', Randomness.mersenneTwister);
+			expect(Randomness.MersenneTwister).toBeOfType('function');
+			testRandomGenerator('MersenneTwister', function (seed) {
+				return new Randomness.MersenneTwister(seed);
+			});
 		});
 	}); //// describe.
 }); //// define.
