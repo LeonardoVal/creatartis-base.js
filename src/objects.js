@@ -14,15 +14,16 @@ var objects = exports.objects = (function () {
 				parent.apply(this, arguments);
 			});
 		}
-		/** This is similar to the way 
-		[goog.inherits does it in Google's Closure Library](http://docs.closure-library.googlecode.com/git/namespace_goog.html). 
-		It is preferred since it does not require the parent constructor to 
-		support being called without arguments.			
-		*/
-		Placeholder = function () {};
-		Placeholder.prototype = parent.prototype;
-		constructor.prototype = new Placeholder();
+		constructor.prototype = Object.create(parent.prototype);
 		constructor.prototype.constructor = constructor;
+		/** The constructor function's prototype is changed so static properties are inherited
+		as well.
+		*/
+		if (Object.setPrototypeOf) {
+			Object.setPrototypeOf(constructor, parent);
+		} else {
+			constructor.__proto__ = parent;
+		}
 		return constructor;
 	};
 	
