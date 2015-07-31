@@ -14,7 +14,7 @@ module.exports = function(config) {
       'tests/karma-tester.js',
       {pattern: 'tests/specs/*.test.js', included: false},
       {pattern: 'tests/lib/creatartis-base.js', included: false},
-	  {pattern: 'tests/lib/sermat.js', included: false},
+	  {pattern: 'tests/lib/sermat-amd.js', included: false},
     ],
 
     // list of files to exclude
@@ -24,7 +24,7 @@ module.exports = function(config) {
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
 		'tests/lib/creatartis-base.js': ['sourcemap'], // Source map loader.
-		'tests/lib/sermat.js': ['sourcemap'] // Source map loader.
+		'tests/lib/sermat-amd.js': ['sourcemap'] // Source map loader.
 	},
 
     // test results reporter to use

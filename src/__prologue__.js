@@ -9,9 +9,11 @@
 		global.base = init(global.Sermat);
 	}
 })(this, function __init__(Sermat) { "use strict";
-// Library layout. /////////////////////////////////////////////////////////////
+// Library layout. /////////////////////////////////////////////////////////////////////////////////
 	var exports = {
-		__name__: 'creatartis-base',
+		__package__: 'creatartis-base',
+		__name__: 'base',
 		__init__: __init__,
-		__dependencies__: []
+		__dependencies__: [],
+		__SERMAT__: { include: [] }
 	};

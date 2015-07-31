@@ -55,7 +55,7 @@ require.config({ // Configure RequireJS.
 	baseUrl: '/base', // Karma serves files under /base, which is the basePath from your config file
 	paths: {
 		'base': '/base/tests/lib/creatartis-base',
-		'sermat': '/base/tests/lib/sermat'
+		'sermat': '/base/tests/lib/sermat-amd'
 	}
 });
 require(Object.keys(window.__karma__.files) // Dynamically load all test files

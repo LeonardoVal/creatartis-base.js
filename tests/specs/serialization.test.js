@@ -2,12 +2,16 @@
 	var declare = base.declare,
 		Statistic = base.Statistic,
 		Statistics = base.Statistics;
+	
 	describe("Serializations", function () {
 		it("for Statistic & Statistics", function () {
+			var sermat = new Sermat();
+			sermat.include(base);
+			
 			var stat = new Statistic({key: 'x', n: 1});
 			stat.addAll([2, 3, 5], 'data');
-			var serialized = Sermat.ser(stat);
-			var materialized = Sermat.mat(serialized);
+			var serialized = sermat.ser(stat),
+				materialized = sermat.mat(serialized);
 			expect(materialized.constructor).toBe(Statistic);
 			expect(materialized.keys).not.toBeUndefined();
 			expect(materialized.keys.key).toBe('x');
@@ -21,8 +25,8 @@
 			stats.add({key: 'x'}, 2);
 			stats.add({key: 'x', n: 1}, 3);
 			stats.add({key: 'x', n: 1}, 5);
-			serialized = Sermat.ser(stats);
-			materialized = Sermat.mat(serialized);
+			serialized = sermat.ser(stats);
+			materialized = sermat.mat(serialized);
 			expect(materialized.constructor).toBe(Statistics);
 			expect(materialized.count({key: 'x'})).toBe(3);
 			expect(materialized.count({key: 'x', n: 1})).toBe(2);
