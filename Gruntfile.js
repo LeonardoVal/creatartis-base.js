@@ -31,7 +31,8 @@ module.exports = function(grunt) {
 				options: { // Check <http://jshint.com/docs/options/>.
 					loopfunc: true,
 					boss: true,
-					evil: true
+					evil: true,
+					proto: true
 				},
 				src: ['build/<%= pkg.name %>.js', 'tests/specs/*.js'],
 			},
@@ -83,8 +84,8 @@ module.exports = function(grunt) {
 			pkg = grunt.config.get('pkg');
 		grunt.log.writeln("Copied to tests/lib/: "+ [
 			'node_modules/requirejs/require.js',
-			'node_modules/sermat/build/sermat.js',
-			'node_modules/sermat/build/sermat.js.map',
+			'node_modules/sermat/build/sermat-amd.js',
+			'node_modules/sermat/build/sermat-amd.js.map',
 			'build/'+ pkg.name +'.js', 
 			'build/'+ pkg.name +'.js.map'
 		].map(function (fileToCopy) {

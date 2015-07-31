@@ -9,11 +9,13 @@
 		global.base = init(global.Sermat);
 	}
 })(this, function __init__(Sermat) { "use strict";
-// Library layout. /////////////////////////////////////////////////////////////
+// Library layout. /////////////////////////////////////////////////////////////////////////////////
 	var exports = {
-		__name__: 'creatartis-base',
+		__package__: 'creatartis-base',
+		__name__: 'base',
 		__init__: __init__,
-		__dependencies__: []
+		__dependencies__: [],
+		__SERMAT__: { include: [] }
 	};
 
 /** # Core
@@ -91,10 +93,6 @@ var copy = exports.copy = function copy(objTo) {
 	return objTo;
 };
 
-/** This is the prefix used in the identifiers of all types that are serialiable with Sermat.
-*/
-var SERMAT_LIB_PREFIX = 'creatartis-base.';
-
 /** # Polyfill
 
 This part of the library contains all code meant to equalize Javascript 
@@ -151,15 +149,16 @@ var objects = exports.objects = (function () {
 				parent.apply(this, arguments);
 			});
 		}
-		/** This is similar to the way 
-		[goog.inherits does it in Google's Closure Library](http://docs.closure-library.googlecode.com/git/namespace_goog.html). 
-		It is preferred since it does not require the parent constructor to 
-		support being called without arguments.			
-		*/
-		Placeholder = function () {};
-		Placeholder.prototype = parent.prototype;
-		constructor.prototype = new Placeholder();
+		constructor.prototype = Object.create(parent.prototype);
 		constructor.prototype.constructor = constructor;
+		/** The constructor function's prototype is changed so static properties are inherited
+		as well.
+		*/
+		if (Object.setPrototypeOf) {
+			Object.setPrototypeOf(constructor, parent);
+		} else {
+			constructor.__proto__ = parent;
+		}
 		return constructor;
 	};
 	
@@ -2779,13 +2778,11 @@ instance and using a method right away.
 
 /** # Parallel
 
-Wrapper for standard web workers, that includes bootstraping and a future 
-oriented interface.
+Wrapper for standard web workers, that includes bootstraping and a future oriented interface.
 */
 var Parallel = exports.Parallel = declare({
-	/** The constructor may take a worker instance to deal with. If not given,
-	a new worker is build using `newWorker()`. If given, it must be properly
-	initialized.
+	/** The constructor may take a worker instance to deal with. If not given, a new worker is build 
+	using `newWorker()`. If given, it must be properly initialized.
 	*/
 	constructor: function Parallel(worker) {
 		if (!worker) {
@@ -2795,9 +2792,8 @@ var Parallel = exports.Parallel = declare({
 		this.worker = worker;
 	},
 	
-	/** `newWorker()` builds a new web worker. Loading `creatartis-base` in its 
-	environment. Sets up a message handler that evaluates posted messages as 
-	code, posting the results back.
+	/** `newWorker()` builds a new web worker. Loading `creatartis-base` in its environment. Sets up
+	a message handler that evaluates posted messages as code, posting the results back.
 	*/
 	"static newWorker": function newWorker() {
 		var src = 'self.base = ('+ exports.__init__ +')();'+
@@ -2814,8 +2810,8 @@ var Parallel = exports.Parallel = declare({
 		return new Worker(URL.createObjectURL(blob));
 	},	
 	
-	/** The handler for the `worker.onmessage` event is the `__onmessage__(msg)`
-	method. It deals with the futures issued by `run()`.
+	/** The handler for the `worker.onmessage` event is the `__onmessage__(msg)` method. It deals 
+	with the futures issued by `run()`.
 	*/
 	__onmessage__: function __onmessage__(msg) {
 		var future = this.__future__;
@@ -2836,8 +2832,8 @@ var Parallel = exports.Parallel = declare({
 	
 	/** `run(code)` sends the code to run in the web worker in parallel.
 	
-	Warning! This method will raise an error if it is called while a previous 
-	execution is still running.
+	Warning! This method will raise an error if it is called while a previous execution is still 
+	running.
 	*/
 	run: function run(code) {
 		if (this.__future__) {
@@ -2846,16 +2842,32 @@ var Parallel = exports.Parallel = declare({
 		this.__future__ = new Future();
 		this.worker.postMessage(code +'');
 		return this.__future__;
-	},
+	}, 
 	
-	/** A _"static"_ version of `run(code)` is provided also. It creates a web 
-	worker to run this code in parallel, and returns a future for its result. 
-	After its finished the web worker is terminated.
+	/** A _"static"_ version of `run(code)` is provided also. It creates a web worker to run this 
+	code in parallel, and returns a future for its result. After its finished the web worker is 
+	terminated.
 	*/
 	"static run": function run(code) {
 		var parallel = new Parallel();
 		return parallel.run(code).always(function () {
 			parallel.worker.terminate();
+		});
+	},
+	
+	/** `loadModule` loads a module in the worker. The module has to have a `__name__`, an 
+	`__init__` function that builds the module and a `__dependencies__` array of modules.
+	*/
+	loadModule: function loadModule(module, recursive) {
+		var parallel = this;
+		return Future.sequence(recursive ? module.__dependencies__ : [], function (dep) {
+			return parallel.loadModule(dep, recursive);
+		}).then(function () {
+			return parallel.run('self.'+ module.__name__ +' || (self.'+ module.__name__ +'=('+ 
+				module.__init__ +')('+ 	module.__dependencies__.map(function (dep) {
+					return dep.__name__;
+				}).join(',') +')), "OK"'
+			);
 		});
 	}
 }); // declare Parallel.
@@ -3160,7 +3172,7 @@ var Randomness = exports.Randomness = declare({
 	/** Serialization and materialization using Sermat.
 	*/
 	'static __SERMAT__': {
-		identifier: SERMAT_LIB_PREFIX +'Randomness',
+		identifier: exports.__package__ +'.Randomness',
 		serializer: function serialize_Randomness(obj) {
 			return obj.__random__ !== Math.random ? [obj.__random__] : [];
 		},
@@ -3201,7 +3213,7 @@ var LinearCongruential = Randomness.LinearCongruential = declare(Randomness, {
 	},
 	
 	'static __SERMAT__': {
-		identifier: SERMAT_LIB_PREFIX +'LinearCongruential',
+		identifier: exports.__package__ +'.LinearCongruential',
 		serializer: function serializer_LinearCongruential(obj) {
 			return obj.__arguments__;
 		}
@@ -3282,7 +3294,7 @@ Randomness.MersenneTwister = (function (){
 		},
 		
 		'static __SERMAT__': {
-			identifier: SERMAT_LIB_PREFIX +'MersenneTwister',
+			identifier: exports.__package__ +'.MersenneTwister',
 			serializer: function serializer_MersenneTwister(obj) {
 				return [obj.__seed__];
 			}
@@ -3670,7 +3682,7 @@ var Statistic = exports.Statistic = declare({
 	`creatartis-base.Statistic`.
 	*/
 	'static __SERMAT__': {
-		identifier: SERMAT_LIB_PREFIX +'Statistic',
+		identifier: exports.__package__ +'.Statistic',
 		serializer: function serialize_Statistic(obj) {
 			var result = [obj.keys || null, obj.__count__, obj.__sum__, obj.__sqrSum__, obj.__min__, obj.__max__];
 			if (typeof obj.__minData__ !== 'undefined') { // Assumes this implies (typeof obj.__maxData__ !== 'undefined')
@@ -3914,7 +3926,7 @@ var Statistics = exports.Statistics = declare({
 	`creatartis-base.Statistics`.
 	*/
 	'static __SERMAT__': {
-		identifier: SERMAT_LIB_PREFIX +'Statistics',
+		identifier: exports.__package__ +'.Statistics',
 		serializer: function serialize_Statistics(obj) {
 			var stats = obj.__stats__;
 			return Object.keys(stats).map(function (k) {
@@ -4152,6 +4164,10 @@ Logger.ROOT = new Logger("");
 
 
 // See __prologue__.js
+	exports.__SERMAT__.include.push(
+		Randomness, Randomness.LinearCongruential, Randomness.MersenneTwister,
+		Statistic, Statistics
+	);
 	return exports;
 });
 
