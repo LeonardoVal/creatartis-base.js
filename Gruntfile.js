@@ -1,29 +1,32 @@
 ﻿/** Gruntfile for [creatartis-base](http://github.com/LeonardoVal/creatartis-base).
 */
 module.exports = function(grunt) {
-	var SOURCE_FILES = ['src/__prologue__.js',
-		'src/core.js', 'src/polyfill.js', 'src/objects.js',
-		'src/text.js', 'src/math.js',
-		'src/typed.js', 'src/Initializer.js',
-		'src/iterables.js', // iterators and FP utilities. 
-		'src/Future.js', 'src/HttpRequest.js', 'src/Parallel.js', // asynchronism
-		'src/Events.js', // functions.
-		'src/Randomness.js', // math.
-		'src/Chronometer.js', 'src/Statistic.js', 'src/Statistics.js', // statistic gathering.
-		'src/Logger.js', // logging.
-		'src/__epilogue__.js'];
+	var SOURCE_FILES = ['__prologue__',
+		'core', 'polyfill', 'objects',
+		'text', 'math',
+		'typed', 'Initializer',
+		'iterables', // iterators and FP utilities. 
+		'Future', 'HttpRequest', 'Parallel', // asynchronism
+		'Events', // functions.
+		'Randomness', // math.
+		'Chronometer', 'Statistic', 'Statistics', // statistic gathering.
+		'Logger', // logging.
+		'__epilogue__'].map(function (n) {
+			return 'src/'+ n +'.js';
+		});
 
 	grunt.file.defaultEncoding = 'utf8';
 // Init config. ////////////////////////////////////////////////////////////////////////////////////
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		concat_sourcemap: { ////////////////////////////////////////////////////////////////////////
+		concat: { ////////////////////////////////////////////////////////////////////////
+			options: {
+				separator: '\n\n',
+				sourceMap: true
+			},
 			build: {
 				src: SOURCE_FILES,
-				dest: 'build/<%= pkg.name %>.js',
-				options: {
-					separator: '\n\n'
-				}
+				dest: 'build/<%= pkg.name %>.js'
 			},
 		},
 		jshint: { //////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +75,7 @@ module.exports = function(grunt) {
 		}
 	});
 // Load tasks. /////////////////////////////////////////////////////////////////////////////////////
-	grunt.loadNpmTasks('grunt-concat-sourcemap');
+	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-karma');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-docker');
@@ -97,7 +100,7 @@ module.exports = function(grunt) {
 		
 // Register tasks. /////////////////////////////////////////////////////////////////////////////////
 	grunt.registerTask('lib', ['bowercopy:lib']);
-	grunt.registerTask('compile', ['concat_sourcemap:build', 'jshint:build', 'uglify:build']);
+	grunt.registerTask('compile', ['concat:build', 'jshint:build', 'uglify:build']);
 	grunt.registerTask('test', ['test-lib', 'karma:build']);
 	grunt.registerTask('test-all', ['test', 'karma:chrome', 'karma:firefox', 'karma:iexplore']);
 	grunt.registerTask('build', ['compile', 'test', 'docker:build']);
