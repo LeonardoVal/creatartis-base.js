@@ -24,28 +24,24 @@ if (!Function.prototype.bind) {
 // Testing environment extensions and custom definitions. //////////////////////////////////////////
 
 beforeEach(function() { // Add custom matchers.
-	this.addMatchers({
-		toBeOfType: function(type) {
-			switch (typeof type) {
-				case 'function': return this.actual instanceof type;
-				case 'string': return typeof this.actual === type;
-				default: throw new Error('Unknown type '+ type +'!');
-			}
+	jasmine.addMatchers({
+		toBeOfType: function () {
+			return {
+				compare: function(actual, type) {
+					switch (typeof type) {
+						case 'function': return { pass: actual instanceof type };
+						case 'string': return { pass: (typeof actual) === type };
+					}
+					throw new Error('Cannot compare with type '+ type +'!');
+				}
+			};
 		}
 	});
 });
 
 function async_it(desc, func) { // Future friendly version of it().
-	it(desc, function () {
-		var done = false;
-		runs(function () {
-			func().then(function () {
-				done = true;
-			})
-		});
-		waitsFor(function () {
-			return done;
-		});
+	it(desc, function (done) {
+		func().then(done);
 	});
 }
 

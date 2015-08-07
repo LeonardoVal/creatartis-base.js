@@ -63,13 +63,9 @@ function identifier(type, must) {
 /** A `record` for a construction can be obtained using its identifier or the constructor function
 of the type.
 */
-function record(type, must) {
-	var id = typeof type === 'function' ? identifier(type, true) : type +'',
-		result = this.registry[id];
-	if (!result && must) {
-		raise('record', 'Unknown type "'+ id +'"!', { type: type });
-	}
-	return result;
+function record(type) {
+	var id = typeof type === 'function' ? identifier(type, true) : type +'';
+	return this.registry[id];
 }
 
 /** The registry spec for every custom construction usually has four components: an `identifier`, a 
@@ -110,6 +106,9 @@ function register(registry, spec) {
 	if (spec.global && !CONSTRUCTIONS[id]) {
 		CONSTRUCTIONS[id] = spec;
 	}
+	if (spec.include) {
+		this.include(spec.include);
+	}
 	return spec;
 }
 
@@ -123,56 +122,33 @@ function include(arg) {
 	var spec = null;
 	switch (typeof arg) {
 		case 'function': {
-			spec = arg.__SERMAT__;
-			if (spec && !this.record(arg)) {
-				spec.type = arg;
-				spec = this.register(spec);
+			spec = this.record(arg);
+			if (!spec && arg.__SERMAT__) {
+				arg.__SERMAT__.type = arg;
+				spec = this.register(arg.__SERMAT__);
 			}
-			break;
+			return spec;
 		}
 		case 'string': {
-			if (CONSTRUCTIONS[arg] && !this.registry[arg]) {
+			spec = this.record(arg);
+			if (!spec && CONSTRUCTIONS[arg]) {
 				spec = this.register(CONSTRUCTIONS[arg]);
 			}
-			break;
+			return spec;
 		}
 		case 'object': {
 			if (Array.isArray(arg)) {
 				return arg.map((function (c) {
 					return this.include(c);
 				}).bind(this));
-			} else if (typeof arg.type === 'function' && !this.record(arg.identifier || arg.type)) {
-				spec = this.register(arg);
-			} else {
-				spec = arg && arg.__SERMAT__;
+			} else if (typeof arg.type === 'function') {
+				return this.record(arg.identifier || arg.type) || this.register(arg);
+			} else if (arg && arg.__SERMAT__ && arg.__SERMAT__.include) {
+				return this.include(arg.__SERMAT__.include);
 			}
-			break;
 		}
-		default: raise('register', "Could not include ("+ arg +")!", { arg: arg });
+		default: raise('include', "Could not include ("+ arg +")!", { arg: arg });
 	}
-	if (spec && spec.include) {
-		this.include(spec.include);
-	}
-	return spec;
-}
-
-/** `materializeWithConstructor` is a generic way of creating a new instance of the given type
-`constructor`. Basically a new object is built using the type's prototype, and then the constructor 
-is called on this object and the given arguments (`args`) to initialize it.
-
-This method can be used to quickly implement a materializer function when only a call to a 
-constructor function is required. It is the default materialization when no method has been given 
-for a registered type.
-*/
-function materializeWithConstructor(constructor, obj, args) {
-	if (!obj) {
-		obj = Object.create(constructor.prototype);
-		if (!args) {
-			return obj;
-		}
-	}
-	constructor.apply(obj, args);
-	return obj;
 }
 
 /** ## Serialization ###############################################################################
@@ -227,7 +203,12 @@ var serialize = (function () {
 			case 'boolean':   
 			case 'number': return value +'';
 			case 'string': return '"'+ value.replace(/[\\\"]/g, '\\$&') +'"';
-			case 'function': // Works if `Function` is registered
+			case 'function': {
+				var record = ctx.record(value);
+				if (record) {
+					return record.identifier;
+				} // else continue to object, using Function's serializer if it is registered. 
+			}
 			case 'object': return __serializeObject__(ctx, value);
 		}
 	}
@@ -285,8 +266,11 @@ var serialize = (function () {
 			separated by commas between parenthesis. It ressembles a call to a function in 
 			Javascript.
 		*/
-			var record = ctx.sermat.record(obj.constructor, true),
-				args = record.serializer.call(ctx.sermat, obj),
+			var record = ctx.record(obj.constructor) || ctx.autoInclude && ctx.include(obj.constructor);
+			if (!record) {
+				raise('serialize', 'Unknown type "'+ ctx.sermat.identifier(obj.constructor) +'"!', { unknownType: obj });
+			}
+			var args = record.serializer.call(ctx.sermat, obj),
 				id = record.identifier;
 			output += (ID_REGEXP.exec(id) ? id : __serializeValue__(id)) +'(';
 			for (i = 0, len = args.length; i < len; i++) {
@@ -301,30 +285,19 @@ var serialize = (function () {
 	return function serialize(obj, modifiers) {
 		modifiers = modifiers || this.modifiers;
 		return __serializeValue__({
-			sermat: this,
 			visited: [], 
 			parents: [],
+			sermat: this,
+			record: this.record.bind(this),
+			include: this.include.bind(this),
 			// Modifiers
 			mode: coalesce(modifiers.mode, this.modifiers.mode),
 			allowUndefined: coalesce(modifiers.allowUndefined, this.modifiers.allowUndefined),
+			autoInclude: coalesce(modifiers.autoInclude, this.modifiers.autoInclude),
 			useConstructions: coalesce(modifiers.useConstructions, this.modifiers.useConstructions)
 		}, obj);
 	};
 })();
-
-/** `serializeWithProperties` is a generic way of serializing an object, by creating another object 
-with some of its properties. This method can be used to quickly implement a serializer function when 
-the constructor of the type can be called with an object.
-*/
-function serializeWithProperties(obj, properties) {
-	var result = {}, 
-		name;
-	for (var i = 0, len = properties.length; i < len; i++) {
-		name = properties[i];
-		result[name] = obj[name];
-	}
-	return [result];
-}
 
 /** ## Materialization #############################################################################
 
@@ -422,23 +395,26 @@ function materialize(text) {
 		and the `valueStack` for intermediate values. Bindings are used to resolve all values that
 		appear as words (`true`, `null`, etc.).
 	*/
-	var valueStack = new Array(50), 
+	var construct = this.construct.bind(this),
+		valueStack = new Array(50), 
 		stateStack = new Array(50), 
 		stackPointer = 0,
-		construct = this.construct.bind(this),
 		bindings = { 'true': true, 'false': false, 'null': null, 'NaN': NaN, 'Infinity': Infinity },
 		offset, result;
 	stateStack[0] = 0;
 
 	/** Unbound identifiers showing in the text always raise an error. Also, values cannot be rebound.
 	*/
-	function getBind(id) {
+	var getBind = (function (id) {
 		var value = bindings[id];
 		if (typeof value === 'undefined') {
-			parseError("'"+ id +"' is not bound", { unboundId: id });	
+			value = (value = this.registry[id]) && value.type;
+			if (!value) {
+				parseError("'"+ id +"' is not bound", { unboundId: id });
+			}
 		}
 		return value;
-	}
+	}).bind(this);
 
 	function setBind(id, value) {
 		if (id.charAt(0) != '$') {
@@ -479,7 +455,7 @@ function materialize(text) {
 			if ($1[2] && obj !== $1[2]) {
 				parseError("Object initialization for "+ $1[1] +" failed", { oldValue: $1[2], newValue: obj });
 			}
-			return $1[0] ? this.setBind($1[0], obj) : obj;
+			return $1[0] ? setBind($1[0], obj) : obj;
 		}
 		return [null, // ACCEPT
 		// `value : atom ;`
@@ -601,6 +577,53 @@ function materialize(text) {
 		}
 	});
 	return result;
+}
+
+/** ## Utilities ###################################################################################
+
+*/
+
+/** `serializeAsProperties` is a generic way of serializing an object, by creating another object 
+with some of its properties. This method can be used to quickly implement a serializer function when 
+the constructor of the type can be called with an object.
+*/
+function serializeAsProperties(obj, properties) {
+	var result = {};
+	if (Array.isArray(properties)) {
+		properties.forEach(function (k) {
+			result[k] = obj[k];
+		});
+	} else {
+		Object.keys(properties).forEach(function (k) {
+			result[k] = obj[properties[k]];
+		});
+	}
+	return [result];
+}
+
+/** `materializeWithConstructor` is a generic way of creating a new instance of the given type
+`constructor`. Basically a new object is built using the type's prototype, and then the constructor 
+is called on this object and the given arguments (`args`) to initialize it.
+
+This method can be used to quickly implement a materializer function when only a call to a 
+constructor function is required. It is the default materialization when no method has been given 
+for a registered type.
+*/
+function materializeWithConstructor(constructor, obj, args) {
+	if (!obj) {
+		obj = Object.create(constructor.prototype);
+		if (!args) {
+			return obj;
+		}
+	}
+	constructor.apply(obj, args);
+	return obj;
+}
+
+/** `sermat` is a shortcut to materialize a serialization of a value, e.g. to clone the value. 
+*/
+function sermat(obj, modifiers) {
+	return this.mat(this.ser(obj, modifiers));
 }
 
 /** ## Constructions for Javascript types ##########################################################
@@ -764,13 +787,15 @@ function Sermat(params) {
 	
 	params = params || {};
 	member(this, 'modifiers', __modifiers__);
-	member(__modifiers__, 'allowUndefined', coalesce(params.allowUndefined, false), 5);
 	member(__modifiers__, 'mode', coalesce(params.mode, BASIC_MODE), 5);
+	member(__modifiers__, 'allowUndefined', coalesce(params.allowUndefined, false), 5);
+	member(__modifiers__, 'autoInclude', coalesce(params.autoInclude, true), 5);
 	member(__modifiers__, 'useConstructions', coalesce(params.useConstructions, true), 5);
 	/** The constructors for Javascript's _basic types_ (`Boolean`, `Number`, `String`, `Object`, 
-		and `Array`, but not `Function`) are always registered. 
+		and `Array`, but not `Function`) are always registered. Also `Date` and `RegExp` are
+		supported by default.
 	*/
-	this.include(['Boolean', 'Number', 'String', 'Object', 'Array']);
+	this.include('Boolean Number String Object Array Date RegExp'.split(' '));
 }
 
 var __members__ = {
@@ -785,7 +810,7 @@ var __members__ = {
 	'include': include,
 	
 	'serialize': serialize, 'ser': serialize,
-	'serializeWithProperties': serializeWithProperties,
+	'serializeAsProperties': serializeAsProperties,
 	
 	'materialize': materialize, 'mat': materialize,
 	'construct': construct,
@@ -793,9 +818,7 @@ var __members__ = {
 	'signature': signature, 'checkSignature': checkSignature,
 	'materializeWithConstructor': materializeWithConstructor,
 	
-	'sermat': function sermat(obj, modifiers) {
-		return this.mat(this.ser(obj, modifiers));
-	}
+	'sermat': sermat
 };
 Object.keys(__members__).forEach(function (id) {
 	var m = __members__[id];
