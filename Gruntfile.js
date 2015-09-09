@@ -99,11 +99,9 @@ module.exports = function(grunt) {
 	}); // test-lib
 		
 // Register tasks. /////////////////////////////////////////////////////////////////////////////////
-	grunt.registerTask('lib', ['bowercopy:lib']);
 	grunt.registerTask('compile', ['concat:build', 'jshint:build', 'uglify:build']);
 	grunt.registerTask('test', ['test-lib', 'karma:build']);
 	grunt.registerTask('test-all', ['test', 'karma:chrome', 'karma:firefox', 'karma:iexplore']);
 	grunt.registerTask('build', ['compile', 'test', 'docker:build']);
 	grunt.registerTask('default', ['build']);
-	
 };
