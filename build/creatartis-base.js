@@ -249,7 +249,7 @@ var objects = exports.objects = (function () {
 	*/
 	var unimplemented = this.unimplemented = function unimplemented(cls, id) {
 		return function () {
-			throw new Error((this.constructor.name || cls) +"."+ id +"() not implemented! Please override.");
+			throw new Error((cls || this.constructor.name) +"."+ id +" not implemented! Please override.");
 		};
 	};
 	
