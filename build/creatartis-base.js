@@ -437,18 +437,27 @@ math.sign = function sign(x) {
 
 // ## Combinatorics ################################################################################
 
-/** The `factorial` functions needs little introduction. It receives `n` and returns `n!`.
+/** The `factorial` functions needs little introduction. It receives `n` and returns `n!`. Argument
+`b` can be used to stop the recursion before zero, which is useful to calculate `n!/b!` efficiently.
 */
-math.factorial = function factorial(n) {
+var factorial = math.factorial = function factorial(n, b) {
 	n = n|0;
+	b = Math.max(0, b|0);
 	if (n < 0) {
 		return NaN;
 	} else {
-		for (var f = 1; n > 0; --n) {
+		for (var f = 1; n > b; --n) {
 			f *= n;
 		}
 		return f;
 	}
+};
+
+/** The `combinations` of selecting `k` elements from a set of `n`, not mattering in which order. It
+is calculated as `n!/k!/(n-k)!`.
+*/
+math.combinations = function combinations(n, k) {
+	return factorial(n, k) / factorial(n - k);
 };
 
 // ## Probability ##################################################################################
