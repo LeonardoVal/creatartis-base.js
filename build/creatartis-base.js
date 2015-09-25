@@ -3181,7 +3181,7 @@ var Randomness = exports.Randomness = declare({
 	/** Serialization and materialization using Sermat.
 	*/
 	'static __SERMAT__': {
-		identifier: exports.__package__ +'.Randomness',
+		identifier: 'Randomness',
 		serializer: function serialize_Randomness(obj) {
 			return obj.__random__ !== Math.random ? [obj.__random__] : [];
 		},
@@ -3222,7 +3222,7 @@ var LinearCongruential = Randomness.LinearCongruential = declare(Randomness, {
 	},
 	
 	'static __SERMAT__': {
-		identifier: exports.__package__ +'.LinearCongruential',
+		identifier: 'LinearCongruential',
 		serializer: function serializer_LinearCongruential(obj) {
 			return obj.__arguments__;
 		}
@@ -3303,7 +3303,7 @@ Randomness.MersenneTwister = (function (){
 		},
 		
 		'static __SERMAT__': {
-			identifier: exports.__package__ +'.MersenneTwister',
+			identifier: 'MersenneTwister',
 			serializer: function serializer_MersenneTwister(obj) {
 				return [obj.__seed__];
 			}
@@ -3691,7 +3691,7 @@ var Statistic = exports.Statistic = declare({
 	`creatartis-base.Statistic`.
 	*/
 	'static __SERMAT__': {
-		identifier: exports.__package__ +'.Statistic',
+		identifier: 'Statistic',
 		serializer: function serialize_Statistic(obj) {
 			var result = [obj.keys || null, obj.__count__, obj.__sum__, obj.__sqrSum__, obj.__min__, obj.__max__];
 			if (typeof obj.__minData__ !== 'undefined') { // Assumes this implies (typeof obj.__maxData__ !== 'undefined')
@@ -3935,7 +3935,7 @@ var Statistics = exports.Statistics = declare({
 	`creatartis-base.Statistics`.
 	*/
 	'static __SERMAT__': {
-		identifier: exports.__package__ +'.Statistics',
+		identifier: 'Statistics',
 		serializer: function serialize_Statistics(obj) {
 			var stats = obj.__stats__;
 			return Object.keys(stats).map(function (k) {
@@ -4173,10 +4173,12 @@ Logger.ROOT = new Logger("");
 
 
 // See __prologue__.js
-	exports.__SERMAT__.include.push(
-		Randomness, Randomness.LinearCongruential, Randomness.MersenneTwister,
+	[	Randomness, Randomness.LinearCongruential, Randomness.MersenneTwister,
 		Statistic, Statistics
-	);
+	].forEach(function (type) {
+		type.__SERMAT__.identifier = exports.__package__ +'.'+ type.__SERMAT__.identifier;
+		exports.__SERMAT__.include.push(type);
+	});
 	return exports;
 });
 //# sourceMappingURL=creatartis-base.js.map
