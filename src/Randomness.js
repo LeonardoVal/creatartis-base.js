@@ -177,7 +177,7 @@ var Randomness = exports.Randomness = declare({
 	/** Serialization and materialization using Sermat.
 	*/
 	'static __SERMAT__': {
-		identifier: exports.__package__ +'.Randomness',
+		identifier: 'Randomness',
 		serializer: function serialize_Randomness(obj) {
 			return obj.__random__ !== Math.random ? [obj.__random__] : [];
 		},
@@ -218,7 +218,7 @@ var LinearCongruential = Randomness.LinearCongruential = declare(Randomness, {
 	},
 	
 	'static __SERMAT__': {
-		identifier: exports.__package__ +'.LinearCongruential',
+		identifier: 'LinearCongruential',
 		serializer: function serializer_LinearCongruential(obj) {
 			return obj.__arguments__;
 		}
@@ -299,7 +299,7 @@ Randomness.MersenneTwister = (function (){
 		},
 		
 		'static __SERMAT__': {
-			identifier: exports.__package__ +'.MersenneTwister',
+			identifier: 'MersenneTwister',
 			serializer: function serializer_MersenneTwister(obj) {
 				return [obj.__seed__];
 			}

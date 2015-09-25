@@ -1,7 +1,9 @@
 ﻿// See __prologue__.js
-	exports.__SERMAT__.include.push(
-		Randomness, Randomness.LinearCongruential, Randomness.MersenneTwister,
+	[	Randomness, Randomness.LinearCongruential, Randomness.MersenneTwister,
 		Statistic, Statistics
-	);
+	].forEach(function (type) {
+		type.__SERMAT__.identifier = exports.__package__ +'.'+ type.__SERMAT__.identifier;
+		exports.__SERMAT__.include.push(type);
+	});
 	return exports;
 });
