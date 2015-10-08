@@ -3,9 +3,7 @@
 
 Bundle of assorted utility definitions used in our Javascript projects. Can be loaded as a CommonJS module, with AMD, or with a `<script>` tag (defines `base` in the global scope). Tested in NodeJS, Firefox & Chrome using [RequireJS](http://requirejs.org/).
 
-[![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
-
-[![NPM](https://nodei.co/npm/creatartis-base.png)](https://www.npmjs.com/package/creatartis-base)
+[![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/) [![NPM](https://nodei.co/npm/creatartis-base.png?mini=true)](https://www.npmjs.com/package/creatartis-base)
 
 Includes (among other things):
 
