@@ -40,7 +40,7 @@
 			expectState(future.reject(), 3);
 		});
 	
-		async_it("resolution", function () {
+		it("resolution", function (done) {
 			var future = new Future(),
 				resolution = Math.random(),	test;
 			test = future.then(function done(value) {
@@ -49,10 +49,10 @@
 				throw new Error('onRejected called on resolved future.');
 			});
 			future.resolve(resolution);
-			return test;
+			return test.then(done);
 		});
 	
-		async_it("rejection", function () {
+		it("rejection", function (done) {
 			var future = new Future(), 
 				rejection = Math.random(), test;
 			test = future.then(function done(value) {
@@ -64,10 +64,10 @@
 				expect(reason).toBe(rejection);
 			});
 			future.reject(rejection);
-			return test;
+			return test.then(done);
 		});
 	
-		async_it("cancellation", function () {
+		it("cancellation", function (done) {
 			var test = new Future(),
 				result = new Future();
 			test.done(function () {
@@ -80,12 +80,12 @@
 				result.resolve();
 			});
 			test.cancel();
-			return result;
+			return result.then(done);
 		});
 		
 		//TODO it "chaining".
 
-		async_it("when()", function () {
+		it("when()", function (done) {
 			var future1 = Future.when(123); // One value.
 			expect(future1).toBeOfType(Future);
 			expectState(future1, 1);
@@ -96,6 +96,7 @@
 			expectState(future3, 1);
 			return future1.then(function (x) { // Check resolutions.
 				expect(x).toBe(123);
+				done();
 			});
 		});
 	
@@ -104,16 +105,17 @@
 		//TODO it "sequence()"
 		
 		var ALL_TEST_COUNT = 10;
-		async_it("all() (all resolved first)", function () {
+		it("all() (all resolved first)", function (done) {
 			return Future.sequence(base.Iterable.range(ALL_TEST_COUNT), function (n) { // All resolved first.
 				var values = base.Iterable.range(n + 1).toArray(),
 					futures = values.map(Future.when);
 				return Future.all(futures).then(function (r) {
 					expect(r).toEqual(values);
+					done();
 				});
 			});
 		});
-		async_it("all() (some rejected first)", function () {
+		it("all() (some rejected first)", function (done) {
 			return Future.sequence(base.Iterable.range(ALL_TEST_COUNT), function (n) {
 				var values = base.Iterable.range(n + 1).toArray(),
 					reject = Math.random() * (n + 1) >> 0,
@@ -125,10 +127,11 @@
 				}, function (e) {
 					expect(e).toBeOfType(Error);
 					expect(e.message).toEqual('error@'+ n);
+					done();
 				});
 			});
 		});
-		async_it("all() (all resolved deferred)", function () {
+		it("all() (all resolved deferred)", function (done) {
 			return Future.sequence(base.Iterable.range(ALL_TEST_COUNT), function (n) {
 				var values = base.Iterable.range(n + 1).toArray(),
 					futures = base.Iterable.range(n + 1).map(function (v, i) {
@@ -139,10 +142,11 @@
 				});
 				return Future.all(futures).then(function (r) {
 					expect(r).toEqual(values);
+					done();
 				});
 			});
 		});
-		async_it("all() (some rejected deferred)", function () {
+		it("all() (some rejected deferred)", function (done) {
 			return Future.sequence(base.Iterable.range(ALL_TEST_COUNT), function (n) {
 				var values = base.Iterable.range(n + 1).toArray(),
 					reject = Math.random() * (n + 1) >> 0,
@@ -161,18 +165,20 @@
 				}, function (e) {
 					expect(e).toBeOfType(Error);
 					expect(e.message).toEqual('error@'+ n);
+					done();
 				});
 			});
 		});
 
 		//TODO it "any()"
 		
-		async_it("delay()", function () {
+		it("delay()", function (done) {
 			var timestamp = Date.now();
 			return Future.delay(100).then(function (v) {
 				var now = Date.now();
 				expect(v).not.toBeLessThan(timestamp);
 				expect(now).not.toBeLessThan(timestamp + 100);
+				done();
 			});
 		});
 	}); //// describe.

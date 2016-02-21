@@ -39,12 +39,6 @@ beforeEach(function() { // Add custom matchers.
 	});
 });
 
-function async_it(desc, func) { // Future friendly version of it().
-	it(desc, function (done) {
-		func().then(done);
-	});
-}
-
 //// Actual testing brought to you by RequireJS. ///////////////////////////////
 
 require.config({ // Configure RequireJS.
