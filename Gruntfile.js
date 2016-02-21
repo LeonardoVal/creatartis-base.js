@@ -98,7 +98,7 @@ module.exports = function(grunt) {
 // Register tasks. /////////////////////////////////////////////////////////////////////////////////
 	grunt.registerTask('compile', ['concat:build', 'jshint:build', 'uglify:build', 'copy:test']);
 	grunt.registerTask('test', ['compile', 'karma:build']);
-	grunt.registerTask('full_test', ['test', 'karma:chrome', 'karma:firefox', 'karma:iexplore']);
+	grunt.registerTask('test-all', ['test', 'karma:chrome', 'karma:firefox', 'karma:iexplore']);
 	grunt.registerTask('build', ['test', 'docker:build']);
 	grunt.registerTask('default', ['build']);
 };
