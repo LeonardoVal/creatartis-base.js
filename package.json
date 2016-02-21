@@ -21,9 +21,6 @@
 	],
 	"dependencies": {
 	},
-	"peerDependencies": {
-		"sermat": "0.x"
-	},
 	"devDependencies": {
 		"requirejs": "~2.1.9",
 		"sermat": "~0.0.7",
