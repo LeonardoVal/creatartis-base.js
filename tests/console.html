@@ -18,7 +18,33 @@ a { color: black; text-decoration: none; }
 		<td><a href="javascript:console.info('base');console.dir(base);">base</a></td>
 		<td>This library is a bundle of assorted utility definitions used in our Javascript projects.</td>
 	</tr><tr>
-		<td><a href="javascript:console.info('base.Randomness');console.dir(base.Randomness);">base.Randomness</a><br/>
+		<td><a href="javascript:" data-code="base.global">base.global</a></td>
+		<td>A reference to the global object, which depends on the running environment. This is equal to <code>process</code> while running on NodeJS, to <code>window</code> while running on the browser's rendering thread, and to <code>self</code> if running on a web worker.</td>
+	</tr><tr>
+		<td><a href="javascript:" data-code="base.raise('base.raise was called!')">base.raise(<i>message</i>...)</a><br/>
+			<a href="javascript:" data-code="base.raiseIf(Date.now() % 2, 'Date.now() % 2 !== 0')">base.raiseIf(<i>cond</i>, <i>message</i>...)</a><br/>
+			<a href="javascript:" data-code="base.callStack()">base.callStack(<i>error</i>)</a></td>
+		<td>Functions <code>raise()</code> and <code>raiseIf()</code> are helper to raise errors. The function <code>callStack()</code> standardizes the way to obtain a call stack from an error, or from the place it is called.</td>
+	</tr><tr>
+		<td><a href="javascript:" data-code="base.obj('one',1,false,0,1+2,'three')">base.obj(<i>key</i>, <i>value</i>...)</a><br/>
+			<a href="javascript:" data-code="base.copy({one:1}, {two:2})">base.copy(<i>objTo</i>, <i>objFrom</i>...)</a></td>
+		<td>Function <code>obj()</code> is a shortcut to make objects. Useful since Javascript's object literal notation does not allow expressions for the keys, as of ECMAScript 5. Function <code>copy()</code> is similar to <a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/assign" target="_blank"><code>Object.assign()</code></a>.</td>
+	</tr><tr>
+		<td><a href="javascript:console.log('base.Iterable');console.dir(base.Iterable);"><b>new</b> base.Iterable(<i>source</i>)</a><br/>
+			<a href="javascript:" data-code="base.iterable">base.iterable(<i>sequence</i>)</a></td>
+		<td>Iterables (like in <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Iterable.html" target="_blank">Java</a>) are representations of sequences of values. An iterable can be built based on <a href="javascript:" data-code="base.iterable([1,2,3])">an array</a>, <a href="javascript:" data-code="base.iterable('abc')">a string</a>, <a href="javascript:" data-code="base.iterable({one:1,two:2})">an object (key-value pairs)</a> or an iterator function. An iterable can be converted to an array using <a href="javascript:" data-code="base.iterable('abc').toArray()"><code>toArray()</code></a>, to a string using <a href="javascript:" data-code="base.iterable([1,2,3,4]).join('|')"><code>join(<i>sep</i>)</code></a> or to an object using <a href="javascript:" data-code="base.iterable([['a',1],['b',4]]).toObject()"><code>toObject()</code></a>.<br/>
+		The <code>Iterable</code> class has many utility functions to deal with sequences, including:
+			<a href="javascript:" data-code="base.iterable([1,2,3,4]).map(function (x) { return x*x; }).toArray()">map</a>,
+			<a href="javascript:" data-code="base.iterable([1,2,3,4]).filter(function (x) { return x>2; }).toArray()">filter</a>,
+			<a href="javascript:" data-code="base.iterable([1,2,3,4]).sum()">sum</a>,
+			<a href="javascript:" data-code="base.iterable([1,2,3,4]).foldl(function (x,y) { return x*y; })">foldl</a>,
+			<a href="javascript:" data-code="base.iterable('abc').zip([1,2,3,4]).toObject()">zip</a>,
+			<a href="javascript:" data-code="base.iterable('abc').forEach(function (chr) { alert(chr); })">forEach</a>,
+			<a href="javascript:" data-code="base.iterable('abc').product([1,2,3,4]).toArray()">product</a>,
+			<a href="javascript:" data-code="base.iterable('abc').combinations(2).toArray()">combinations</a> and many more.
+		</td>
+	</tr><tr>
+		<td><a href="javascript:console.info('base.Randomness');console.dir(base.Randomness);"><b>new</b> base.Randomness(<i>fun</i>)</a><br/>
 			<a href="javascript:" data-code="random = base.Randomness.DEFAULT">base.Randomness.DEFAULT</a><br/>
 			<a href="javascript:" data-code="random = base.Randomness.LinearCongruential.glibc(123)">base.Randomness.LinearCongruential</a><br/>
 			<a href="javascript:" data-code="random = base.Randomness.MersenneTwister(123)">base.Randomness.MersenneTwister</a></td>
