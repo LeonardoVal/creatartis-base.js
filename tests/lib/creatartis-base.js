@@ -2864,6 +2864,13 @@ var Parallel = exports.Parallel = declare({
 		});
 	},
 	
+	/** The method `importScripts` runs the same call in the worker.
+	*/
+	importScripts: function importScripts() {
+		return this.run('importScripts('+ 
+			Array.prototype.slice.call(arguments).map(JSON.stringify).join(',') +');');
+	},
+	
 	/** `loadModule` loads a module in the worker. The module has to have a `__name__`, an 
 	`__init__` function that builds the module and a `__dependencies__` array of modules.
 	*/
@@ -2878,6 +2885,15 @@ var Parallel = exports.Parallel = declare({
 				}).join(',') +')), "OK"'
 			);
 		});
+	},
+	
+	/** `consoleLog` is a version of `run` that logs the resulting value in the `console`. It is 
+	useful for testing.
+	*/
+	consoleLog: function consoleLog(code) {
+		var f = this.run(code);
+		f.done(console.log);
+		return f;
 	}
 }); // declare Parallel.
 
