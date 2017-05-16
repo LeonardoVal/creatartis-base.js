@@ -3,9 +3,8 @@
 OOP related functions and definitions.
 */
 var objects = exports.objects = (function () {
-	/** Extending a constructor implies assigning as the subconstructor 
-	prototype an instance of the parent constructor. If no constructor is given,
-	a new one is used.
+	/** Extending a constructor implies assigning as the subconstructor prototype an instance of the
+	parent constructor. If no constructor is given, a new one is used.
 	*/
 	var subconstructor = this.subconstructor = function subconstructor(parent, constructor) {
 		var proto, Placeholder;
@@ -16,8 +15,8 @@ var objects = exports.objects = (function () {
 		}
 		constructor.prototype = Object.create(parent.prototype);
 		constructor.prototype.constructor = constructor;
-		/** The constructor function's prototype is changed so static properties are inherited
-		as well.
+		/** The constructor function's prototype is changed so static properties are inherited as 
+		well.
 		*/
 		if (Object.setPrototypeOf) {
 			Object.setPrototypeOf(constructor, parent);
@@ -27,18 +26,17 @@ var objects = exports.objects = (function () {
 		return constructor;
 	};
 	
-	/** `objects.addMember(constructor, key, value, force=false)` adds `value`
-	as a member of the constructor's prototype. If it already has a member with 
-	the `key`, it is overriden only if `force` is true.
+	/** `objects.addMember(constructor, key, value, force=false)` adds `value` as a member of the 
+	constructor's prototype. If it already has a member with the `key`, it is overriden only if 
+	`force` is true.
 	
-	The `key` may include modifiers for the member before the actual name and 
-	separated by whitespace. The implemented modifiers are:
+	The `key` may include modifiers for the member before the actual name and separated by 
+	whitespace. The implemented modifiers are:
 	
 	+ `static`: Adds the member to the constructor.
-	+ `property`: Treats the `value` as a property descriptor to use with 
-		`Object.defineProperty()`.
-	+ `const`: Adds the member as readonly. This also uses 
-		`Object.defineProperty()`, with a setter that throws an error.
+	+ `property`: Treats the `value` as a property descriptor to use with `Object.defineProperty()`.
+	+ `const`: Adds the member as readonly. This also uses `Object.defineProperty()`, with a setter
+	that throws an error.
 	*/
 	var addMember = this.addMember = function addMember(constructor, key, value, force) {
 		var modifiers = key.split(/\s+/), scopes;
@@ -68,9 +66,8 @@ var objects = exports.objects = (function () {
 		});
 	};
 	
-	/** `objects.addMembers(constructor, members, force=false)` adds all own 
-	properties of members to the constructor's prototype, using 
-	`objects.addMember`.
+	/** `objects.addMembers(constructor, members, force=false)` adds all own properties of members 
+	to the constructor's prototype, using `objects.addMember`.
 	*/
 	var addMembers = this.addMembers = function addMembers(constructor, members, force) {
 		Object.keys(members).map(function (id) {
@@ -78,12 +75,11 @@ var objects = exports.objects = (function () {
 		});
 	};
 	
-	/** The function `objects.declare(supers..., members={})` implements 
-	creatartis-base's object oriented implementation, influenced by 
-	[Dojo's](http://dojotoolkit.org/reference-guide/1.9/dojo/_base/declare.html). 
-	The first super is considered the parent. The following supers add to the
-	returned constructor's prototype, but do not override. The given members 
-	always override.
+	/** The function `objects.declare(supers..., members={})` implements creatartis-base's object 
+	oriented implementation, influenced by 
+	[Dojo's](http://dojotoolkit.org/reference-guide/1.9/dojo/_base/declare.html). The first super is
+	considered the parent. The following supers add to the returned constructor's prototype, but do
+	not override. The given members always override.
 	*/
 	var declare = exports.declare = this.declare = function declare() {
 		var args = Array.prototype.slice.call(arguments),
@@ -108,9 +104,9 @@ var objects = exports.objects = (function () {
 		return constructor;
 	};
 
-	/** Abstract methods can be quickly defined with 
-	`objects.unimplemented(cls, id)`. It returns a function that raises an 
-	"unimplemented method" exception. This is recommended, for better debugging.
+	/** Abstract methods can be quickly defined with `objects.unimplemented(cls, id)`. It returns a
+	function that raises an "unimplemented method" exception. This is recommended, for better
+	debugging.
 	*/
 	var unimplemented = this.unimplemented = function unimplemented(cls, id) {
 		return function () {
