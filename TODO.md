@@ -1,4 +1,4 @@
-# TODOs for [creatartis-base](https://github.com/LeonardoVal/creatartis-base).
+# Pending for [creatartis-base](https://github.com/LeonardoVal/creatartis-base).
 
 ## `src/iterables.js`
 
