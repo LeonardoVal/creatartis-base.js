@@ -1,6 +1,6 @@
 ﻿/** ## Initializer
 
-Initializers are object builders, allowing the declaration of default values, 
+Initializers are object builders, allowing the declaration of default values,
 type checks and coercions, and other checks.
 */
 
@@ -13,22 +13,22 @@ var Initializer = exports.Initializer = declare({
 		this.args = args || {};
 	},
 
-	/** `get(id, options)` gets the value for `id`. If it is missing, 
-	`options.defaultValue` is used as the default value if defined. Else an 
+	/** `get(id, options)` gets the value for `id`. If it is missing,
+	`options.defaultValue` is used as the default value if defined. Else an
 	error is raised.
-	
+
 	If `options.type` is defined, the value is checked to be a member of said
-	type. If `options.coerce` is true, the value may be coerced to said type. 
-	The `option.check` function can be defined to check the value further. It 
-	will be called with the value, and is expected to raise errors on failed 
+	type. If `options.coerce` is true, the value may be coerced to said type.
+	The `option.check` function can be defined to check the value further. It
+	will be called with the value, and is expected to raise errors on failed
 	conditions.
-	
+
 	Other options include:
-	
+
 	+ `options.regexp`: the value is matched agains a regular expression.
-	
+
 	+ `options.minimum`: the value has to be greater than or equal to this value.
-	
+
 	+ `options.maximum`: the value has to be less than or equal to this value.
 	*/
 	get: function get(id, options) {
@@ -64,7 +64,7 @@ var Initializer = exports.Initializer = declare({
 		return value;
 	},
 
-	/** `attr(id, options={})` assigns the `id` property, performing all 
+	/** `attr(id, options={})` assigns the `id` property, performing all
 	necessary verifications. If the subject already has the attribute defined
 	and `options.overwrite` is false, an error is raised. Any error is ignored
 	and the assignment is skipped if `options.ignore` is true.
@@ -76,7 +76,7 @@ var Initializer = exports.Initializer = declare({
 				throw new Error(options.attrOverwriteError || "Attribute <"+ id +"> is already defined!");
 			}
 			this.subject[id] = this.get(id, options);
-		} catch (exception) { 
+		} catch (exception) {
 			if (!options.ignore) {
 				throw exception; // Do not ignore the error and throw it.
 			}
@@ -85,7 +85,7 @@ var Initializer = exports.Initializer = declare({
 	},
 
 	/** ## Shortcuts ###########################################################
-	
+
 	The following methods simplify the definitions of properties using `attr()`:
 	*/
 
@@ -129,7 +129,7 @@ var Initializer = exports.Initializer = declare({
 		return this.attr(id, options);
 	},
 
-	/** + `array(id, options)` assigns the `id` property with an array. Options 
+	/** + `array(id, options)` assigns the `id` property with an array. Options
 	may include:
 		* `options.elementTypes`: Required type of the array's elements.
 		* `options.length`: Required length of the array.
@@ -155,6 +155,10 @@ var Initializer = exports.Initializer = declare({
 
 /** `initialize(subject, args)` returns a new Initializer for the subject.
 */
-var initialize = exports.initialize = function initialize(subject, args) {
+var initialize = exports.initialize = function initialize(subject) {
+	var args = {};
+	Array.prototype.forEach.call(arguments, function (obj) {
+		args = Object.assign(args, obj);
+	});
 	return new Initializer(subject, args);
 };
