@@ -5,9 +5,9 @@ var path = require('path');
 module.exports = function(grunt) {
 	var SOURCE_FILES = ['__prologue__',
 		'core', 'polyfill', 'objects',
-		'text', 'math',
+		'text', 'math', 'functions',
 		'typed', 'Initializer',
-		'iterables', // iterators and FP utilities. 
+		'iterables', // iterators and FP utilities.
 		'Future', 'HttpRequest', 'Parallel', // asynchronism
 		'Events', // functions.
 		'Randomness', // math.
@@ -92,7 +92,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-docker');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
-		
+
 // Register tasks. /////////////////////////////////////////////////////////////////////////////////
 	grunt.registerTask('compile', ['concat:build', 'jshint:build', 'uglify:build', 'copy:test']);
 	grunt.registerTask('test', ['compile', 'karma:test_firefox']);
