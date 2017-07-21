@@ -1,19 +1,19 @@
 ﻿/** # Iterables
- 
-Standard implementation of iterables and iterators (a.k.a. enumerations or sequences), and many 
-functions that can be built with it. This implementation is inspired in the Python iterables. An 
-iterable is an object with a method `__iter__()` which returns an iterator function. An iterator 
-function returns the next element in the sequence, or raises `STOP_ITERATION` if the sequence has 
-ended. 
+
+Standard implementation of iterables and iterators (a.k.a. enumerations or sequences), and many
+functions that can be built with it. This implementation is inspired in the Python iterables. An
+iterable is an object with a method `__iter__()` which returns an iterator function. An iterator
+function returns the next element in the sequence, or raises `STOP_ITERATION` if the sequence has
+ended.
 */
 var STOP_ITERATION = new Error('Sequence has ended.');
 
 var Iterable = exports.Iterable = declare({
-	/** The Iterable constructor builds different types of sequences depending on the given object. 
-	It supports strings (iterating over each character), arrays, objects (key-value pairs) and 
-	functions (assuming it is the iterator maker). A value of `null` or `undefined` is not allowed. 
-	Everything else is assumed to be the only value of a singleton sequence. If the object has an 
-	`__iter__` method it is assumed to be an Iterable already. In this case a copy of that Iterable 
+	/** The Iterable constructor builds different types of sequences depending on the given object.
+	It supports strings (iterating over each character), arrays, objects (key-value pairs) and
+	functions (assuming it is the iterator maker). A value of `null` or `undefined` is not allowed.
+	Everything else is assumed to be the only value of a singleton sequence. If the object has an
+	`__iter__` method it is assumed to be an Iterable already. In this case a copy of that Iterable
 	is built.
 	*/
 	constructor: function Iterable(obj) {
@@ -35,20 +35,20 @@ var Iterable = exports.Iterable = declare({
 			this.__iter__ = Iterable.__iteratorSingleton__(obj);
 		}
 	},
-	
-	/** `STOP_ITERATION` is the singleton error raised when an sequence	has finished. It is catched 
+
+	/** `STOP_ITERATION` is the singleton error raised when an sequence	has finished. It is catched
 	by all Iterable's functions.
 	*/
 	"dual STOP_ITERATION": STOP_ITERATION,
 
-	/** `stop()` raises the STOP_ITERATION exception. If used inside an iterator it breaks the 
+	/** `stop()` raises the STOP_ITERATION exception. If used inside an iterator it breaks the
 	iteration.
 	*/
 	"dual stop": function stop() {
 		throw STOP_ITERATION;
 	},
 
-	/** `catchStop(exception)` does nothing `exception` is `STOP_ITERATION`, but if it isn't the 
+	/** `catchStop(exception)` does nothing `exception` is `STOP_ITERATION`, but if it isn't the
 	exception is thrown.
 	*/
 	"dual catchStop": function catchStop(exception) {
@@ -59,7 +59,7 @@ var Iterable = exports.Iterable = declare({
 
 	// ## Iterables from common datatypes ##########################################################
 
-	/** `__iteratorFromArray__(array)` returns the `__iter__` function that builds the iterators of 
+	/** `__iteratorFromArray__(array)` returns the `__iter__` function that builds the iterators of
 	iterables based on arrays.
 	*/
 	"static __iteratorFromArray__": function __iteratorFromArray__(array) {
@@ -74,8 +74,8 @@ var Iterable = exports.Iterable = declare({
 			};
 		};
 	},
-	
-	/** The iterables based on strings iterate character by character. `__iteratorFromString__(str)` 
+
+	/** The iterables based on strings iterate character by character. `__iteratorFromString__(str)`
 	returns the `__iter__` function that builds iterators over the `str` string.
 	*/
 	"static __iteratorFromString__": function __iteratorFromString__(str) {
@@ -91,7 +91,7 @@ var Iterable = exports.Iterable = declare({
 		};
 	},
 
-	/** Iterables over objects iterate over pairs `[name, value]` for each property of the object. 
+	/** Iterables over objects iterate over pairs `[name, value]` for each property of the object.
 	`__iteratorFromObject__(obj)` return the `__iter__` function for these sequences.
 	*/
 	"static __iteratorFromObject__": function __iteratorFromObject__(obj) {
@@ -108,7 +108,7 @@ var Iterable = exports.Iterable = declare({
 		};
 	},
 
-	/** Singleton iterables have only one value in their sequence. Their `__iter__` function can be 
+	/** Singleton iterables have only one value in their sequence. Their `__iter__` function can be
 	obtained with `__iteratorSingleton__(x)`.
 	*/
 	"static __iteratorSingleton__": function __iteratorSingleton__(x) {
@@ -124,9 +124,9 @@ var Iterable = exports.Iterable = declare({
 			};
 		};
 	},
-	
+
 	// ## Sequence predicates ######################################################################
-	
+
 	/** `isEmpty()` returns if the sequence has no elements.
 	*/
 	isEmpty: function isEmpty() {
@@ -140,7 +140,7 @@ var Iterable = exports.Iterable = declare({
 	},
 
 	// ## Sequence information #####################################################################
-	
+
 	/** `count()` counts the number of elements in the sequence.
 	*/
 	count: function count() {
@@ -150,20 +150,20 @@ var Iterable = exports.Iterable = declare({
 		});
 		return result;
 	},
-	
+
 	/** `length()` is just a synonym for `count()`.
 	*/
-	length: function length() { 
+	length: function length() {
 		return this.count();
 	},
-	
-	/** `indexOf(value, from=0)` is analogous to the array's namesake method. Returns the first 
+
+	/** `indexOf(value, from=0)` is analogous to the array's namesake method. Returns the first
 	position of the given `value`, or -1 if it is not found.
 	*/
 	indexOf: function indexOf(value, from) {
 		from = from|0;
 		var iter = this.__iter__(), x, i = 0;
-		try { 
+		try {
 			for (x = iter(); true; x = iter(), ++i) {
 				if (i >= from && x === value) {
 					return i;
@@ -174,7 +174,7 @@ var Iterable = exports.Iterable = declare({
 		}
 		return -1;
 	},
-	
+
 	/** `indexesOf(value, from=0)` is a sequence of the positions of the value in this iterable.
 	*/
 	indicesOf: function indexesOf(value, from) {
@@ -185,14 +185,14 @@ var Iterable = exports.Iterable = declare({
 			return i;
 		});
 	},
-	
-	/** `indexWhere(condition, from=0)` returns the position of the first value of this iterable 
-	that complies with the given `condition`, or -1 if there is none. 
+
+	/** `indexWhere(condition, from=0)` returns the position of the first value of this iterable
+	that complies with the given `condition`, or -1 if there is none.
 	*/
 	indexWhere: function indexWhere(condition, from) {
 		from = from|0;
 		var iter = this.__iter__(), x, i = 0;
-		try { 
+		try {
 			for (x = iter(); true; x = iter(), ++i) {
 				if (i >= from && condition(x, i)) {
 					return i;
@@ -203,7 +203,7 @@ var Iterable = exports.Iterable = declare({
 		}
 		return -1;
 	},
-	
+
 	/** `indexesWhere(condition, from=0)` is a sequence of the positions in this iterable of values
 	that comply with the given `condition`.
 	*/
@@ -215,16 +215,16 @@ var Iterable = exports.Iterable = declare({
 			return i;
 		});
 	},
-	
+
 	// ## Iteration methods ########################################################################
 
-	/** `forEach(doFunction, ifFunction)` applies `doFunction` to all elements complying with 
-	`ifFunction`, and returns the last result. If no `ifFunction` is given, it iterates through all 
+	/** `forEach(doFunction, ifFunction)` applies `doFunction` to all elements complying with
+	`ifFunction`, and returns the last result. If no `ifFunction` is given, it iterates through all
 	the elements in the sequence. Both functions get the current value and position as arguments.
 	*/
 	forEach: function forEach(doFunction, ifFunction) {
 		var iter = this.__iter__(), x, i = 0, result;
-		try { 
+		try {
 			for (x = iter(); true; x = iter(), i++) {
 				if (!ifFunction || ifFunction(x, i)) {
 					result = doFunction(x, i);
@@ -235,9 +235,9 @@ var Iterable = exports.Iterable = declare({
 		}
 		return result;
 	},
-	
+
 	/** `forEachApply(doFunction, ifFunction, _this)` is similar to `forEach` but instead of calling
-	`doFunction`, it uses `apply`. It assumes the elements in the sequence are arrays of arguments 
+	`doFunction`, it uses `apply`. It assumes the elements in the sequence are arrays of arguments
 	to pass to the functions.
 	*/
 	forEachApply: function forEachApply(doFunction, ifFunction, _this) {
@@ -246,8 +246,8 @@ var Iterable = exports.Iterable = declare({
 			return doFunction.apply(_this, args.concat([i]));
 		}, ifFunction);
 	},
-	
-	/** `map(mapFunction, filterFunction)` returns an iterable iterating on the results of applying 
+
+	/** `map(mapFunction, filterFunction)` returns an iterable iterating on the results of applying
 	`mapFunction` to each of this iterable elements. If `filterFunction` is given, only elements for
 	which `filterFunction` returns true are considered.
 	*/
@@ -264,12 +264,12 @@ var Iterable = exports.Iterable = declare({
 					}
 				}
 				throw STOP_ITERATION;
-			};			
+			};
 		});
 	},
 
-	/** `mapApply(mapFunction, filterFunction, _this)` is similar to `map` but instead of calling 
-	`mapFunction`, it uses `apply`. It assumes the elements in the sequence are arrays of arguments 
+	/** `mapApply(mapFunction, filterFunction, _this)` is similar to `map` but instead of calling
+	`mapFunction`, it uses `apply`. It assumes the elements in the sequence are arrays of arguments
 	to pass to the functions.
 	*/
 	mapApply: function mapApply(mapFunction, filterFunction, _this) {
@@ -278,9 +278,9 @@ var Iterable = exports.Iterable = declare({
 			return mapFunction.apply(_this, args.concat([i]));
 		}, filterFunction);
 	},
-	
-	/** `select(members)` is a shortcut for a map that extracts a member or members from the objects 
-	in the sequence. If `members` is an object, then for each value in the sequence another object 
+
+	/** `select(members)` is a shortcut for a map that extracts a member or members from the objects
+	in the sequence. If `members` is an object, then for each value in the sequence another object
 	is built with a selection for each key in the object. Arrays can also be built in a similar
 	fashion.
 	*/
@@ -306,10 +306,10 @@ var Iterable = exports.Iterable = declare({
 			});
 		};
 	})(),
-	
+
 	// ## Sequence selection and filtering #########################################################
-	
-	/** `filter(filterFunction, mapFunction)` returns an iterable of this iterable elements for 
+
+	/** `filter(filterFunction, mapFunction)` returns an iterable of this iterable elements for
 	which `filterFunction` returns true. If `mapFunction` is given it is applied before yielding the
 	elements.
 	*/
@@ -329,8 +329,8 @@ var Iterable = exports.Iterable = declare({
 			};
 		});
 	},
-	
-	/** `filterApply(filterFunction, mapFunction, _this)` is similar to `filter` but instead of 
+
+	/** `filterApply(filterFunction, mapFunction, _this)` is similar to `filter` but instead of
 	calling the given functions, it uses `apply`. It assumes the elements in the sequence are arrays
 	of arguments to pass to the functions.
 	*/
@@ -342,8 +342,8 @@ var Iterable = exports.Iterable = declare({
 			return mapFunction.apply(_this, args.concat([i]));
 		});
 	},
-	
-	/** `takeWhile(condition)` return an iterable with the first elements that verify the given 
+
+	/** `takeWhile(condition)` return an iterable with the first elements that verify the given
 	condition.
 	*/
 	takeWhile: function takeWhile(condition) {
@@ -365,7 +365,7 @@ var Iterable = exports.Iterable = declare({
 			};
 		});
 	},
-	
+
 	/** `take(n=1)` return an iterable with the first `n` elements of this one.
 	*/
 	take: function take(n) {
@@ -374,8 +374,8 @@ var Iterable = exports.Iterable = declare({
 			return i < n;
 		});
 	},
-	
-	/** `dropWhile(condition)` returns an iterable with the same elements than this, except the 
+
+	/** `dropWhile(condition)` returns an iterable with the same elements than this, except the
 	first ones that comply with the condition.
 	*/
 	dropWhile: function dropWhile(condition) {
@@ -395,7 +395,7 @@ var Iterable = exports.Iterable = declare({
 			};
 		});
 	},
-	
+
 	/** `drop(n=1)` returns an iterable with the same elements than this, except the first `n` ones.
 	*/
 	drop: function drop(n) {
@@ -404,8 +404,8 @@ var Iterable = exports.Iterable = declare({
 			return i < n;
 		});
 	},
-	
-	/** `head(defaultValue)` returns the first element. If the sequence is empty it returns 
+
+	/** `head(defaultValue)` returns the first element. If the sequence is empty it returns
 	`defaultValue`, or raise an exception if one is not given.
 	*/
 	head: function head(defaultValue) {
@@ -420,7 +420,7 @@ var Iterable = exports.Iterable = declare({
 			}
 		}
 	},
-	
+
 	/** `tail()` returns an iterable with the same elements than this, except the first one.
 	*/
 	tail: function tail() {
@@ -436,8 +436,8 @@ var Iterable = exports.Iterable = declare({
 			return iter;
 		});
 	},
-	
-	/** `last(defaultValue)` returns the last element. If the sequence is empty it returns 
+
+	/** `last(defaultValue)` returns the last element. If the sequence is empty it returns
 	`defaultValue`, or raise an exception if one is not given.
 	*/
 	last: function last(defaultValue) {
@@ -457,7 +457,7 @@ var Iterable = exports.Iterable = declare({
 			}
 		}
 	},
-	
+
 	/** `init()` returns an iterable with the same elements than this, except the last one.
 	*/
 	init: function init() {
@@ -477,8 +477,8 @@ var Iterable = exports.Iterable = declare({
 			};
 		});
 	},
-	
-	/** `greater(evaluation)` returns an array with the elements of the iterable with greater 
+
+	/** `greater(evaluation)` returns an array with the elements of the iterable with greater
 	evaluation (or numerical conversion by default).
 	*/
 	greater: function greater(evaluation) {
@@ -498,7 +498,7 @@ var Iterable = exports.Iterable = declare({
 		return result;
 	},
 
-	/** `lesser(evaluation)` returns an array with the elements of the iterable with lesser 
+	/** `lesser(evaluation)` returns an array with the elements of the iterable with lesser
 	evaluation (or numerical conversion by default).
 	*/
 	lesser: function lesser(evaluation) {
@@ -518,7 +518,7 @@ var Iterable = exports.Iterable = declare({
 		return result;
 	},
 
-	/** `sample(n, random=Randomness.DEFAULT)` returns an iterable with `n` elements of this 
+	/** `sample(n, random=Randomness.DEFAULT)` returns an iterable with `n` elements of this
 	iterable randomly selected. The order of the elements is maintained.
 	*/
 	sample: function sample(n, random) {
@@ -534,7 +534,7 @@ var Iterable = exports.Iterable = declare({
 			buffer.splice(p, 0, [r, x, i]);
 			while (buffer.length > n) {
 				buffer.pop();
-			}	
+			}
 		});
 		buffer.sort(function (t1, t2) { // Order by index.
 			return t1[2] - t2[2];
@@ -543,11 +543,11 @@ var Iterable = exports.Iterable = declare({
 			return t[1];
 		}));
 	},
-	
+
 	// ## Sequence aggregation #####################################################################
-	
-	/** `foldl(foldFunction, initial)` folds the elements of this iterable with `foldFunction` as a 
-	left associative operator. The `initial` value is used as a starting point, but if it is not 
+
+	/** `foldl(foldFunction, initial)` folds the elements of this iterable with `foldFunction` as a
+	left associative operator. The `initial` value is used as a starting point, but if it is not
 	defined, then the first element in the sequence is used.
 	*/
 	foldl: function foldl(foldFunction, initial) {
@@ -563,8 +563,8 @@ var Iterable = exports.Iterable = declare({
 		return initial;
 	},
 
-	/** `scanl(foldFunction, initial)` folds the elements of this iterable with `foldFunction` as a 
-	left associative operator. Instead of returning the last result, it iterates over the 
+	/** `scanl(foldFunction, initial)` folds the elements of this iterable with `foldFunction` as a
+	left associative operator. Instead of returning the last result, it iterates over the
 	intermediate values in the folding sequence.
 	*/
 	scanl: function scanl(foldFunction, initial) {
@@ -582,11 +582,11 @@ var Iterable = exports.Iterable = declare({
 			};
 		});
 	},
-	
-	/** `foldr(foldFunction, initial)` folds the elements of this iterable with `foldFunction` as a 
-	right associative operator. The `initial` value is used as a starting point, but if it is not 
+
+	/** `foldr(foldFunction, initial)` folds the elements of this iterable with `foldFunction` as a
+	right associative operator. The `initial` value is used as a starting point, but if it is not
 	defined the first element in the sequence is used.
-	
+
 	Warning! This is the same as doing a `foldl` in a reversed iterable.
 	*/
 	foldr: function foldr(foldFunction, initial) {
@@ -596,10 +596,10 @@ var Iterable = exports.Iterable = declare({
 		return this.reverse().foldl(flippedFoldFunction, initial);
 	},
 
-	/** `scanr(foldFunction, initial)` folds the elements of this iterable with `foldFunction` as a 
-	right associative operator. Instead of returning the last result, it iterates over the 
+	/** `scanr(foldFunction, initial)` folds the elements of this iterable with `foldFunction` as a
+	right associative operator. Instead of returning the last result, it iterates over the
 	intermediate values in the folding sequence.
-	
+
 	Warning! This is the same as doing a `scanl` in a reversed iterable.
 	*/
 	scanr: function scanr(foldFunction, initial) {
@@ -608,12 +608,12 @@ var Iterable = exports.Iterable = declare({
 		}
 		return this.reverse().scanl(flippedFoldFunction, initial);
 	},
-	
-	/** `sum(n=0)` returns the sum of all elements in the sequence, or `n` if the sequence is empty. 
+
+	/** `sum(n=0)` returns the sum of all elements in the sequence, or `n` if the sequence is empty.
 	*/
 	sum: function sum(n) {
 		var result = isNaN(n) ? 0 : +n;
-		this.forEach(function (x) { 
+		this.forEach(function (x) {
 			result += (+x);
 		});
 		return result;
@@ -624,24 +624,24 @@ var Iterable = exports.Iterable = declare({
 	*/
 	min: function min(n) {
 		var result = isNaN(n) ? Infinity : +n;
-		this.forEach(function (x) { 
+		this.forEach(function (x) {
 			x = (+x);
 			if (x < result) {
-				result = x; 
+				result = x;
 			}
 		});
 		return result;
 	},
 
-	/** `max(n=-Infinity)` returns the maximum element of all elements in the sequence, or 
+	/** `max(n=-Infinity)` returns the maximum element of all elements in the sequence, or
 	`-Infinity` if the sequence is empty.
 	*/
 	max: function max(n) {
 		var result = isNaN(n) ? -Infinity : +n;
-		this.forEach(function (x) { 
+		this.forEach(function (x) {
 			x = (+x);
 			if (x > result) {
-				result = x; 
+				result = x;
 			}
 		});
 		return result;
@@ -653,7 +653,7 @@ var Iterable = exports.Iterable = declare({
 	all: function all(predicate, strict) {
 		predicate = typeof predicate === 'function' ? predicate : function (x) { return !!x; };
 		var result = true;
-		this.forEach(function (x, i) { 
+		this.forEach(function (x, i) {
 			if (!predicate(x, i)) {
 				result = false;
 				if (!strict) {
@@ -670,7 +670,7 @@ var Iterable = exports.Iterable = declare({
 	any: function any(predicate, strict) {
 		predicate = typeof predicate === 'function' ? predicate : function (x) { return !!x; };
 		var result = false;
-		this.forEach(function (x, i) { 
+		this.forEach(function (x, i) {
 			if (predicate(x, i)) {
 				result = true;
 				if (!strict) {
@@ -681,21 +681,21 @@ var Iterable = exports.Iterable = declare({
 		return result;
 	},
 
-	/** `join(sep='')` concatenates all strings in the sequence using `sep` as separator. If `sep` 
+	/** `join(sep='')` concatenates all strings in the sequence using `sep` as separator. If `sep`
 	is not given, '' is assumed.
 	*/
 	join: function join(sep) {
 		var result = '';
 		sep = ''+ (sep || '');
-		this.forEach(function (x, i) { 
-			result += (i === 0) ? x : sep + x; 
+		this.forEach(function (x, i) {
+			result += (i === 0) ? x : sep + x;
 		});
 		return result;
 	},
-	
+
 	// ## Sequence conversions #####################################################################
-	
-	/** `toArray(array=[])`: appends to `array` the elements of the sequence and returns it. If no 
+
+	/** `toArray(array=[])`: appends to `array` the elements of the sequence and returns it. If no
 	array is given, a new one is used.
 	*/
 	toArray: function toArray(array) {
@@ -716,29 +716,29 @@ var Iterable = exports.Iterable = declare({
 		});
 		return obj;
 	},
-	
+
 	// ## Whole sequence operations ################################################################
 
 	/** `reverse()` returns an iterable with this iterable elements in reverse order.
-	
+
 	Warning! It stores all this iterable's elements in memory.
 	*/
 	reverse: function reverse() {
 		return new Iterable(this.toArray().reverse());
 	},
 
-	/** `sorted(sortFunction)` returns an iterable that goes through this iterable's elements in 
+	/** `sorted(sortFunction)` returns an iterable that goes through this iterable's elements in
 	order.
-	
+
 	Warning! This iterable's elements are stored in memory for sorting.
 	*/
 	sorted: function sorted(sortFunction) {
 		return new Iterable(this.toArray().sort(sortFunction));
 	},
-	
-	/** `permutations(k)` returns an iterable that runs over the permutations of `k` elements of 
+
+	/** `permutations(k)` returns an iterable that runs over the permutations of `k` elements of
 	this iterable. Permutations are not generated in any particular order.
-	
+
 	Warning! It stores all this iterable's elements in memory.
 	*/
 	permutations: function permutations(k) {
@@ -770,11 +770,11 @@ var Iterable = exports.Iterable = declare({
 			});
 		}
 	},
-	
-	/** `combinations(k)` returns an iterable that runs over the combinations of `k` elements of 
-	this iterable. Combinations are generated in lexicographical order. The implementations is 
+
+	/** `combinations(k)` returns an iterable that runs over the combinations of `k` elements of
+	this iterable. Combinations are generated in lexicographical order. The implementations is
 	inspired in [Python's itertools](https://docs.python.org/3/library/itertools.html#itertools.combinations).
-	
+
 	Warning! It stores all this iterable's elements in memory.
 	*/
 	combinations: function combinations(k) {
@@ -807,9 +807,9 @@ var Iterable = exports.Iterable = declare({
 			});
 		}
 	},
-	
-	/** `slices(size=1)` builds another iterable that enumerates arrays of the given size of 
-	elements of this iterable. 
+
+	/** `slices(size=1)` builds another iterable that enumerates arrays of the given size of
+	elements of this iterable.
 	*/
 	slices: function slices(size) {
 		var _this = this;
@@ -835,7 +835,7 @@ var Iterable = exports.Iterable = declare({
 			};
 		});
 	},
-	
+
 	/** `groupBy(key)` returns an iterable that runs over the subsequent elements of this iterable
 	that when applied the `key` function return the same value. If no `key` function is given, the
 	actual values are used. Each element in the grouped iterable is a pair, with the key value first
@@ -844,7 +844,7 @@ var Iterable = exports.Iterable = declare({
 	groupBy: function groupBy(key) {
 		var it = this;
 		return new Iterable(function __iter__() {
-			var iter = it.__iter__(), 
+			var iter = it.__iter__(),
 				currentValues = null, currentKey;
 			try {
 				currentValues = [iter()];
@@ -878,17 +878,17 @@ var Iterable = exports.Iterable = declare({
 			};
 		});
 	},
-	
-	/** `groupAll(key, accum)` returns an object with one member per group of elements. The 
-	elements' keys are calculated by the `key` function, or the default string conversion by 
-	default. If a `accum` function is given, it is used to accumulate the groups. By default an 
+
+	/** `groupAll(key, accum)` returns an object with one member per group of elements. The
+	elements' keys are calculated by the `key` function, or the default string conversion by
+	default. If a `accum` function is given, it is used to accumulate the groups. By default an
 	array is built.
 	*/
 	groupAll: (function () {
-		function DEFAULT_KEY(x) { 
-			return x +''; 
+		function DEFAULT_KEY(x) {
+			return x +'';
 		}
-		function DEFAULT_ACCUM(xs, x) { 
+		function DEFAULT_ACCUM(xs, x) {
 			xs = xs || [];
 			xs.push(x);
 			return xs;
@@ -904,35 +904,45 @@ var Iterable = exports.Iterable = declare({
 			return result;
 		};
 	})(),
-	
+
 	// ## Operations on many sequences #############################################################
-	
-	/** `zip(iterables...)` builds an iterable that iterates over this and all the given iterables 
-	at the same time, yielding an array of the values of each and stopping at the first sequence 
+
+	/** `zip(iterables...)` builds an iterable that iterates over this and all the given iterables
+	at the same time, yielding an array of the values of each and stopping at the first sequence
 	finishing.
 	*/
-	zip: function zip() {
-		var its = Array.prototype.slice.call(arguments).map(iterable);
-		its.unshift(this);
+	'static zipWith': function zipWith(f) {
+		var its = Array.prototype.slice.call(arguments, 1).map(iterable);
 		return new Iterable(function __iter__() {
-			var iterators = its.map(function (it) { 
-				return it.__iter__(); 
+			var iterators = its.map(function (it) {
+				return it.__iter__();
 			});
 			return function __zipIterator__() {
-				return iterators.map(function (iterator) { 
+				var r = iterators.map(function (iterator) {
 					return iterator();
 				});
+				return f ? f.apply(null, r) : r;
 			};
 		});
 	},
-	
-	'static zip': function (it) {
-		it = it ? iterable(it) : this.EMPTY;
-		return this.prototype.zip.apply(it, Array.prototype.slice.call(arguments, 1));
+
+	zipWith: function zipWith(f) {
+		var args = [f, this].concat(Array.prototype.slice.call(arguments, 1));
+		return this.constructor.zipWith.apply(this.constructor, args);
 	},
-	
-	/** `product(iterables...)` builds an iterable that iterates over the 
-	[cartesian product](http://en.wikipedia.org/wiki/Cartesian_product) of this and all the given 
+
+	'static zip': function zip() {
+		var args = [null].concat(Array.prototype.slice.call(arguments));
+		return this.zipWith.apply(this, args);
+	},
+
+	zip: function zip() {
+		var args = [null, this].concat(Array.prototype.slice.call(arguments));
+		return this.constructor.zipWith.apply(this.constructor, args);
+	},
+
+	/** `product(iterables...)` builds an iterable that iterates over the
+	[cartesian product](http://en.wikipedia.org/wiki/Cartesian_product) of this and all the given
 	iterables, yielding an array of the values of each.
 	*/
 	product: function product() {
@@ -970,13 +980,13 @@ var Iterable = exports.Iterable = declare({
 			};
 		});
 	},
-	
+
 	'static product': function (it) {
 		it = it ? iterable(it) : this.EMPTY;
 		return this.prototype.product.apply(it, Array.prototype.slice.call(arguments, 1));
 	},
-	
-	/** `chain(iterables...)` returns an iterable that iterates over the concatenation of this and 
+
+	/** `chain(iterables...)` returns an iterable that iterates over the concatenation of this and
 	all the given iterables.
 	*/
 	chain: function chain() {
@@ -1004,7 +1014,7 @@ var Iterable = exports.Iterable = declare({
 		it = it ? iterable(it) : this.EMPTY;
 		return this.prototype.chain.apply(it, Array.prototype.slice.call(arguments, 1));
 	},
-	
+
 	/** `flatten()` chains all the iterables in the elements of this iterable.
 	*/
 	flatten: function flatten() {
@@ -1015,7 +1025,7 @@ var Iterable = exports.Iterable = declare({
 			return function __flattenIterator__() {
 				while (true) try {
 					return iterator();
-				} catch (err) { 
+				} catch (err) {
 					if (err === STOP_ITERATION) {
 						iterator = iterable(it()).__iter__();
 					}
@@ -1024,13 +1034,13 @@ var Iterable = exports.Iterable = declare({
 			};
 		});
 	},
-	
+
 	// ## Set related ##############################################################################
-	
+
 	/** The `nub` of a sequence is another sequence with each element only appearing once. Basically
 	repeated elements are removed. The argument `comp` may have a function to compare the sequence's
 	values.
-	
+
 	Warning! All the elements of the result are stored in memory.
 	*/
 	nub: function nub(comp) {
@@ -1049,33 +1059,33 @@ var Iterable = exports.Iterable = declare({
 			return true;
 		});
 	},
-	
-	/** The `union(iterable...)` and `unionBy(comp, iterable...)` methods treat this and each 
+
+	/** The `union(iterable...)` and `unionBy(comp, iterable...)` methods treat this and each
 	iterable argument as sets, and calculate the union of all. `unionBy` allows to define a specific
 	equality criteria between the elements.
-	
+
 	Warning! All the elements of the result are stored in memory.
 	*/
 	union: function union() {
 		var args = [void 0].concat(Array.prototype.slice.call(arguments));
 		return this.unionBy.apply(this, args);
 	},
-	
+
 	unionBy: function unionBy(comp) {
 		return this.chain.apply(this, Array.prototype.slice.call(arguments, 1)).nub(comp);
 	},
-	
-	/** The `intersection(iterable...)` and `intersectionBy(comp, iterable...)` methods intersection 
-	of the iterable arguments with `this`. This iterable is assumed not to have repeated elements. 
+
+	/** The `intersection(iterable...)` and `intersectionBy(comp, iterable...)` methods intersection
+	of the iterable arguments with `this`. This iterable is assumed not to have repeated elements.
 	`intersectionBy` allows to define a specific equality criteria between the elements.
-	
+
 	Warning! All the elements of the result are stored in memory.
 	*/
 	intersection: function intersection() {
 		var args = [void 0].concat(Array.prototype.slice.call(arguments));
 		return this.intersectionBy.apply(this, args);
 	},
-	
+
 	intersectionBy: function intersectionBy(comp) {
 		var buffer = this.toArray();
 		for (var i = 1; i < arguments.length; ++i) {
@@ -1094,20 +1104,20 @@ var Iterable = exports.Iterable = declare({
 		}
 		return iterable(buffer);
 	},
-	
+
 	/** The `difference(iterable...)` and `differenceBy(comp, iterable...)` methods difference of
-	the iterable arguments with `this`. This iterable is assumed not to have repeated elements. 
+	the iterable arguments with `this`. This iterable is assumed not to have repeated elements.
 	`differenceBy` allows to define a specific equality criteria between the elements.
-	
+
 	Warning! All the elements of given sequences are stored in memory.
 	*/
 	difference: function difference() {
 		var args = [void 0].concat(Array.prototype.slice.call(arguments));
 		return this.differenceBy.apply(this, args);
 	},
-	
+
 	differenceBy: function differenceBy(comp) {
-		var result = this, 
+		var result = this,
 			buffer;
 		for (var i = 1; i < arguments.length; ++i) {
 			buffer = iterable(arguments[i]).toArray();
@@ -1126,9 +1136,9 @@ var Iterable = exports.Iterable = declare({
 		}
 		return result;
 	},
-	
+
 	// ## Sequence builders ########################################################################
-	
+
 	/** `range(from=0, to, step=1)` builds an Iterable object with number from `from` upto `to` with
 	the given `step`. For example, `range(2,12,3)` represents the sequence `[2, 5, 8, 11]`.
 	*/
@@ -1152,7 +1162,7 @@ var Iterable = exports.Iterable = declare({
 		});
 	},
 
-	/** `repeat(x, n=Infinity)` builds an iterable that repeats the element `x`	`n` times (or 
+	/** `repeat(x, n=Infinity)` builds an iterable that repeats the element `x`	`n` times (or
 	forever by default).
 	*/
 	"static repeat": function repeat(x, n) {
@@ -1170,7 +1180,7 @@ var Iterable = exports.Iterable = declare({
 		});
 	},
 
-	/** `iterate(f, x, n=Infinity)` returns an iterable that repeatedly applies the function `f` to 
+	/** `iterate(f, x, n=Infinity)` returns an iterable that repeatedly applies the function `f` to
 	the value `x`, `n` times (or indefinitely by default).
 	*/
 	"static iterate": function iterate(f, x, n) {
@@ -1189,13 +1199,13 @@ var Iterable = exports.Iterable = declare({
 			};
 		});
 	},
-	
-	/** `cycle(n=Infinity)` returns an iterable that loops n times over the elements of this 
+
+	/** `cycle(n=Infinity)` returns an iterable that loops n times over the elements of this
 	`Iterable` (or forever by default).
 	*/
 	cycle: function cycle(n) {
 		n = n === undefined ? Infinity : (+n);
-		var iterable = this; 
+		var iterable = this;
 		return new Iterable(function __iter__() {
 			var i = n, iter = iterable.__iter__();
 			return function __cycleIterator__() {
@@ -1213,9 +1223,9 @@ var Iterable = exports.Iterable = declare({
 			};
 		});
 	},
-	
+
 	// ## Utility definitions. #####################################################################
-	
+
 	/** The string conversion of an iterable (`toString(n=5)`) returns a string with the first `n`
 	elements. It ends with `...` if there are more elements in the sequence.
 	*/
@@ -1228,7 +1238,7 @@ var Iterable = exports.Iterable = declare({
 		} else {
 			return "Iterable("+ JSON.stringify(elems) +")";
 		}
-	}	
+	}
 }); //// declare Iterable.
 
 /** `Iterable.EMPTY` is a singleton holding an empty iterable.
