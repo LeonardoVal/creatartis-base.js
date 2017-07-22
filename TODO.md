@@ -2,7 +2,6 @@
 
 ## `src/iterables.js`
 
-+ `Iterable.zipWith(f, seq...)` to combine zip with map.
 + `Iterable.slice(from, to, step)` like the Python operator `[::]`.
 + `Iterable.tails()` makes an iterable of all possible suffixes of the sequence.
 + `Iterable.inits()` makes an iterable of all possible prefixes of the sequence.
