@@ -6,4 +6,4 @@
 		exports.__SERMAT__.include.push(type);
 	});
 	return exports;
-});
+}
