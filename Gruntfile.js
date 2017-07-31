@@ -1,7 +1,5 @@
 ﻿/** Gruntfile for [creatartis-base](http://github.com/LeonardoVal/creatartis-base).
 */
-var path = require('path');
-
 module.exports = function (grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
