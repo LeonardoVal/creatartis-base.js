@@ -1,7 +1,13 @@
-﻿{
+{
 	"name": "creatartis-base",
 	"description": "Basic and generic utility functions and definitions.",
-	"keywords": [ "iterables", "oop", "promises", "random numbers", "statistics" ],
+	"keywords": [
+		"iterables",
+		"oop",
+		"promises",
+		"random numbers",
+		"statistics"
+	],
 	"version": "0.1.7",
 	"author": {
 		"name": "Leonardo Val",
@@ -23,7 +29,7 @@
 		"sermat": "~0.0.8"
 	},
 	"devDependencies": {
-		"creatartis-grunt": "~0.0.2",
+		"creatartis-grunt": "~0.0.3",
 		"karma-chrome-launcher": "~1.0.1"
 	},
 	"scripts": {
