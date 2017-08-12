@@ -1,4 +1,12 @@
-define([], /** Library wrapper and layout.
+(function (init) { "use strict";
+	if (typeof define === 'function' && define.amd) {
+		define([], init); // AMD module.
+	} else if (typeof exports === 'object' && module.exports) {
+		module.exports = init(); // CommonJS module.
+	} else {
+		this.Sermat = init(); // Browser.
+	}
+}).call(this,/** Library wrapper and layout.
 */
 function __init__() { "use strict";
 	
@@ -1137,4 +1145,4 @@ member(Sermat, '__dependencies__', [], 4);
 */
 	return Sermat;
 });
-//# sourceMappingURL=sermat-amd.js.map
+//# sourceMappingURL=sermat-umd.js.map

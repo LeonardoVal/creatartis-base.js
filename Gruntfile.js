@@ -27,7 +27,7 @@ module.exports = function (grunt) {
 				'Logger',
 			'__epilogue__'],
 		deps: [
-			{ name: 'sermat', id: 'Sermat', path: 'node_modules/sermat/build/sermat-amd.js' }
+			{ name: 'sermat', id: 'Sermat', path: 'node_modules/sermat/build/sermat-umd.js' }
 		],
 		jshint: { loopfunc: true, boss: true, evil: true, proto: true },
 		karma: ['Firefox', 'Chrome']
