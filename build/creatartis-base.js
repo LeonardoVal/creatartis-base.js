@@ -4,7 +4,7 @@
 			} else if (typeof exports === 'object' && module.exports) {
 				module.exports = init(require("sermat")); // CommonJS module.
 			} else {
-				this.Sermat = init(this.Sermat); // Browser.
+				this["creatartis-base"] = init(this.Sermat); // Browser.
 			}
 		}).call(this,/** Package wrapper and layout.
 */
