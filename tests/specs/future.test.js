@@ -1,6 +1,6 @@
-﻿define(['base'], function (base) {
+﻿define(['creatartis-base'], function (base) {
 	var Future = base.Future;
-	
+
 	function expectState(future, state) {
 		expect(future.state).toEqual(state);
 		expect(future.isPending()).toBe(state === 0);
@@ -8,24 +8,24 @@
 		expect(future.isRejected()).toBe(state === 2);
 		expect(future.isCancelled()).toBe(state === 3);
 	}
-	
+
 	function rejectedFuture(msg) {
 		var result = new Future();
-		result.fail(function (reason) { 
+		result.fail(function (reason) {
 			// Prevent the rejection to be thrown.
 		});
 		result.reject(new Error(msg || ''));
 		return result;
 	}
-	
+
 	describe("Futures", function () { //////////////////////////////////////////
-		it("state transitions", function () {	
+		it("state transitions", function () {
 			var future;
 			expectState(future = new Future(), 0);
 			expectState(future.resolve(), 1);
 			expectState(future.reject(), 1);
 			expectState(future.cancel(), 1);
-			
+
 			expectState(future = new Future(), 0);
 			future.fail(function (reason) { // Prevent the rejection to be thrown.
 				expect(reason).toBeUndefined();
@@ -33,13 +33,13 @@
 			expectState(future.reject(), 2);
 			expectState(future.resolve(), 2);
 			expectState(future.cancel(), 2);
-			
+
 			expectState(future = new Future(), 0);
 			expectState(future.cancel(), 3);
 			expectState(future.resolve(), 3);
 			expectState(future.reject(), 3);
 		});
-	
+
 		it("resolution", function (done) {
 			var future = new Future(),
 				resolution = Math.random(),	test;
@@ -51,9 +51,9 @@
 			future.resolve(resolution);
 			return test.then(done);
 		});
-	
+
 		it("rejection", function (done) {
-			var future = new Future(), 
+			var future = new Future(),
 				rejection = Math.random(), test;
 			test = future.then(function done(value) {
 				throw new Error('onResolved called on rejected future.');
@@ -66,7 +66,7 @@
 			future.reject(rejection);
 			return test.then(done);
 		});
-	
+
 		it("cancellation", function (done) {
 			var test = new Future(),
 				result = new Future();
@@ -82,7 +82,7 @@
 			test.cancel();
 			return result.then(done);
 		});
-		
+
 		//TODO it "chaining".
 
 		it("when()", function (done) {
@@ -99,11 +99,11 @@
 				done();
 			});
 		});
-	
+
 		//TODO it "doWhile()"
 		//TODO it "whileDo()"
 		//TODO it "sequence()"
-		
+
 		var ALL_TEST_COUNT = 10;
 		it("all() (all resolved first)", function (done) {
 			return Future.sequence(base.Iterable.range(ALL_TEST_COUNT), function (n) { // All resolved first.
@@ -171,7 +171,7 @@
 		});
 
 		//TODO it "any()"
-		
+
 		it("delay()", function (done) {
 			var timestamp = Date.now();
 			return Future.delay(100).then(function (v) {

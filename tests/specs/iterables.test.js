@@ -1,4 +1,4 @@
-﻿define(['base'], function (base) { "use strict";
+﻿define(['creatartis-base'], function (base) { "use strict";
 	var Iterable = base.Iterable,
 		iterable = base.iterable;
 

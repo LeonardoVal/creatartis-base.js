@@ -1,13 +1,13 @@
-﻿define(['sermat', 'base'], function (Sermat, base) { "use strict";
+﻿define(['sermat', 'creatartis-base'], function (Sermat, base) { "use strict";
 	var declare = base.declare,
 		Statistic = base.Statistic,
 		Statistics = base.Statistics;
-	
+
 	describe("Serializations", function () {
 		it("for Statistic & Statistics", function () {
 			var sermat = new Sermat();
 			sermat.include(base);
-			
+
 			var stat = new Statistic({key: 'x', n: 1});
 			stat.addAll([2, 3, 5], 'data');
 			var serialized = sermat.ser(stat),
@@ -20,7 +20,7 @@
 			expect(materialized.sum()).toBe(stat.sum());
 			expect(materialized.minimum()).toBe(stat.minimum());
 			expect(materialized.maximum()).toBe(stat.maximum());
-			
+
 			var stats = new Statistics();
 			stats.add({key: 'x'}, 2);
 			stats.add({key: 'x', n: 1}, 3);

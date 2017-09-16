@@ -1,11 +1,11 @@
-﻿define(['base'], function (base) {
+﻿define(['creatartis-base'], function (base) {
 	var Randomness = base.Randomness,
 		DEFAULT = Randomness.DEFAULT,
 		iterable = base.iterable;
-	
+
 	function __constantRandom__(k) { // Trust me, it makes sense in the end.
-		return new Randomness(function () { 
-			return k; 
+		return new Randomness(function () {
+			return k;
 		});
 	}
 
@@ -30,7 +30,7 @@
 			//TODO Kolomogorov-Smirnov.
 		});
 	}
-	
+
 	describe("Randomness", function () { ///////////////////////////////////////
 		it("DEFAULT", function () {
 			expect(new Randomness().__random__).toBe(Math.random);
@@ -41,7 +41,7 @@
 				expect(0 <= r && r < 1).toBe(true);
 			}
 		});
-	
+
 		it("constant generators", function () {
 			var rand0 = __constantRandom__(0),
 				rand1 = __constantRandom__(1);
@@ -54,7 +54,7 @@
 				expect(rand1.random(3, 7)).toBe(7);
 			}
 		});
-	
+
 		it("random()", function () {
 			var min, max, r;
 			for (var i = 0; i < 30; i++) {
@@ -84,7 +84,7 @@
 				expect(min < max ? r < max : r <= max).toBe(true);
 			}
 		});
-	
+
 		it("randomBool()", function () {
 			for (var i = 0; i < 30; i++) {
 				expect(DEFAULT.randomBool()).toBeOfType('boolean');
@@ -113,7 +113,7 @@
 			expect(DEFAULT.choice(''), 'Randomness.choice("") is not undefined!').toBeUndefined();
 			expect(DEFAULT.choice([]), 'Randomness.choice([]) is not undefined!').toBeUndefined();
 			expect(DEFAULT.choice({}), 'Randomness.choice({}) is not undefined!').toBeUndefined();
-			
+
 			var test = [1,2,3,4,5], choice;
 			for (var i = 0; i < 30; i++) {
 				expect(DEFAULT.choice([1])).toBe(1);
@@ -193,20 +193,20 @@
 
 		it("linearCongruential generators", function () {
 			expect(Randomness.LinearCongruential).toBeOfType('function');
-			
+
 			var nr = Randomness.LinearCongruential.numericalRecipies;
 			expect(nr).toBeOfType('function');
 			testRandomGenerator('LinearCongruential.numericalRecipies', nr);
-			
+
 			var bc = Randomness.LinearCongruential.borlandC;
 			expect(bc).toBeOfType('function');
 			testRandomGenerator('LinearCongruential.borlandC', bc);
-			
+
 			var gc = Randomness.LinearCongruential.glibc;
 			expect(gc).toBeOfType('function');
 			testRandomGenerator('LinearCongruential.glibc', gc);
 		});
-		
+
 		it("Mersenne Twister generator", function () {
 			expect(Randomness.MersenneTwister).toBeOfType('function');
 			testRandomGenerator('MersenneTwister', function (seed) {

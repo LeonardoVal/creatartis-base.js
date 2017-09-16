@@ -1,6 +1,6 @@
-﻿define(['base'], function (base) { "use strict";
+﻿define(['creatartis-base'], function (base) { "use strict";
 	var math = base.math;
-	
+
 	describe("math", function () {
 		it(".clamp()", function () {
 			expect(typeof math.clamp).toBe('function');
@@ -14,7 +14,7 @@
 				}
 			}
 		}); // clamp().
-		
+
 		it(".sign()", function () {
 			expect(typeof math.sign).toBe('function');
 			for (var i = -3; i < 4; ++i) {
@@ -25,7 +25,7 @@
 			expect(math.sign(NaN)).toBeNaN();
 			expect(math.sign('a')).toBeNaN();
 		}); // sign().
-		
+
 		it(".factorial()", function () {
 			expect(typeof math.factorial).toBe('function');
 			[[0,1], [1,1], [2,2], [3,6], [4,24], [5,120], [6,720]].forEach(function (test) {
@@ -33,8 +33,8 @@
 			});
 			expect(math.factorial(-1)).toBeNaN();
 		}); // factorial().
-		
-		
-		
+
+
+
 	}); //// describe math.
 });
