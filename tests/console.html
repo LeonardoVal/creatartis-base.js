@@ -59,8 +59,8 @@ function main() {
 		window.base = base;
 		window.Sermat = Sermat;
 		window.random = base.Randomness.DEFAULT;
-	}, function (error) {
-		throw error;
+	}, function (err) {
+		console.error(err);
 	});
 	Array.prototype.slice.call(document.querySelectorAll('#reference tr td a')).forEach(function (jsLink) {
 		var label, code;
