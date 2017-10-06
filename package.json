@@ -26,7 +26,7 @@
 		"LICENSE.md"
 	],
 	"dependencies": {
-		"sermat": "~0.0.8"
+		"sermat": "~0.0.9"
 	},
 	"devDependencies": {
 		"creatartis-grunt": "~0.0.8",
