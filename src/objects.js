@@ -1,5 +1,5 @@
 ﻿/** # Objects
-	
+
 OOP related functions and definitions.
 */
 var objects = exports.objects = (function () {
@@ -15,7 +15,7 @@ var objects = exports.objects = (function () {
 		}
 		constructor.prototype = Object.create(parent.prototype);
 		constructor.prototype.constructor = constructor;
-		/** The constructor function's prototype is changed so static properties are inherited as 
+		/** The constructor function's prototype is changed so static properties are inherited as
 		well.
 		*/
 		if (Object.setPrototypeOf) {
@@ -25,14 +25,14 @@ var objects = exports.objects = (function () {
 		}
 		return constructor;
 	};
-	
-	/** `objects.addMember(constructor, key, value, force=false)` adds `value` as a member of the 
-	constructor's prototype. If it already has a member with the `key`, it is overriden only if 
+
+	/** `objects.addMember(constructor, key, value, force=false)` adds `value` as a member of the
+	constructor's prototype. If it already has a member with the `key`, it is overriden only if
 	`force` is true.
-	
-	The `key` may include modifiers for the member before the actual name and separated by 
+
+	The `key` may include modifiers for the member before the actual name and separated by
 	whitespace. The implemented modifiers are:
-	
+
 	+ `static`: Adds the member to the constructor.
 	+ `property`: Treats the `value` as a property descriptor to use with `Object.defineProperty()`.
 	+ `const`: Adds the member as readonly. This also uses `Object.defineProperty()`, with a setter
@@ -53,11 +53,11 @@ var objects = exports.objects = (function () {
 				if (modifiers.indexOf('property') >= 0) {
 					return Object.defineProperty(scope, key, value);
 				} else if (modifiers.indexOf('const') >= 0) {
-					return Object.defineProperty(scope, key, { 
+					return Object.defineProperty(scope, key, {
 						get: function () { return value; },
 						set: function () { throw new Error(key +" is readonly!"); },
-						enumerable: true, 
-						configurable: false 
+						enumerable: true,
+						configurable: false
 					});
 				} else {
 					return scope[key] = value;
@@ -65,8 +65,8 @@ var objects = exports.objects = (function () {
 			}
 		});
 	};
-	
-	/** `objects.addMembers(constructor, members, force=false)` adds all own properties of members 
+
+	/** `objects.addMembers(constructor, members, force=false)` adds all own properties of members
 	to the constructor's prototype, using `objects.addMember`.
 	*/
 	var addMembers = this.addMembers = function addMembers(constructor, members, force) {
@@ -74,9 +74,9 @@ var objects = exports.objects = (function () {
 			addMember(constructor, id, members[id], force);
 		});
 	};
-	
-	/** The function `objects.declare(supers..., members={})` implements creatartis-base's object 
-	oriented implementation, influenced by 
+
+	/** The function `objects.declare(supers..., members={})` implements creatartis-base's object
+	oriented implementation, influenced by
 	[Dojo's](http://dojotoolkit.org/reference-guide/1.9/dojo/_base/declare.html). The first super is
 	considered the parent. The following supers add to the returned constructor's prototype, but do
 	not override. The given members always override.
@@ -113,9 +113,8 @@ var objects = exports.objects = (function () {
 			throw new Error((cls || this.constructor.name) +"."+ id +" not implemented! Please override.");
 		};
 	};
-	
+
 	return this;
 }).call({}); //// objects.
 
-// `objects.declare` is also available through `creatartis_base.declare`.
 var declare = objects.declare;

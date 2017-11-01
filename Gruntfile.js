@@ -10,6 +10,7 @@ module.exports = function (grunt) {
 				'core',
 				'polyfill',
 				'objects',
+				'enums',
 				'text',
 				'math',
 				'functions',
