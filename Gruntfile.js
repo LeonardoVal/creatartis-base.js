@@ -6,6 +6,7 @@ module.exports = function (grunt) {
 	});
 
 	require('creatartis-grunt').config(grunt, {
+		globalName: 'base',
 		sourceNames: ['__prologue__',
 				'core',
 				'polyfill',
