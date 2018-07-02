@@ -29,7 +29,7 @@
 		"sermat": "~0.0.9"
 	},
 	"devDependencies": {
-		"creatartis-grunt": "~0.0.13",
+		"creatartis-grunt": "~0.0.14-alpha",
 		"karma-chrome-launcher": "~1.0.1"
 	},
 	"scripts": {

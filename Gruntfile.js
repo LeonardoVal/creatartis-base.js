@@ -32,7 +32,10 @@ module.exports = function (grunt) {
 			{ id: 'sermat', name: 'Sermat', path: 'node_modules/sermat/build/sermat-umd.js' }
 		],
 		jshint: { loopfunc: true, boss: true, evil: true, proto: true },
-		karma: ['Firefox', 'Chrome']
+		karma: ['Firefox', 'Chrome'],
+		connect: {
+			console: 'tests/console.html'
+		}
 	});
 
 	grunt.registerTask('full-test', ['test', 'karma:test_chrome']);

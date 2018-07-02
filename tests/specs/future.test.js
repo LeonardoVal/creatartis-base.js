@@ -87,12 +87,12 @@
 
 		it("when()", function (done) {
 			var future1 = Future.when(123); // One value.
-			expect(future1).toBeOfType(Future);
+			expect(future1 instanceof Future).toBe(true);
 			expectState(future1, 1);
 			var future2 = new Future(); // One future.
 			expect(Future.when(future2)).toBe(future2);
 			var future3 = Future.when(); // No values.
-			expect(future3).toBeOfType(Future);
+			expect(future3 instanceof Future).toBe(true);
 			expectState(future3, 1);
 			return future1.then(function (x) { // Check resolutions.
 				expect(x).toBe(123);
