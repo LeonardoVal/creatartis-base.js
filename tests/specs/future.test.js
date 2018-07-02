@@ -125,7 +125,7 @@
 				return Future.all(futures).then(function (r) {
 					throw new Error("Future.all() with rejected elements should have been rejected.");
 				}, function (e) {
-					expect(e).toBeOfType(Error);
+					expect(e instanceof Error).toBe(true);
 					expect(e.message).toEqual('error@'+ n);
 					done();
 				});
@@ -163,7 +163,7 @@
 				return Future.all(futures).then(function (r) {
 					throw new Error("Future.all() with rejected elements should have been rejected.");
 				}, function (e) {
-					expect(e).toBeOfType(Error);
+					expect(e instanceof Error).toBe(true);
 					expect(e.message).toEqual('error@'+ n);
 					done();
 				});
