@@ -8,7 +8,7 @@
 		"random numbers",
 		"statistics"
 	],
-	"version": "0.1.7",
+	"version": "0.1.8",
 	"author": {
 		"name": "Leonardo Val",
 		"email": "leonardo.val@creatartis.com"
@@ -29,7 +29,7 @@
 		"sermat": "~0.0.9"
 	},
 	"devDependencies": {
-		"creatartis-grunt": "~0.0.14-alpha",
+		"creatartis-grunt": "~0.0.14",
 		"karma-chrome-launcher": "~1.0.1"
 	},
 	"scripts": {
