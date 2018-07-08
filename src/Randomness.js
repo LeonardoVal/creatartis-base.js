@@ -103,18 +103,14 @@ var Randomness = exports.Randomness = declare({
 	*/
 	normalizeWeights: function normalizeWeights(weightedValues) {
 		weightedValues = iterable(weightedValues);
-		var sum = 0, min = Infinity, length = 0;
+		var sum = 0, length = 0;
 		weightedValues.forEachApply(function (value, weight) {
 			raiseIf(weight < 0, "Cannot normalize with negative weights!");
 			sum += weight;
-			if (weight < min) {
-				min = weight;
-			}
 			length++;
 		});
-		sum -= min * length;
 		return weightedValues.mapApply(function (value, weight) {
-			return [value, (weight - min) / sum];
+			return [value, sum === 0 ? 1 / length : weight / sum];
 		});
 	},
 	

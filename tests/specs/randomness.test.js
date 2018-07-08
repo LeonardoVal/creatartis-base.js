@@ -191,6 +191,28 @@
 			});
 		});
 
+		it("normalizeWeights()", function () {
+			expect(DEFAULT.normalizeWeights.bind(DEFAULT, undefined)).toThrow();
+			expect(DEFAULT.normalizeWeights.bind(DEFAULT, null)).toThrow();
+			
+			expect(DEFAULT.normalizeWeights([]).toArray())
+				.toEqual([]);
+			expect(DEFAULT.normalizeWeights([['a', 1]]).toArray())
+				.toEqual([['a', 1]]);
+			expect(DEFAULT.normalizeWeights([['a', 1], ['b', 0]]).toArray())
+				.toEqual([['a', 1], ['b', 0]]);
+			expect(DEFAULT.normalizeWeights([['a', 1], ['b', 1]]).toArray())
+				.toEqual([['a', 0.5], ['b', 0.5]]);
+			expect(DEFAULT.normalizeWeights([['a', 1], ['b', 3]]).toArray())
+				.toEqual([['a', 0.25], ['b', 0.75]]);
+			expect(DEFAULT.normalizeWeights([['a', 1], ['b', 2], ['c', 1]]).toArray())
+				.toEqual([['a', 0.25], ['b', 0.5], ['c', 0.25]]);
+
+			// Fail with negative weights.
+			expect(DEFAULT.normalizeWeights.bind(DEFAULT, [['a', -1]])).toThrow();
+			expect(DEFAULT.normalizeWeights.bind(DEFAULT, [['a', 1], ['b', -0.5]])).toThrow();
+		});
+
 		it("linearCongruential generators", function () {
 			expect(Randomness.LinearCongruential).toBeOfType('function');
 
