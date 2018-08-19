@@ -1,27 +1,25 @@
 ﻿/** ## Initializer
 
-Initializers are object builders, allowing the declaration of default values,
-type checks and coercions, and other checks.
+Initializers are object builders, allowing the declaration of default values, type checks and
+coercions, and other checks.
 */
 
 var Initializer = exports.Initializer = declare({
-	/** An initializer modifies a `subject` taking values from `args`. All by
-	default are new empty objects.
+	/** An initializer modifies a `subject` taking values from `args`. All by default are new empty
+	objects.
 	*/
 	constructor: function Initializer(subject, args) {
 		this.subject = subject || {};
 		this.args = args || {};
 	},
 
-	/** `get(id, options)` gets the value for `id`. If it is missing,
-	`options.defaultValue` is used as the default value if defined. Else an
-	error is raised.
+	/** `get(id, options)` gets the value for `id`. If it is missing, `options.defaultValue` is
+	used as the default value if defined. Else an error is raised.
 
-	If `options.type` is defined, the value is checked to be a member of said
-	type. If `options.coerce` is true, the value may be coerced to said type.
-	The `option.check` function can be defined to check the value further. It
-	will be called with the value, and is expected to raise errors on failed
-	conditions.
+	If `options.type` is defined, the value is checked to be a member of said type. If 
+	`options.coerce` is true, the value may be coerced to said type.	The `option.check` function
+	can be defined to check the value further. It will be called with the value, and is expected to
+	raise errors on failed conditions.
 
 	Other options include:
 
@@ -32,49 +30,42 @@ var Initializer = exports.Initializer = declare({
 	+ `options.maximum`: the value has to be less than or equal to this value.
 	*/
 	get: function get(id, options) {
-		var value, type;
+		var value;
 		options = options || {};
 		if (!this.args.hasOwnProperty(id)) {
-			if (!options.hasOwnProperty("defaultValue")) {
-				throw new Error(options.missingValueError || "Missing argument <"+ id +">!");
-			}
+			raiseIf(!options.hasOwnProperty("defaultValue"), 
+				options.missingValueError || "Missing argument `"+ id +"`!");
 			value = options.defaultValue;
 		} else {
 			value = this.args[id];
 		}
-		type = options.type; // Check type if defined.
-		if (type && !type.isType(value)) {
-			if (!options.coerce) {
-				throw new Error(options.typeMismatchError || "Value for <"+ id +"> must be a "+ type +"!");
-			}
-			value = type.coerce(value);
+		if (options.typeCheck) {
+			var coerced = options.typeCheck(value, !!options.coerce);
+			raiseIf(typeof coerced === 'undefined', options.typeMismatchError ||
+				"Incompatible value ("+ value +") for `"+ id +"`!");
+			value = coerced;
 		}
-		if (options.regexp && !options.regexp.exec(value)) { // Check further constraints.
-			throw new Error(options.invalidValueError || "Value <"+ value +"> for <"+ id +"> does not match "+ options.regexp +"!");
-		}
-		if (options.hasOwnProperty("minimum") && options.minimum > value) {
-			throw new Error(options.invalidValueError || "Value <"+ value +"> for <"+ id +"> must be greater than or equal to "+ options.minimum +"!");
-		}
-		if (options.hasOwnProperty("maximum") && options.maximum < value) {
-			throw new Error(options.invalidValueError || "Value <"+ value +"> for <"+ id +"> must be less than or equal to "+ options.maximum +"!");
-		}
+		raiseIf(options.regexp && !options.regexp.exec(value), options.invalidValueError || // Check further constraints.
+			"Value ("+ value +") for `"+ id +"` does not match "+ options.regexp +"!");
+		raiseIf(options.hasOwnProperty("minimum") && options.minimum > value, options.invalidValueError ||
+			"Value ("+ value +") for `"+ id +"` must be greater than or equal to "+ options.minimum +"!");
+		raiseIf(options.hasOwnProperty("maximum") && options.maximum < value, options.invalidValueError ||
+			"Value ("+ value +") for `"+ id +"` must be less than or equal to "+ options.maximum +"!");
 		if (typeof options.check === 'function') {
 			options.check.call(this.subject, value, id, options);
 		}
 		return value;
 	},
 
-	/** `attr(id, options={})` assigns the `id` property, performing all
-	necessary verifications. If the subject already has the attribute defined
-	and `options.overwrite` is false, an error is raised. Any error is ignored
-	and the assignment is skipped if `options.ignore` is true.
+	/** `attr(id, options={})` assigns the `id` property, performing all necessary verifications.
+	If the subject already has the attribute defined and `options.overwrite` is false, an error is
+	raised. Any error is ignored and the assignment is skipped if `options.ignore` is true.
 	*/
 	attr: function attr(id, options) {
 		options = options || {};
 		try {
-			if (options.hasOwnProperty("overwrite") && !options.overwrite && this.subject.hasOwnProperty(id)) {
-				throw new Error(options.attrOverwriteError || "Attribute <"+ id +"> is already defined!");
-			}
+			raiseIf(options.hasOwnProperty("overwrite") && !options.overwrite && this.subject.hasOwnProperty(id),
+				options.attrOverwriteError || "Attribute <"+ id +"> is already defined!");
 			this.subject[id] = this.get(id, options);
 		} catch (exception) {
 			if (!options.ignore) {
@@ -84,7 +75,7 @@ var Initializer = exports.Initializer = declare({
 		return this; // For chaining.
 	},
 
-	/** ## Shortcuts ###########################################################
+	/** ## Shortcuts ##############################################################################
 
 	The following methods simplify the definitions of properties using `attr()`:
 	*/
@@ -93,7 +84,14 @@ var Initializer = exports.Initializer = declare({
 	*/
 	bool: function bool(id, options) {
 		options = options || {};
-		options.type = types.BOOLEAN;
+		options.typeCheck = function bool_typeCheck(value, coerce) {
+			if (typeof value === 'boolean' || 
+				value !== undefined && value !== null && value.constructor === Boolean) {
+				return value;
+			} else if (coerce) {
+				return !!value;
+			}
+		};
 		return this.attr(id, options);
 	},
 
@@ -101,7 +99,14 @@ var Initializer = exports.Initializer = declare({
 	*/
 	string: function string(id, options) {
 		options = options || {};
-		options.type = types.STRING;
+		options.typeCheck = function string_typeCheck(value, coerce) {
+			if (typeof value === 'string' || 
+				value !== undefined && value !== null && value.constructor === String) {
+				return value;
+			} else if (coerce) {
+				return ''+ value;
+			}
+		};
 		return this.attr(id, options);
 	},
 
@@ -109,7 +114,14 @@ var Initializer = exports.Initializer = declare({
 	*/
 	number: function number(id, options) {
 		options = options || {};
-		options.type = types.NUMBER;
+		options.typeCheck = function number_typeCheck(value, coerce) {
+			if (typeof value === 'number' || 
+				value !== undefined && value !== null && value.constructor === Number) {
+				return value;
+			} else if (coerce) {
+				return +value;
+			}
+		};
 		return this.attr(id, options);
 	},
 
@@ -117,7 +129,13 @@ var Initializer = exports.Initializer = declare({
 	*/
 	integer: function integer(id, options) {
 		options = options || {};
-		options.type = types.INTEGER;
+		options.typeCheck = function integer_typeCheck(value, coerce) {
+			if (Math.floor(value) === value) {
+				return value;
+			} else if (coerce) {
+				return Math.floor(+value);
+			}
+		};
 		return this.attr(id, options);
 	},
 
@@ -125,40 +143,40 @@ var Initializer = exports.Initializer = declare({
 	*/
 	func: function func(id, options) {
 		options = options || {};
-		options.type = types.FUNCTION;
+		options.typeCheck = function func_typeCheck(value, coerce) {
+			if (typeof value === 'function' || 
+				value !== undefined && value !== null && value.constructor === Function) {
+				return value;
+			}
+		};
 		return this.attr(id, options);
 	},
 
-	/** + `array(id, options)` assigns the `id` property with an array. Options
-	may include:
-		* `options.elementTypes`: Required type of the array's elements.
-		* `options.length`: Required length of the array.
+	/** + `array(id, options)` assigns the `id` property with an array.
 	*/
 	array: function array(id, options) {
 		options = options || {};
-		if (options.hasOwnProperty('length') || options.hasOwnProperty('elementType')) {
-			options.type = new types.ArrayType(options.elementType, options.length);
-		} else {
-			options.type = types.ARRAY;
-		}
+		options.typeCheck = function array_typeCheck(value, coerce) {
+			if (Array.isArray(value)) {
+				//TODO Check length and element types.
+				return value;
+			}
+		};
 		return this.attr(id, options);
 	},
 
-	/** + `object(id, options)` assigns the `id` property with an object.
+	/** + `object(id, options)` assigns the `id` property with an object. Options may include:
+
+		* `options.objectType`: object's class.
 	*/
 	object: function object(id, options) {
 		options = options || {};
-		options.type = types.OBJECT;
+		options.typeCheck = function object_typeCheck(values, coerce) {
+			if (typeof value === 'object' && (typeof options.objectType !== 'function' || 
+				value instanceof options.objectType)) {
+				return value;
+			}
+		};
 		return this.attr(id, options);
 	}
 }); // declare Initializer.
-
-/** `initialize(subject, args)` returns a new Initializer for the subject.
-*/
-var initialize = exports.initialize = function initialize(subject) {
-	var args = {};
-	Array.prototype.forEach.call(arguments, function (obj) {
-		args = Object.assign(args, obj);
-	});
-	return new Initializer(subject, args);
-};
