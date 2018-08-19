@@ -1,4 +1,4 @@
-﻿/** Gruntfile for [creatartis-base](http://github.com/LeonardoVal/creatartis-base).
+/** Gruntfile for [creatartis-base](http://github.com/LeonardoVal/creatartis-base).
 */
 module.exports = function (grunt) {
 	grunt.initConfig({
@@ -11,7 +11,6 @@ module.exports = function (grunt) {
 				'core',
 				'polyfill',
 				'objects',
-				'enums',
 				'text',
 				'math',
 				'functions',
