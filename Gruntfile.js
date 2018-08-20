@@ -9,7 +9,6 @@ module.exports = function (grunt) {
 		globalName: 'base',
 		sourceNames: ['__prologue__',
 				'core',
-				'polyfill',
 				'objects',
 				'text',
 				'math',
