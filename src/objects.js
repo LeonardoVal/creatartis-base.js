@@ -85,7 +85,8 @@ var objects = exports.objects = (function () {
 		var args = Array.prototype.slice.call(arguments),
 			parent = args.length > 1 ? args.shift() : Object,
 			members = args.length > 0 ? args.pop() : {},
-			constructor = subconstructor(parent, members.hasOwnProperty('constructor') ? members.constructor : undefined), //WARN ({}).constructor == Object.
+			constructor = subconstructor(parent, 
+				members.hasOwnProperty('constructor') ? members.constructor : undefined), //WARN ({}).constructor == Object.
 			initializer = members[''];
 		Object.keys(members).map(function (id) {
 			if (id !== '' && id !== 'constructor') {

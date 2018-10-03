@@ -845,10 +845,12 @@ var Iterable = exports.Iterable = declare({
 		var it = this;
 		return new Iterable(function __iter__() {
 			var iter = it.__iter__(),
-				currentValues = null, currentKey;
+				i = 0,
+				currentValues = null,
+				currentKey;
 			try {
 				currentValues = [iter()];
-				currentKey = key ? key(currentValues[0]) : currentValues[0];
+				currentKey = key ? key(currentValues[0], i++) : currentValues[0];
 			} catch (err) {
 				it.catchStop(err);
 			}
@@ -859,7 +861,7 @@ var Iterable = exports.Iterable = declare({
 				} else while (true) {
 					try {
 						value = iter();
-						valueKey = key ? key(value) : value;
+						valueKey = key ? key(value, i++) : value;
 						if (valueKey === currentKey) {
 							currentValues.push(value);
 						} else {
