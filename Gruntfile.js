@@ -5,7 +5,7 @@ module.exports = function (grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 	});
 
-	require('creatartis-grunt').config(grunt, {
+	require('@creatartis/creatartis-grunt').config(grunt, {
 		globalName: 'base',
 		sourceNames: ['__prologue__',
 				'core',
